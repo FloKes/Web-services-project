@@ -1,5 +1,5 @@
 FROM adoptopenjdk:11-jre-hotspot
 COPY target/lib /usr/src/lib
-COPY target/dtuPayApiMicroservice-1.0.0.jar /usr/src/
+COPY target/dtu-pay-api-service-1.0.0-runner.jar /usr/src/
 WORKDIR /usr/src/
-CMD java -Xmx64m -jar dtuPayApiMicroservice-1.0.0.jar
+CMD java -Xmx64m -jar dtu-pay-api-service-1.0.0-runner.jar
