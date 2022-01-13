@@ -2,3 +2,8 @@ build:
   stage: build
   script:
     - './build.sh'
+
+test:
+  stage: test
+  script:
+    - './build_and_run.sh'
