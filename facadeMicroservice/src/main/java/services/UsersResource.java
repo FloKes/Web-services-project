@@ -1,21 +1,19 @@
 package services;
 
-import businessLogic.PayService;
-import domain.Payment;
+import businessLogic.FacadeService;
 import domain.UserRest;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.List;
 
 @Path("/users")
 public class UsersResource {
-    PayService payService;
+    FacadeService payService;
 
     public UsersResource() {
-        payService = PayService.getInstance();
+        payService = FacadeService.getInstance();
     }
 
     @POST

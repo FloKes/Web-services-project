@@ -3,28 +3,26 @@ package businessLogic;
 import domain.Payment;
 import domain.UserRest;
 import dtu.ws.fastmoney.BankServiceException_Exception;
-import io.cucumber.java.bs.A;
 
 
-import javax.jws.soap.SOAPBinding;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class PayService {
+public class FacadeService {
 
-    private static PayService instance = new PayService();
+    private static FacadeService instance = new FacadeService();
 
     private ArrayList<Payment> payments;
     private HashMap<String, UserRest> users;
 
 
-    private PayService() {
+    private FacadeService() {
         this.payments = new ArrayList<>();
         this.users = new HashMap<>();
     }
 
-    public static PayService getInstance() {return instance;}
+    public static FacadeService getInstance() {return instance;}
 
     public String createUser(UserRest user){
         try {
