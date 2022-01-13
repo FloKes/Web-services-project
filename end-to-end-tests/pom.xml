@@ -5,8 +5,8 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>dtu</groupId>
-	<artifactId>endToEndTest</artifactId>
-	<name>endToEndTest</name>
+	<artifactId>end-to-end-tests</artifactId>
+	<name>EndToEndTests</name>
 	<version>SNAPSHOT 0.0.1</version>
 
 	<properties>

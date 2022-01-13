@@ -1,5 +1,5 @@
 version: '3'
 services:
   dtu-pay-service:
-    image: dtu-pay-api-service
+    image: dtu-pay-service
     build: .

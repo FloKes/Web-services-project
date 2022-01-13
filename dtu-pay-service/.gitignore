@@ -1,3 +1,6 @@
+#File type
+*.bak
+
 #Maven
 target/
 pom.xml.tag
