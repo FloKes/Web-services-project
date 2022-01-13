@@ -6,4 +6,4 @@ build:
 test:
   stage: test
   script:
-    - './build_and_run.sh'
+    - './test.sh'
