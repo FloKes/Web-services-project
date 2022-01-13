@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-#./build.sh
+./build.sh
 
 # Update the set of services and
 # build and execute the system tests

@@ -40,7 +40,7 @@ public class TokenSteps {
     }
     @Then("the customer receives a token {string}")
     public void theCustomerReceivesAToken(String token) {
-        assertEquals("4321", this.token.getToken());
+        assertEquals(token, this.token.getToken());
     }
 
 //    @Given("the customer {string} {string} with CPR {string} has a bank account with balance {int}")
