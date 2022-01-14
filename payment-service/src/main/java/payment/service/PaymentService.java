@@ -1,12 +1,12 @@
-package token.service;
+package payment.service;
 
 import messaging.Event;
 import messaging.MessageQueue;
 
-public class TokenService {
+public class PaymentService {
     MessageQueue queue;
 
-    public TokenService(MessageQueue q) {
+    public PaymentService(MessageQueue q) {
         this.queue = q;
         this.queue.addHandler("TokenRequested", this::handleTokenRequested);
     }
@@ -14,7 +14,7 @@ public class TokenService {
     public void handleTokenRequested(Event ev) {
         var customerId = ev.getArgument(0, String.class);
         System.out.println(customerId);
-        var token = new Token();
+        var token = new Payment();
         token.setToken("4321");
         Event event = new Event("TokenProvided", new Object[] { token });
         queue.publish(event);
