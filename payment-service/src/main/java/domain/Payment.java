@@ -1,16 +1,15 @@
-package payment.service;
+package domain;
 
-import domain.Token;
+import lombok.Data;
 
 import java.io.Serializable;
-import lombok.Data;
 
 @Data // Automatic getter and setters and equals etc
 public class Payment implements Serializable {
     private static final long serialVersionUID = 821858579108456995L;
     private String correlationId;
     private String merchantId;
-    private String tokenId;
+    private String customerToken;
     private float amount;
     private String description;
 
