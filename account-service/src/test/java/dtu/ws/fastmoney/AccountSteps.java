@@ -19,17 +19,7 @@ public class AccountSteps {
     Account checkAccount;
 
     public AccountSteps(){
-
     }
-/*
-    @Given("the customer {string} {string} with CPR {string} has a bank account with bank account {string}")
-    public void FirstStepsRegistration(String firstname, String lastname, String cpr, String bankAccount) {
-        account.setFirstname(firstname);
-        account.setLastname(lastname);
-        account.setCpr(cpr);
-        account.setBankAccount(bankAccount);
-        throw new io.cucumber.java.PendingException();
-    }*/
 
 
     @When("a {string} event for an account is received")
