@@ -4,12 +4,12 @@ Feature: Registration
     Then the "AccountProvided" event is sent
     Then the account gets an account id
 
-  Scenario: Successful Registration to DTUPay
-    When a "AccountRequested" event for an account is received
-    Then the "AccountProvided" event is sent
-    When a "GetAccountRequested" event for getting an account is received
-    Then the "GetAccountProvided" event is sent
-    And the account is returned
+  #Scenario: Successful Registration to DTUPay
+  #  When a "AccountRequested" event for an account is received
+  #  Then the "AccountProvided" event is sent
+  #  When a "GetAccountRequested" event for getting an account is received
+    # Then the "GetAccountProvided" event is sent
+    #Then the account is returned
 
 
 

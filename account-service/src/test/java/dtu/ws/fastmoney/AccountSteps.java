@@ -52,16 +52,11 @@ public class AccountSteps {
 
     @When("a {string} event for getting an account is received")
     public void anEventForGettingAnAccountIsReceived(String eventName) {
-        account = new Account();
-        account.setFirstname("Josephine");
-        account.setLastname("Mellin");
-        account.setCpr("010100-1234");
-        account.setBankAccount("1568");
-        assertNull(account.getAccountId());
-        accountService.handleAccountRequested(new Event(eventName,new Object[] {account}));
+        String accountId = "123";
+        accountService.handleAccountRequested(new Event(eventName,new Object[] {accountId}));
     }
 
-    @Then("the {string} event is sent")
+    /*@Then("the {string} event is sent")
     public void theEventForGettingAccountIsSent(String eventName) {
         checkAccount = new Account();
         checkAccount.setFirstname("Josephine");
@@ -71,7 +66,7 @@ public class AccountSteps {
         checkAccount.setAccountId("123");
         var event = new Event(eventName, new Object[] {checkAccount});
         verify(queue).publish(event);
-    }
+    }*/
 
     @Then("the account is returned")
     public void theAccountIsReturned() {
