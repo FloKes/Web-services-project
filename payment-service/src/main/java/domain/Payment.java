@@ -3,6 +3,7 @@ package domain;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Data // Automatic getter and setters and equals etc
 public class Payment implements Serializable {
@@ -10,7 +11,7 @@ public class Payment implements Serializable {
     private String correlationId;
     private String merchantId;
     private String customerToken;
-    private float amount;
+    private BigDecimal amount;
     private String description;
 
     @Override

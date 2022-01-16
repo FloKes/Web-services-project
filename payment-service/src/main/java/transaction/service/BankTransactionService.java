@@ -20,9 +20,9 @@ public class BankTransactionService {
         return account.getId();
     }
 
-    public String transferMoney( String clientID, String merchantID, Integer amount) throws BankServiceException_Exception {
+    public String transferMoney( String clientID, String merchantID, BigDecimal amount) throws BankServiceException_Exception {
         try {
-            bank.transferMoneyFromTo( clientID, merchantID, new BigDecimal(amount), "transfer" + String.valueOf(amount) + "from" + clientID + "to" + merchantID);
+            bank.transferMoneyFromTo( clientID, merchantID, amount, "transfer" + amount.toString() + "from" + clientID + "to" + merchantID);
             return "The" + amount+" has been successfully transferred from: "+clientID+" to: "+ merchantID;
         } catch (BankServiceException_Exception e) {
             throw e;

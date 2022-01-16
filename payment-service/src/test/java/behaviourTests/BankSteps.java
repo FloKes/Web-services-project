@@ -64,14 +64,14 @@ public class BankSteps {
 
     @When("the merchant initiates a payment for {int} kr by the customer")
     public void theMerchantInitiatesAPaymentForKrByTheCustomer(int amount) throws BankServiceException_Exception {
-        bankTransactionService.transferMoney(customer.getBankAccountId(), merchant.getBankAccountId(), amount);
+        bankTransactionService.transferMoney(customer.getBankAccountId(), merchant.getBankAccountId(), BigDecimal.valueOf(amount));
     }
 
     @Then("the balance of the {string} at the bank is {int} kr")
     public void thePaymentIsSuccessful(String userType, int balance) throws BankServiceException_Exception {
         if (userType.equals("customer")) {
             assertEquals(balance, Integer.parseInt(bankTransactionService.getBalance(customer.getBankAccountId())));
-        } else if (userType.equals("merchatn")) {
+        } else if (userType.equals("merchant")) {
             assertEquals(balance, Integer.parseInt(bankTransactionService.getBalance(merchant.getBankAccountId())));
         }
     }

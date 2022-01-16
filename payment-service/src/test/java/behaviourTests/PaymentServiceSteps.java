@@ -1,0 +1,136 @@
+package behaviourTests;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import domain.Payment;
+import dtu.ws.fastmoney.BankService;
+import dtu.ws.fastmoney.BankServiceException_Exception;
+import dtu.ws.fastmoney.BankServiceService;
+import dtu.ws.fastmoney.User;
+import io.cucumber.java.After;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import messaging.Event;
+import messaging.MessageQueue;
+import payment.service.PaymentService;
+import transaction.service.BankTransactionService;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+public class PaymentServiceSteps {
+    MessageQueue queue = mock(MessageQueue.class);
+    PaymentService paymentService = new PaymentService(queue);
+    Payment payment;
+    String merchantId, customerId;
+    String merchantBankAccountId, customerBankAccountId;
+    BankService bankService = new BankServiceService().getBankServicePort();
+    BankTransactionService bankTransactionService = new BankTransactionService();
+    List<String> accountIds = new ArrayList<>();
+
+    @Given("a merchant {string} has a bank account with {int} kr")
+    public void merchantHasBank(String merchantId, Integer amount) {
+        this.merchantId = merchantId;
+        User user = new User();
+        user.setCprNumber("270791");
+        user.setFirstName("Bingkun");
+        user.setLastName("Wu");
+        try {
+            this.merchantBankAccountId = bankService.createAccountWithBalance(user, BigDecimal.valueOf(amount));
+            accountIds.add(this.merchantBankAccountId);
+        } catch (BankServiceException_Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Given("a customer {string} has a bank account with {int} kr")
+    public void customerHasBank(String customerId, Integer amount) {
+        this.customerId = customerId;
+        User user = new User();
+        user.setCprNumber("897424");
+        user.setFirstName("Yufan");
+        user.setLastName("Du");
+        try {
+            this.customerBankAccountId = bankService.createAccountWithBalance(user, BigDecimal.valueOf(amount));
+            accountIds.add(this.customerBankAccountId);
+        } catch (BankServiceException_Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @When("a {string} event is received with {int} kr payment")
+    public void aEventForPayment(String eventType, Integer amount) {
+        payment = new Payment();
+        payment.setCorrelationId("1");
+        payment.setCustomerToken("1234");
+        payment.setMerchantId(merchantId);
+        payment.setAmount(BigDecimal.valueOf(amount));
+        assertNull(payment.getDescription());
+        paymentService.handlePaymentInitiated(new Event(eventType, new Object[] {payment}));
+    }
+
+    @Then("the {string} event is sent to validate the token")
+    public void theTokenEventIsSent(String eventType) {
+        var event = new Event(eventType, new Object[] {payment.getCorrelationId(), payment.getCustomerToken()});
+        verify(queue).publish(event);
+    }
+
+    @When("the {string} event is received with non-empty customerId")
+    public void theEventIsReceivedWithCustomerId(String eventType) {
+        paymentService.handleTokenValidated(new Event(eventType, new Object[] {payment.getCorrelationId(), customerId}));
+    }
+
+    @Then("the {string} event is sent to inquiry the bankAccountId")
+    public void theEventIsSentToInquiryBankAccount(String eventType) {
+        var event = new Event(eventType, new Object[] {payment.getCorrelationId(), customerId, merchantId});
+        verify(queue).publish(event);
+    }
+
+    @When("the {string} event is received with non-empty bankAccountIds")
+    public void theEventIsReceivedWithBankAccount(String eventType) {
+        paymentService.handleBankAccountReceived(new Event(eventType, new Object[] {payment.getCorrelationId(), customerBankAccountId, merchantBankAccountId}));
+    }
+
+    @Then("the {string} event is sent and payment completes")
+    public void thePaymentEventIsSentAndNotPending(String eventType) {
+        var event = new Event(eventType, new Object[] {payment});
+        verify(queue).publish(event);
+    }
+
+    @Then("the balance of merchant {string} at the bank is {int} kr")
+    public void checkMerchantBalance(String merchantId, Integer balance) {
+        try {
+            assertEquals(balance, Integer.parseInt(bankTransactionService.getBalance(this.merchantBankAccountId)));
+        } catch (BankServiceException_Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Then("the balance of customer {string} at the bank is {int} kr")
+    public void checkCustomerBalance(String customerId, Integer balance) {
+        try {
+            assertEquals(balance, Integer.parseInt(bankTransactionService.getBalance(this.customerBankAccountId)));
+        } catch (BankServiceException_Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @After
+    public void removeAccounts() {
+        for (String accountId : accountIds) {
+            try {
+                bankService.retireAccount(accountId);
+            } catch (BankServiceException_Exception e) {
+                //TODO: handle exception
+            }
+        }
+    }
+
+}
