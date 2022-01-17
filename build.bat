@@ -1,4 +1,4 @@
-cd messaging-utilities-3.2
+cd messaging-utilities-3.3
 call build.bat
 cd..
 
