@@ -10,7 +10,7 @@ public class AccountService {
     public AccountService(MessageQueue q) {
         this.queue = q;
         this.queue.addHandler("AccountRequested", this::handleAccountRequested);
-        this.queue.addHandler("GetAccountRequested", this::handleGetAccountRequested);
+        this.queue.addHandler("BankAccountRequested", this::handleGetBankAccountRequested);
     }
 
     public void handleAccountRequested(Event ev) {
@@ -22,10 +22,13 @@ public class AccountService {
         queue.publish(event);
     }
 
-    public void handleGetAccountRequested(Event ev) {
-        var accountId = ev.getArgument(0, String.class);
-        Account account = accountManager.getAccount(accountId);
-        Event event = new Event("GetAccountProvided", new Object[] { account });
+    public void handleGetBankAccountRequested(Event ev) {
+        var paymentId = ev.getArgument(0, String.class);
+        var customerId = ev.getArgument(1, String.class);
+        var merchantId = ev.getArgument(2, String.class);
+        Account customerAccount = accountManager.getAccount(customerId);
+        Account merchantAccount = accountManager.getAccount(merchantId);
+        Event event = new Event("BankAccountProvided", new Object[] {paymentId, customerAccount.getBankAccount(), merchantAccount.getBankAccount() });
         queue.publish(event);
     }
 }
