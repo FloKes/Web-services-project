@@ -1,4 +1,4 @@
-package dtu.ws.fastmoney;
+package behaviourTests;
 
 
 import io.cucumber.junit.Cucumber;
@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 @RunWith(Cucumber.class)
 @CucumberOptions(plugin="summary"
         , publish= false
-        , features = "src/test/java/dtu/ws/fastmoney/payment.feature"  // directory of the feature files
+        , features = "src/test/java/features/payment.feature"  // directory of the feature files
 )
 
 public class CucumberTest {

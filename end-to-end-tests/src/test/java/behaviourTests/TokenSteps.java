@@ -1,8 +1,5 @@
-package tokentests;
+package behaviourTests;
 
-import javax.ws.rs.core.Response;
-
-import Service.DtuApiService;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Given;
@@ -24,24 +21,24 @@ public class TokenSteps {
 //    BankService bank = new BankServiceService().getBankServicePort();
 //    List<String> accountIds = new ArrayList<>();
 //    private DtuApiService dtuApiService = new DtuApiService();
-    private TokenService tokenService = new TokenService();
-    private String customerId;
-    private Token token;
-
-
-    @Given("the customer with id {string} has no token")
-    public void theCustomerWithIdHasNoToken(String customerId) {
-        this.customerId = customerId;
-        assertNull(token);
-    }
-    @When("the customer asks for a token")
-    public void theCustomerAsksForAToken() {
-        token = tokenService.requestToken(customerId);
-    }
-    @Then("the customer receives a token {string}")
-    public void theCustomerReceivesAToken(String token) {
-        assertEquals(token, this.token.getToken());
-    }
+//    private TokenService tokenService = new TokenService();
+//    private String customerId;
+//    private Token token;
+//
+//
+//    @Given("the customer with id {string} has no token")
+//    public void theCustomerWithIdHasNoToken(String customerId) {
+//        this.customerId = customerId;
+//        assertNull(token);
+//    }
+//    @When("the customer asks for a token")
+//    public void theCustomerAsksForAToken() {
+//        token = tokenService.requestToken(customerId);
+//    }
+//    @Then("the customer receives a token {string}")
+//    public void theCustomerReceivesAToken(String token) {
+//        assertEquals(token, this.token.getToken());
+//    }
 
 //    @Given("the customer {string} {string} with CPR {string} has a bank account with balance {int}")
 //    public void createCustomerAccount(String firstName, String lastName, String CPR, int balance) {

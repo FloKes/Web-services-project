@@ -1,10 +1,9 @@
 package mappers;
 
-import DTOs.BankAccountRequestDTO;
-import DTOs.PaymentDTO;
-import DTOs.TokenValidationDTO;
+import dtos.BankAccountRequestDTO;
+import dtos.PaymentDTO;
+import dtos.TokenValidationDTO;
 import domain.Payment;
-import io.cucumber.gherkin.Token;
 
 public class Mapper {
     public static void mapPaymentToDTO(Payment payment, PaymentDTO paymentDTO){

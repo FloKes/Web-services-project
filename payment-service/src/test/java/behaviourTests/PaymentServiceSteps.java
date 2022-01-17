@@ -7,9 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import DTOs.BankAccountRequestDTO;
-import DTOs.PaymentDTO;
-import DTOs.TokenValidationDTO;
+import domain.CorrelationId;
+import dtos.BankAccountRequestDTO;
+import dtos.PaymentDTO;
+import dtos.TokenValidationDTO;
 import domain.Payment;
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
@@ -73,8 +74,9 @@ public class PaymentServiceSteps {
 
     @When("a {string} event is received with {int} kr payment amount")
     public void aEventForPayment(String eventType, Integer amount) {
+        var correlationId = CorrelationId.randomId();
         payment = new Payment();
-        payment.setCorrelationId("1");
+        payment.setCorrelationId(correlationId);
         payment.setCustomerToken("1234");
         payment.setMerchantId(merchantId);
         payment.setAmount(BigDecimal.valueOf(amount));
@@ -110,7 +112,7 @@ public class PaymentServiceSteps {
     public void theEventIsReceivedWithBankAccount(String eventType) {
         bankAccountRequestDTO.setCustomerBankAccount(customerBankAccountId);
         bankAccountRequestDTO.setMerchantBankAccount(merchantBankAccountId);
-        paymentService.handleBankAccountReceived(new Event(eventType, new Object[] {bankAccountRequestDTO}));
+        paymentService.handleBankAccountProvided(new Event(eventType, new Object[] {bankAccountRequestDTO}));
     }
 
     @Then("the {string} event is sent and payment completes")

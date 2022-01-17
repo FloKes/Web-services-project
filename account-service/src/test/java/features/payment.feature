@@ -1,15 +1,15 @@
 Feature: Registration
   Scenario: Successful Registration to DTUPay
-    When a "AccountRequested" event for an account is received
+    When a "AccountRequested" event for a customer account is received
+    Then the account gets an account with id "0"
     Then the "AccountProvided" event is sent
-    Then the account gets an account id
 
-  Scenario: Successful Registration to DTUPay
-    When a "AccountRequested" event for an account is received
-    Then the "AccountProvided" event is sent
-    When a "BankAccountRequested" event for getting an account is received
-    Then the "BankAccountProvided" event is sent
-    Then the bank account is returned
+#  Scenario: Successful Registration to DTUPay
+#    When a "AccountRequested" event for an account is received
+#    Then the "AccountProvided" event is sent
+#    When a "BankAccountRequested" event for getting an account is received
+#    Then the "BankAccountProvided" event is sent
+#    Then the bank account is returned
 
 
 

@@ -1,11 +1,12 @@
 package account.service;
 
+import account.service.domain.Account;
+
 import java.util.HashMap;
-import java.util.UUID;
 
 public class AccountManager {
     private static AccountManager accountManager = null;
-    HashMap<String,Account> accounts;
+    HashMap<String, Account> accounts;
 
     private AccountManager() {
         accounts = new HashMap<String,Account>();
@@ -18,12 +19,9 @@ public class AccountManager {
     }
 
     public String createAccount(Account account){
-        UUID id = UUID.randomUUID();
-        String accountKey = id.toString();
-        account.setAccountId(accountKey);
-        //account.setAccountId("123");
-        accounts.put(accountKey, account);
-        return accountKey;
+        account.setAccountId(String.valueOf(accounts.size()));
+        accounts.put(account.getAccountId(), account);
+        return account.getAccountId();
     }
 
 

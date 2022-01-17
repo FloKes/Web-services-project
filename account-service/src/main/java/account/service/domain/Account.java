@@ -1,7 +1,10 @@
-package account.service;
+package account.service.domain;
+
+import lombok.Data;
 
 import java.io.Serializable;
 
+@Data
 public class Account implements Serializable {
     private static final long serialVersionUID = 9024242488284806610L;
     private String firstname;
@@ -9,46 +12,6 @@ public class Account implements Serializable {
     private String cpr;
     private String accountId;
     private String bankAccount;
-
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
-    public String getCpr() {
-        return cpr;
-    }
-
-    public void setCpr(String cpr) {
-        this.cpr = cpr;
-    }
-
-    public String getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
-    }
-
-    public String getBankAccount() {
-        return bankAccount;
-    }
-
-    public void setBankAccount(String bankAccount) {
-        this.bankAccount = bankAccount;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -70,7 +33,7 @@ public class Account implements Serializable {
 
     @Override
     public int hashCode() {
-        return firstname == null ? 0 : firstname.hashCode();
+        return cpr == null ? 0 : cpr.hashCode();
     }
 
     @Override

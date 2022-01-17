@@ -1,17 +1,13 @@
-package Service;
+package behaviourTests;
+
+import behaviourTests.accounts.AccountDTO;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import domain.Payment;
-import domain.UserRest;
-
-import java.util.List;
 
 public class DtuApiService {
 
@@ -29,6 +25,13 @@ public class DtuApiService {
         var token= response.readEntity(String.class);
         System.out.println(token);
         return token;
+    }
+
+    public AccountDTO requestAccount(AccountDTO accountDTO) {
+        Client client = ClientBuilder.newClient();
+        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
+        var response = r.path("/accounts").request().post(Entity.json(accountDTO), AccountDTO.class);
+        return response;
     }
 
 

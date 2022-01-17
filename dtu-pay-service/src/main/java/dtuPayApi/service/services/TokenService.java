@@ -1,5 +1,6 @@
-package dtuPayApi.service;
+package dtuPayApi.service.services;
 
+import dtuPayApi.service.Token;
 import messaging.Event;
 import messaging.MessageQueue;
 

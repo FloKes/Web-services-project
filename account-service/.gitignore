@@ -1,5 +1,6 @@
 #File types
 *.bak
+*.iml
 
 #Maven
 target/

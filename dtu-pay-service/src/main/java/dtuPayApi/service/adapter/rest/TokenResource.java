@@ -1,9 +1,10 @@
 package dtuPayApi.service.adapter.rest;
 
 import dtuPayApi.service.Token;
-import dtuPayApi.service.TokenService;
+import dtuPayApi.service.services.TokenService;
+import dtuPayApi.service.factories.TokenFactory;
+
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 
 @Path("/tokens")
 public class TokenResource {

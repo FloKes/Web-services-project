@@ -10,8 +10,8 @@ services:
     ports:
      - "8080:8080"
     
-  token-service:
-    image: token-service 
-    container_name: token-service
+  account-service:
+    image: account-service 
+    container_name: account-service
 
  

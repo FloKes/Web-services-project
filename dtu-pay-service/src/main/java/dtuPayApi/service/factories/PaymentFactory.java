@@ -1,12 +1,12 @@
-package dtuPayApi.service.adapter.rest;
+package dtuPayApi.service.factories;
 
-import dtuPayApi.service.TokenService;
+import dtuPayApi.service.services.PaymentService;
 import messaging.implementations.RabbitMqQueue;
 
-public class TokenFactory {
-    static TokenService service = null;
+public class PaymentFactory {
+    static PaymentService service = null;
 
-    public TokenService getService() {
+    public PaymentService getService() {
         // The singleton pattern.
         // Ensure that there is at most
         // one instance of a PaymentService
@@ -23,9 +23,8 @@ public class TokenFactory {
         // At the end, we can use the PaymentService in tests
         // without sending actual messages to RabbitMq.
         var mq = new RabbitMqQueue("rabbitMq");
-        service = new TokenService(mq);
+        service = new PaymentService(mq);
 //		new StudentRegistrationServiceAdapter(service, mq);
         return service;
     }
-
 }
