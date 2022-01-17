@@ -1,13 +1,17 @@
 package payment.service;
 
+import DTOs.BankAccountRequestDTO;
+import DTOs.PaymentDTO;
+import DTOs.TokenValidationDTO;
 import domain.Payment;
-import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
+import mappers.Mapper;
 import messaging.Event;
 import messaging.MessageQueue;
 import transaction.service.BankTransactionService;
 
 import java.util.HashMap;
+
 
 public class PaymentService {
     private MessageQueue queue;
@@ -18,38 +22,54 @@ public class PaymentService {
         this.queue = q;
         this.queue.addHandler("PaymentInitiated", this::handlePaymentInitiated);
         this.queue.addHandler("TokenValidated", this::handleTokenValidated);
+        this.queue.addHandler("TokenInvalid", this::handleTokenInvalid);
         this.queue.addHandler("BankAccountReceived", this::handleBankAccountReceived);
         pendingPayments = new HashMap<>();
         bankTransactionService = new BankTransactionService();
     }
 
     public void handlePaymentInitiated(Event e) { // publish a "TokenValidationRequested" event
-        Payment payment = e.getArgument(0, Payment.class);
+        // We have a PaymentDTO so we don't create dependencies between our Domain and communication
+        PaymentDTO paymentDTO = e.getArgument(0, PaymentDTO.class);
+        Payment payment = new Payment();
+        Mapper.mapPaymentDTOToPayment(paymentDTO, payment);
+        payment.setCorrelationId(String.valueOf(pendingPayments.size() + 1));
         pendingPayments.put(payment.getCorrelationId(), payment);
-        Event event = new Event("TokenValidationRequested", new Object[] {payment.getCorrelationId(), payment.getCustomerToken()});
+        TokenValidationDTO tokenValidationDTO = new TokenValidationDTO();
+        Mapper.mapTokenValidationDTO(payment, tokenValidationDTO);
+        Event event = new Event("TokenValidationRequested", new Object[] {tokenValidationDTO});
         queue.publish(event);
     }
 
     public void handleTokenValidated(Event e) {
-        String correlationId = e.getArgument(0, String.class); // find out the corresponding pending payment
-        String customerId = e.getArgument(1, String.class);
-        Payment payment = pendingPayments.get(correlationId);
-        Event event = new Event("BankAccountRequested", new Object[] {payment.getCorrelationId(), customerId, payment.getMerchantId()});
+        TokenValidationDTO tokenValidationDTO = e.getArgument(0, TokenValidationDTO.class);
+        Payment payment = pendingPayments.get(tokenValidationDTO.getCorrelationId());
+        BankAccountRequestDTO bankAccountRequestDTO = new BankAccountRequestDTO();
+        Mapper.mapBankAccountRequestDTO(payment, tokenValidationDTO, bankAccountRequestDTO);
+        Event event = new Event("BankAccountRequested", new Object[] {bankAccountRequestDTO});
+        queue.publish(event);
+    }
+
+    public void handleTokenInvalid(Event e) {
+        TokenValidationDTO tokenValidationDTO = e.getArgument(0, TokenValidationDTO.class);
+        Payment payment = pendingPayments.remove(tokenValidationDTO.getCorrelationId());
+        Event event = new Event("TokenInvalid", new Object[] {tokenValidationDTO});
         queue.publish(event);
     }
 
     public void handleBankAccountReceived(Event e) {
-        String correlationId = e.getArgument(0, String.class); // find out the corresponding pending payment
-        String customerBankAccountId = e.getArgument(1, String.class);
-        String merchantBankAccountId = e.getArgument(2, String.class);
-        Payment payment = pendingPayments.get(correlationId);
+        BankAccountRequestDTO bankAccountRequestDTO = e.getArgument(0, BankAccountRequestDTO.class);
+        Payment payment = pendingPayments.get(bankAccountRequestDTO.getCorrelationId());
         try { // conduct the bank transaction
-            bankTransactionService.transferMoney(customerBankAccountId, merchantBankAccountId, payment.getAmount());
-            pendingPayments.remove(correlationId);
-            Event event = new Event("PaymentCompleted", new Object[] {payment});
+            bankTransactionService.transferMoney(
+                    bankAccountRequestDTO.getCustomerBankAccount(), bankAccountRequestDTO.getMerchantBankAccount(), payment.getAmount());
+            pendingPayments.remove(bankAccountRequestDTO.getCorrelationId());
+            PaymentDTO paymentDTO = new PaymentDTO();
+            Mapper.mapPaymentToDTO(payment, paymentDTO);
+            Event event = new Event("PaymentCompleted", new Object[] {paymentDTO});
             queue.publish(event);
         } catch (BankServiceException_Exception err) {
-            pendingPayments.remove(correlationId);
+            pendingPayments.remove(bankAccountRequestDTO.getCorrelationId());
             Event event = new Event("PaymentBankError", new Object[] {err.getMessage()});
             queue.publish(event);
         }
