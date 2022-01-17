@@ -12,7 +12,6 @@ public class TokenService {
     MessageQueue queue;
     private static TokenService instance = new TokenService();
     private Map<String, Token> tokenList;
-//    private HashMap<String,Token> tokenList;
 
 
     public static TokenService getInstance() {return instance;}
@@ -26,29 +25,28 @@ public class TokenService {
     //This is new
 
     //I think the client also has to do a digital signature on the token
-    public String createToken(String userID){
-        try {
-            Map<String, Long> numberOfTokens = tokenList.values().stream()
-                    .collect( groupingBy( Token::getUserID, Collectors.counting() ) );
-
-            if( numberOfTokens.get(userID) == null || numberOfTokens.get(userID) < 2) {
-                //TODO what does happen when the user doesn't have any token
+    public List<String> createToken(String userID) throws Exception {
+        List<String> tokens = new ArrayList<>();
+        int requiredNumber = 0;
+        Long numberOfTokens = tokenList.values().stream()
+                .collect( groupingBy( Token::getUserID, Collectors.counting() ) ).get(userID);
+        if  (numberOfTokens == null) requiredNumber = 6;
+        else requiredNumber = 6 - Math.toIntExact(numberOfTokens);
+        if( numberOfTokens == null || numberOfTokens < 2) {
+            for (int i = 0; i < requiredNumber; i++){
                 Token token = new Token(userID);
                 tokenList.put( token.getTokenID(), token );
-                return token.getTokenID();
+                tokens.add(token.getTokenID());
             }
-            else {
-                return "Error: too many tokens";
-            }
-
-
-        } catch (Exception e) {
-            return "shit happened during the creation";
+            return tokens;
         }
+        else {
+            throw new Exception("Too many tokens");
+            }
     }
 
     public boolean checkToken(String providedTokenID){
-        //Check if digital signature is correct
+        //Check if digital signature is correct?
         return tokenList.containsKey(providedTokenID);
     }
 
@@ -61,7 +59,6 @@ public class TokenService {
         }
 
     }
-
 
     public Map<String, Token> getTokenList() {
         return tokenList;

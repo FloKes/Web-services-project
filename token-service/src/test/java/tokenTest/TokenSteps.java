@@ -5,6 +5,7 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import net.bytebuddy.implementation.bind.MethodDelegationBinder;
 import org.junit.Assert;
 import token.service.TokenService;
 import domain.Token;
@@ -19,6 +20,7 @@ public class TokenSteps {
     String tokenID;
     List<String > tokenIDList;
     boolean valid;
+    Exception error;
 
 
     TokenService tokenService = TokenService.getInstance();
@@ -28,47 +30,25 @@ public class TokenSteps {
         this.customerID = customerID;
     }
 
-    @Given("The customerID2 is {string}")
-    public void the_customer_id2_is(String customerID2) {
-        this.customerID2 = customerID2;
-    }
-
     @When("the token is created")
     public void the_token_is_created() {
-        this.tokenID = tokenService.createToken(customerID);
-        Assert.assertNotNull(this.tokenID);
-        tokenIDList.add( tokenID );
+        try{
+            List<String> tokens = tokenService.createToken(this.customerID);
+            this.tokenID = tokens.get(0);
+            Assert.assertNotNull(this.tokenID);
+            tokenIDList.add( this.tokenID );
+        }
+        catch (Exception e){
+            this.error = e;
+            System.out.println(e.getMessage());
+        }
+
     }
 
     @Then("tokenID is valid")
     public void token_id_is() {
         Assert.assertNotNull(this.tokenID);
         Assert.assertEquals("5e6050e9-319e-42ec-bc32-132f567452ba".length(), this.tokenID.length());
-    }
-
-    @When("the token is added to tokenList")
-    public void the_token_is_added() {
-        this.tokenID = tokenService.createToken(customerID);
-    }
-
-    @When("the tokens are added to tokenList")
-    public void the_tokens_are_added_to_token_list() {
-        this.tokenID = tokenService.createToken(customerID);
-        tokenIDList.add( this.tokenID);
-        this.tokenID = tokenService.createToken(customerID2);
-        tokenIDList.add( this.tokenID);
-    }
-
-    @Then("saved tokenID is {string}")
-    public void saved_token_id_is(String expectedTokenID) {
-        int size = tokenService.getTokenList().size();
-        Assert.assertEquals(1, size);
-    }
-
-    @Then("tokenList size is {int}")
-    public void token_list_size_is(Integer size) {
-        Integer listSize = tokenService.getTokenList().size();
-        Assert.assertEquals(size, listSize);
     }
 
     @After
@@ -84,7 +64,6 @@ public class TokenSteps {
         tokenIDList = new ArrayList<>();
         System.out.println(tokenIDList.size() );
     }
-
 
     @When("his token is being checked")
     public void his_token_is_being_checked() {
@@ -106,14 +85,20 @@ public class TokenSteps {
         Assert.assertEquals(false, tokenService.checkToken(this.tokenID));
     }
 
-    @Given("he has {int} tokens")
+    @Given("he has {int} tokens already")
     public void he_has_tokens(Integer numberOfTokens) {
-
+        for (int i = 0; i < numberOfTokens; i++)
+            try{
+                tokenService.createToken(this.customerID);
+            }
+            catch(Exception e){
+                System.out.println(e.getMessage());
+            }
     }
 
-    @Then("the message is {string}")
+    @Then("the error message is {string}")
     public void the_message_is(String message) {
-
+        Assert.assertEquals(message, error.getMessage());
     }
 
 

@@ -6,18 +6,12 @@ Feature: Token
 
   Scenario: Token creation, too many tokens
     Given The customerID is "Béla"
-    And he has 2 tokens
+    And he has 2 tokens already
     When the token is created
-    Then the message is "Error: too many strings"
-
-  Scenario: Token creation, added to map
-    Given The customerID is "Porkolt2"
-    And The customerID2 is "Porkolt2"
-    When the tokens are added to tokenList
-    Then tokenList size is 2
+    Then the error message is "Too many tokens"
 
   Scenario: Token validation
-    Given The customerID is "Porkolt"
+    Given The customerID is "Pörkölt"
     And the token is created
     When his token is being checked
     Then the validation is successful
