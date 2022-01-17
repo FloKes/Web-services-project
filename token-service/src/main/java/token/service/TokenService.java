@@ -4,19 +4,78 @@ import domain.Token;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import java.util.HashMap;
+import static java.util.stream.Collectors.groupingBy;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TokenService {
     MessageQueue queue;
     private static TokenService instance = new TokenService();
+    private Map<String, Token> tokenList;
+//    private HashMap<String,Token> tokenList;
 
-    private HashMap<String,Token> tokenList;
 
     public static TokenService getInstance() {return instance;}
-
     private TokenService(){
-        this.tokenList = new HashMap<>();
+        this.tokenList = new HashMap<>() {
+        };
     }
+
+
+    //*************************************************************************************
+    //This is new
+    public String createToken(String userID){
+        try {
+            Map<String, Long> numberOfTokens = tokenList.values().stream()
+                    .collect( groupingBy( Token::getUserID, Collectors.counting() ) );
+//            System.out.println(  numberOfTokens   +" values"  );
+
+            if( numberOfTokens.get(userID) == null ) {
+                //TODO what does happen when the user doesn't have any token
+                Token token = new Token(userID);
+                tokenList.put( token.getTokenID(), token );
+                return token.getTokenID();
+
+            }else if( numberOfTokens.get(userID) < 6  ){
+
+                Token token = new Token(userID);
+                tokenList.put( token.getTokenID(), token );
+                return token.getTokenID();
+            }else {
+                return "Can't get more";
+            }
+
+
+        } catch (Exception e) {
+            return "shit happened during the creation";
+        }
+    }
+
+    public boolean checkToken(String providedTokenID){
+        return tokenList.containsKey(providedTokenID);
+    }
+
+    public void deleteToken(String tokenID){
+        if ( checkToken( tokenID ) ){
+            tokenList.remove(tokenID);
+            System.out.println("deleted: " + tokenID);
+        }else {
+            System.out.println(tokenID + " is not an existing element");
+        }
+
+    }
+
+
+    public Map<String, Token> getTokenList() {
+        return tokenList;
+    }
+
+
+
+
+
+
+    //********************************************************************************
     //This is working
     public TokenService(MessageQueue q) {
         this.queue = q;
@@ -30,28 +89,5 @@ public class TokenService {
         token.setTokenID("4321");
         Event event = new Event("TokenProvided", new Object[] { token });
         queue.publish(event);
-    }
-
-
-
-
-    //*************************************************************************************
-    //This is new
-    public String createToken(String userID){
-        Token token = new Token(userID);
-        tokenList.put(token.getTokenID(), token);
-        return token.getTokenID();
-    }
-
-    public boolean checkToken(Token provided, Token stored){
-        //Also inform error here?
-        return true;
-    }
-
-    public void deleteToken(Token token){
-    }
-
-    public HashMap<String, Token> getTokenList() {
-        return tokenList;
     }
 }

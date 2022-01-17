@@ -25,10 +25,10 @@
       <version>2.3.3</version>
       <type>pom</type>
     </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-resteasy-jaxb</artifactId>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.quarkus</groupId>-->
+<!--      <artifactId>quarkus-resteasy-jaxb</artifactId>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>hubert.dtu.dk</groupId>
       <artifactId>messaging-utilities</artifactId>

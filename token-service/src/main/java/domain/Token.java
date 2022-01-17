@@ -14,9 +14,8 @@ import lombok.Data;
 @NoArgsConstructor // Needed for JSON deserialization and XML serialization and deserialization
 @AllArgsConstructor
 public class Token implements Serializable {
-    private String userID;
-    //private static final long serialVersionUID = 9023222981284806610L;
-    public String tokenID;
+    public String userID;
+    private String tokenID;
 
     public String getTokenID() {
         return tokenID;
@@ -25,10 +24,10 @@ public class Token implements Serializable {
         this.tokenID = tokenID;
     }
 
+
     public Token(String userID){
         this.userID = userID;
-        //this.tokenID = UUID.randomUUID().toString();
-        this.tokenID = "PorkoltSzaft";
+        this.tokenID = UUID.randomUUID().toString();
     }
 
     @Override
