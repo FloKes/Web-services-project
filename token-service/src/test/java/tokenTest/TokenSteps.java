@@ -18,6 +18,7 @@ public class TokenSteps {
     String customerID2;
     String tokenID;
     List<String > tokenIDList;
+    boolean valid;
 
 
     TokenService tokenService = TokenService.getInstance();
@@ -41,8 +42,8 @@ public class TokenSteps {
 
     @Then("tokenID is valid")
     public void token_id_is() {
-        Assert.assertNotNull( this.tokenID );
-        Assert.assertEquals("5e6050e9-319e-42ec-bc32-132f567452ba".length(), this.tokenID.length() );
+        Assert.assertNotNull(this.tokenID);
+        Assert.assertEquals("5e6050e9-319e-42ec-bc32-132f567452ba".length(), this.tokenID.length());
     }
 
     @When("the token is added to tokenList")
@@ -83,6 +84,38 @@ public class TokenSteps {
         tokenIDList = new ArrayList<>();
         System.out.println(tokenIDList.size() );
     }
+
+
+    @When("his token is being checked")
+    public void his_token_is_being_checked() {
+        this.valid = tokenService.checkToken(this.tokenID);
+    }
+
+    @Then("the validation is successful")
+    public void the_result_is_true() {
+        Assert.assertEquals(true, this.valid);
+    }
+
+    @When("his token is being deleted")
+    public void his_token_is_being_deleted() {
+        tokenService.deleteToken(this.tokenID);
+    }
+
+    @Then("the token is deleted")
+    public void the_token_is_deleted() {
+        Assert.assertEquals(false, tokenService.checkToken(this.tokenID));
+    }
+
+    @Given("he has {int} tokens")
+    public void he_has_tokens(Integer numberOfTokens) {
+
+    }
+
+    @Then("the message is {string}")
+    public void the_message_is(String message) {
+
+    }
+
 
 
 }

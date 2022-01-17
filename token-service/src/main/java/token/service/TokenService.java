@@ -24,25 +24,21 @@ public class TokenService {
 
     //*************************************************************************************
     //This is new
+
+    //I think the client also has to do a digital signature on the token
     public String createToken(String userID){
         try {
             Map<String, Long> numberOfTokens = tokenList.values().stream()
                     .collect( groupingBy( Token::getUserID, Collectors.counting() ) );
-//            System.out.println(  numberOfTokens   +" values"  );
 
-            if( numberOfTokens.get(userID) == null ) {
+            if( numberOfTokens.get(userID) == null || numberOfTokens.get(userID) < 2) {
                 //TODO what does happen when the user doesn't have any token
                 Token token = new Token(userID);
                 tokenList.put( token.getTokenID(), token );
                 return token.getTokenID();
-
-            }else if( numberOfTokens.get(userID) < 6  ){
-
-                Token token = new Token(userID);
-                tokenList.put( token.getTokenID(), token );
-                return token.getTokenID();
-            }else {
-                return "Can't get more";
+            }
+            else {
+                return "Error: too many tokens";
             }
 
 
@@ -52,6 +48,7 @@ public class TokenService {
     }
 
     public boolean checkToken(String providedTokenID){
+        //Check if digital signature is correct
         return tokenList.containsKey(providedTokenID);
     }
 
