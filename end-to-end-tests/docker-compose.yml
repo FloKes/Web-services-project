@@ -14,4 +14,8 @@ services:
     image: account-service 
     container_name: account-service
 
+  payment-service:
+    image: payment-service
+    container_name: payment-service
+
  

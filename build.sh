@@ -11,8 +11,13 @@ popd
 # Build the services
 pushd dtu-pay-service
 ./build.sh
-popd 
+popd
 
-pushd token-service
+pushd payment-service
 ./build.sh
-popd 
+popd
+
+pushd account-service
+./build.sh
+popd
+
