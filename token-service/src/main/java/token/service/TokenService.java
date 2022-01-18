@@ -50,12 +50,12 @@ public class TokenService {
         return tokenList.containsKey(providedTokenID);
     }
 
-    public void deleteToken(String tokenID){
+    public void deleteToken(String tokenID) throws Exception {
         if ( checkToken( tokenID ) ){
             tokenList.remove(tokenID);
             System.out.println("deleted: " + tokenID);
         }else {
-            System.out.println(tokenID + " is not an existing element");
+            throw new Exception ("Token not found");
         }
 
     }

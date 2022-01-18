@@ -16,9 +16,8 @@ import java.util.List;
 
 public class TokenSteps {
     String customerID;
-    String customerID2;
     String tokenID;
-    List<String > tokenIDList;
+    List<String> tokenIDList;
     boolean valid;
     Exception error;
 
@@ -47,6 +46,7 @@ public class TokenSteps {
 
     @Then("tokenID is valid")
     public void token_id_is() {
+        System.out.println(this.tokenID);
         Assert.assertNotNull(this.tokenID);
         Assert.assertEquals("5e6050e9-319e-42ec-bc32-132f567452ba".length(), this.tokenID.length());
     }
@@ -54,15 +54,19 @@ public class TokenSteps {
     @After
     public void deleteUserIDsFromDTUPay(){
         for ( String ID : tokenIDList){
-            tokenService.deleteToken( ID );
+            try{
+                tokenService.deleteToken(ID);
+            }
+            catch(Exception e){
+                System.out.println(e.getMessage());
+            }
         }
-
     }
 
     @Before
     public void initList(){
         tokenIDList = new ArrayList<>();
-        System.out.println(tokenIDList.size() );
+        System.out.println("Initial list size: " + tokenIDList.size());
     }
 
     @When("his token is being checked")
@@ -70,30 +74,44 @@ public class TokenSteps {
         this.valid = tokenService.checkToken(this.tokenID);
     }
 
-    @Then("the validation is successful")
-    public void the_result_is_true() {
-        Assert.assertEquals(true, this.valid);
+    @Then("the validation is {string}")
+    public void the_result_is_true(String success) {
+        String result;
+        if (this.valid) result = "successful";
+        else result = "unsuccessful";
+        Assert.assertEquals(success, result);
     }
 
     @When("his token is being deleted")
     public void his_token_is_being_deleted() {
-        tokenService.deleteToken(this.tokenID);
+        try{
+            tokenService.deleteToken(this.tokenID);
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            this.error = e;
+        }
     }
 
     @Then("the token is deleted")
     public void the_token_is_deleted() {
         Assert.assertEquals(false, tokenService.checkToken(this.tokenID));
+        if (this.error != null) {
+            Assert.assertEquals("Token not found", this.error.getMessage());
+        }
     }
 
     @Given("he has {int} tokens already")
     public void he_has_tokens(Integer numberOfTokens) {
-        for (int i = 0; i < numberOfTokens; i++)
-            try{
-                tokenService.createToken(this.customerID);
+        try{
+            List<String> tokens = tokenService.createToken(this.customerID);
+            for (int i = 0; i < (6 - numberOfTokens); i++){
+                tokenService.deleteToken(tokens.get(i));
             }
-            catch(Exception e){
-                System.out.println(e.getMessage());
-            }
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 
     @Then("the error message is {string}")
