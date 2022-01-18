@@ -27,6 +27,7 @@ public class PaymentService {
     public static final String TOKEN_VALIDATION_REQUESTED = "TokenValidationRequested";
     public static final String BANK_ACCOUNT_REQUESTED = "BankAccountRequested";
     public static final String PAYMENT_BANK_ERROR = "PaymentBankError";
+    public static final String PAYMENT_TOKEN_INVALID = "PaymentTokenInvalid";
 
 
     private MessageQueue queue;
@@ -49,6 +50,11 @@ public class PaymentService {
         id++;
         return Integer.toString(id);
     }
+
+    private Boolean checkCustomerBalance() { // check id the customer has enough money to pay
+        return true; //todo
+    }
+
 
     // handlers
 
@@ -77,10 +83,9 @@ public class PaymentService {
     }
 
     public void handleTokenInvalid(Event e) {
-        TokenValidationDTO tokenValidationDTO = e.getArgument(0, TokenValidationDTO.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
         pendingPayments.remove(correlationId);
-        Event event = new Event(TOKEN_INVALID, new Object[] {tokenValidationDTO, correlationId});
+        Event event = new Event(PAYMENT_TOKEN_INVALID, new Object[] {"TokenInvalid", correlationId});
         queue.publish(event);
     }
 
