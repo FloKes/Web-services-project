@@ -1,8 +1,8 @@
 Feature: Payment service feature
 
   Scenario: Payment Conducted
-    Given a merchant "mid1" has a bank account with 100 kr
-    And a customer "cid1" has a bank account with 100 kr
+    Given a merchant "mid1" "Bingkun" "Wu" "270791" has a bank account with 100 kr
+    And a customer "cid1" "Trump" "Donald" "231298" has a bank account with 100 kr
     When a "PaymentInitiated" event is received with 100 kr payment amount
     Then the "TokenValidationRequested" event is sent to validate the token
     When the "TokenValidated" event is received with non-empty customerId
@@ -12,4 +12,10 @@ Feature: Payment service feature
     And the balance of merchant "mid" at the bank is 200 kr
     And the balance of customer "cid" at the bank is 0 kr
 
-    Scenario:
+  Scenario: Token Invalid
+    Given a merchant "mid2" "A" "B" "564446" has a bank account with 100 kr
+    And a customer "cid2" "C" "D" "232293" has a bank account with 100 kr
+    When a "PaymentInitiated" event is received with 100 kr payment amount
+    Then the "TokenValidationRequested" event is sent to validate the token
+    When the "TokenInvalid" event is received with null customerId
+    Then the "PaymentTokenInvalid" event is sent with error message

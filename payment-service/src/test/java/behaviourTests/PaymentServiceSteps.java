@@ -43,13 +43,13 @@ public class PaymentServiceSteps {
     List<String> accountIds = new ArrayList<>();
     CorrelationId correlationId;
 
-    @Given("a merchant {string} has a bank account with {int} kr")
-    public void merchantHasBank(String merchantId, Integer amount) {
+    @Given("a merchant {string} {string} {string} {string} has a bank account with {int} kr")
+    public void merchantHasBank(String merchantId, String firstName, String lastName, String cpr, Integer amount) {
         this.merchantId = merchantId;
         User user = new User();
-        user.setCprNumber("270791");
-        user.setFirstName("Bingkun");
-        user.setLastName("Wu");
+        user.setCprNumber(cpr);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
         try {
             this.merchantBankAccountId = bankService.createAccountWithBalance(user, BigDecimal.valueOf(amount));
             accountIds.add(this.merchantBankAccountId);
@@ -58,13 +58,13 @@ public class PaymentServiceSteps {
         }
     }
 
-    @Given("a customer {string} has a bank account with {int} kr")
-    public void customerHasBank(String customerId, Integer amount) {
+    @Given("a customer {string} {string} {string} {string} has a bank account with {int} kr")
+    public void customerHasBank(String customerId, String firstName, String lastName, String cpr, Integer amount) {
         this.customerId = customerId;
         User user = new User();
-        user.setCprNumber("897424");
-        user.setFirstName("Yufan");
-        user.setLastName("Du");
+        user.setCprNumber(cpr);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
         try {
             this.customerBankAccountId = bankService.createAccountWithBalance(user, BigDecimal.valueOf(amount));
             accountIds.add(this.customerBankAccountId);
@@ -140,6 +140,20 @@ public class PaymentServiceSteps {
         } catch (BankServiceException_Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    @When("the {string} event is received with null customerId")
+    public void theTokenInvalidEventIsReceived(String eventType) {
+        TokenValidationDTO tokenValidationDTO = new TokenValidationDTO();
+        Mapper.mapTokenValidationDTO(payment, tokenValidationDTO);
+        Event event = new Event(eventType, new Object[] {tokenValidationDTO, correlationId});
+        paymentService.handleTokenInvalid(event);
+    }
+
+    @Then("the {string} event is sent with error message")
+    public void thePaymentTokenInvalidIsSent(String eventType) {
+        Event event = new Event(eventType, new Object[] {"TokenInvalid", correlationId});
+        verify(queue).publish(event);
     }
 
     @After
