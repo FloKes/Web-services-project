@@ -1,11 +1,11 @@
 Feature: Token
-  //Scenario: Token creation
-    //Given The customerID is "Alice"
-    //When the token is created
-    //Then tokenID is valid
-
   Scenario: Token creation
     Given The customerID is "Alice"
+    When the token is created
+    Then tokenID is valid
+
+  Scenario: Token creation 1
+    Given The customerID is "Alice2"
     And he has 1 tokens already
     When the token is created
     Then tokenID is valid
