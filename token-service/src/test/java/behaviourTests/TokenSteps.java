@@ -1,28 +1,37 @@
-package tokenTest;
+package behaviourTests;
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import net.bytebuddy.implementation.bind.MethodDelegationBinder;
+import messaging.Event;
+import messaging.MessageQueue;
 import org.junit.Assert;
+import token.service.TokenRepository;
 import token.service.TokenService;
-import domain.Token;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.*;
+
 public class TokenSteps {
+    public static final String TOKEN_CHECK_REQUESTED = "TokenCheckRequested";
+    public static final String TOKEN_CREATION_REQUESTED = "TokenCreationRequested";
     String customerID;
     String tokenID;
     List<String> tokenIDList;
     boolean valid;
     Exception error;
 
-
-    TokenService tokenService = TokenService.getInstance();
+    private MessageQueue queue = mock(MessageQueue.class);
+    private TokenRepository mockRepository = mock(TokenRepository.class);
+    private TokenRepository repository = new TokenRepository();
+    private TokenService service = new TokenService(queue, repository);
+    private TokenService service2 = new TokenService(queue, mockRepository);
 
     @Given("The customerID is {string}")
     public void the_customer_id_is(String customerID) {
@@ -32,22 +41,22 @@ public class TokenSteps {
     @When("the token is created")
     public void the_token_is_created() {
         try{
-            List<String> tokens = tokenService.createToken(this.customerID);
+            var tokens = service.createToken(this.customerID);
+            System.out.println("token list size steps: " + tokens.size());
             this.tokenID = tokens.get(0);
-            Assert.assertNotNull(this.tokenID);
+            assertNotNull(this.tokenID);
             tokenIDList.add( this.tokenID );
         }
         catch (Exception e){
             this.error = e;
             System.out.println(e.getMessage());
         }
-
     }
 
     @Then("tokenID is valid")
     public void token_id_is() {
         System.out.println(this.tokenID);
-        Assert.assertNotNull(this.tokenID);
+        assertNotNull(this.tokenID);
         Assert.assertEquals("5e6050e9-319e-42ec-bc32-132f567452ba".length(), this.tokenID.length());
     }
 
@@ -55,7 +64,7 @@ public class TokenSteps {
     public void deleteUserIDsFromDTUPay(){
         for ( String ID : tokenIDList){
             try{
-                tokenService.deleteToken(ID);
+                service.deleteToken(ID);
             }
             catch(Exception e){
                 System.out.println(e.getMessage());
@@ -71,7 +80,7 @@ public class TokenSteps {
 
     @When("his token is being checked")
     public void his_token_is_being_checked() {
-        this.valid = tokenService.checkToken(this.tokenID);
+        this.valid = service.checkToken(this.tokenID);
     }
 
     @Then("the validation is {string}")
@@ -85,7 +94,7 @@ public class TokenSteps {
     @When("his token is being deleted")
     public void his_token_is_being_deleted() {
         try{
-            tokenService.deleteToken(this.tokenID);
+            service.deleteToken(this.tokenID);
         }
         catch (Exception e){
             System.out.println(e.getMessage());
@@ -95,7 +104,7 @@ public class TokenSteps {
 
     @Then("the token is deleted")
     public void the_token_is_deleted() {
-        Assert.assertEquals(false, tokenService.checkToken(this.tokenID));
+        Assert.assertEquals(false, service.checkToken(this.tokenID));
         if (this.error != null) {
             Assert.assertEquals("Token not found", this.error.getMessage());
         }
@@ -104,9 +113,9 @@ public class TokenSteps {
     @Given("he has {int} tokens already")
     public void he_has_tokens(Integer numberOfTokens) {
         try{
-            List<String> tokens = tokenService.createToken(this.customerID);
+            List<String> tokens = service.createToken(this.customerID);
             for (int i = 0; i < (6 - numberOfTokens); i++){
-                tokenService.deleteToken(tokens.get(i));
+                service.deleteToken(tokens.get(i));
             }
         }
         catch(Exception e){
@@ -120,5 +129,21 @@ public class TokenSteps {
     }
 
 
+    @When("a {string} event for a {string} is received")
+    public void aEventForACustomerAccountIsReceived(String eventName, String customerId) throws Exception {
+        List<String> mockList = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6"));
+        when(mockRepository.getTokenIdList(customerId)).thenReturn(mockList);
+        service2.handleTokenCreationRequested(new Event(eventName,new Object[] {customerId}));
+    }
 
+    @Then("the token is created and its id is not null")
+    public void theTokenIsCreatedAndItsIdIsNotNull() {
+    }
+
+    @Then("the {string} event is sent")
+    public void theEventIsSent(String eventName) {
+        List<String> expectedList = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6"));
+        var event = new Event(eventName, new Object[] {expectedList});
+        verify(queue).publish(event);
+    }
 }

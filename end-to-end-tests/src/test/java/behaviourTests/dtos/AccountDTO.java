@@ -1,4 +1,4 @@
-package behaviourTests.accounts;
+package behaviourTests.dtos;
 
 import lombok.Data;
 

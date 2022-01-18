@@ -38,3 +38,8 @@ Feature: Token
     When his token is being deleted
     Then the token is deleted
 
+  Scenario: Token request handling
+    When a "TokenCreationRequested" event for a "Joe" is received
+    Then the token is created and its id is not null
+    And the "TokenProvided" event is sent
+

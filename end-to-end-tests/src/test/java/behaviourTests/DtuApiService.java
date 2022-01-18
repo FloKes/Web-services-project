@@ -1,6 +1,6 @@
 package behaviourTests;
 
-import behaviourTests.accounts.AccountDTO;
+import behaviourTests.dtos.AccountDTO;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -30,10 +30,9 @@ public class DtuApiService {
     public AccountDTO requestAccount(AccountDTO accountDTO) {
         Client client = ClientBuilder.newClient();
         WebTarget r = client.target("http://localhost:8080/dtuPayApi");
-        var response = r.path("/accounts").request().post(Entity.json(accountDTO), AccountDTO.class);
+        var response = r.path("/customer/accounts").request().post(Entity.json(accountDTO), AccountDTO.class);
         return response;
     }
-
 
 
 //    public Response createUser(UserRest user){

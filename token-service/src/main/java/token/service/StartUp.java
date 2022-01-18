@@ -9,6 +9,7 @@ public class StartUp {
     private void startUp() throws Exception {
         System.out.println("startup");
         var mq = new RabbitMqQueue("rabbitMq");
-        new TokenService(mq);
+        var repository = new TokenRepository();
+        new TokenService(mq, repository);
     }
 }

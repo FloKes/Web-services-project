@@ -10,78 +10,68 @@ import java.util.stream.Collectors;
 
 public class TokenService {
     MessageQueue queue;
-    private static TokenService instance = new TokenService();
+    TokenRepository repository;
+    public static final String TOKEN_CHECK_REQUESTED = "TokenCheckRequested";
+    public static final String TOKEN_CREATION_REQUESTED = "TokenCreationRequested";
+    public static final String TOKEN_PROVIDED = "TokenProvided";
+    public static final String TOKEN_CHECK_PROVIDED = "TokenCheckProvided";
     private Map<String, Token> tokenList;
+    private List<String> tempTokenIdList;
 
-
-    public static TokenService getInstance() {return instance;}
-    private TokenService(){
-        this.tokenList = new HashMap<>() {
-        };
+    public TokenService(MessageQueue q, TokenRepository repository) {
+        this.queue = q;
+        this.repository = repository;
+        this.queue.addHandler(TOKEN_CREATION_REQUESTED, this::handleTokenCreationRequested);
+        this.queue.addHandler(TOKEN_CHECK_REQUESTED, this::handleTokenCheckRequested);
+        this.tokenList = new HashMap<>();
     }
-
 
     //*************************************************************************************
     //This is new
 
     //I think the client also has to do a digital signature on the token
-    public List<String> createToken(String userID) throws Exception {
-        List<String> tokens = new ArrayList<>();
-        int requiredNumber = 0;
-        Long numberOfTokens = tokenList.values().stream()
-                .collect( groupingBy( Token::getUserID, Collectors.counting() ) ).get(userID);
-        if  (numberOfTokens == null) requiredNumber = 6;
-        else requiredNumber = 6 - Math.toIntExact(numberOfTokens);
-        if( numberOfTokens == null || numberOfTokens < 2) {
-            for (int i = 0; i < requiredNumber; i++){
-                Token token = new Token(userID);
-                tokenList.put( token.getTokenID(), token );
-                tokens.add(token.getTokenID());
-            }
-            return tokens;
-        }
-        else {
-            throw new Exception("Too many tokens");
-            }
+    public List<String> createToken(String customerId) throws Exception {
+        var tokenIdList = repository.getTokenIdList(customerId);
+        System.out.println("Service list size: " + tokenIdList.size());
+        return tokenIdList;
     }
 
     public boolean checkToken(String providedTokenID){
-        //Check if digital signature is correct?
-        return tokenList.containsKey(providedTokenID);
+        return repository.checkToken(providedTokenID);
     }
-
+    
     public void deleteToken(String tokenID) throws Exception {
-        if ( checkToken( tokenID ) ){
-            tokenList.remove(tokenID);
-            System.out.println("deleted: " + tokenID);
-        }else {
-            throw new Exception ("Token not found");
-        }
-
+        repository.deleteToken(tokenID);
     }
-
+    
     public Map<String, Token> getTokenList() {
         return tokenList;
     }
-
-
-
-
-
-
-    //********************************************************************************
-    //This is working
-    public TokenService(MessageQueue q) {
-        this.queue = q;
-        this.queue.addHandler("TokenRequested", this::handleTokenRequested);
+    
+    public List<String> getTempTokenIdList(){
+        return tempTokenIdList;
     }
 
-    public void handleTokenRequested(Event ev) {
+    public void handleTokenCreationRequested(Event ev) {
         var customerId = ev.getArgument(0, String.class);
-        System.out.println(customerId);
-        var token = new Token();
-        token.setTokenID("4321");
-        Event event = new Event("TokenProvided", new Object[] { token });
+//        System.out.println(customerId);
+        List<String> tokenIdList = new ArrayList<>();
+        try {
+            tokenIdList = createToken(customerId);
+        }
+        catch (Exception e){
+            System.out.println(e);
+        }
+        Event event = new Event(TOKEN_PROVIDED, new Object[] { tokenIdList });
+        queue.publish(event);
+    }
+
+    public void handleTokenCheckRequested(Event ev) {
+        var tokenID = ev.getArgument(0, String.class);
+//        System.out.println(tokenID);
+        var checkValue = checkToken(tokenID);
+        //TODO modify event name
+        Event event = new Event(TOKEN_CHECK_PROVIDED, new Object[] { checkValue });
         queue.publish(event);
     }
 }
