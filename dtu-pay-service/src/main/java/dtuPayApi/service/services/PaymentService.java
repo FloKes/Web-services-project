@@ -15,24 +15,33 @@ public class PaymentService {
 
     public static final String PAYMENT_COMPLETED = "PaymentCompleted";
     public static final String PAYMENT_INITIATED = "PaymentInitiated";
+    public static final String PAYMENT_TOKEN_INVALID = "PaymentTokenInvalid";
     private MessageQueue queue;
-    private Map<CorrelationId, CompletableFuture<PaymentDTO>> pendingPayments = new ConcurrentHashMap<>(); // payments waiting for token validation, <correlationID, payment>
+    private Map<CorrelationId, CompletableFuture<PaymentDTO>> pendingPayments; // payments wait for processing
     public PaymentService(MessageQueue q) {
         queue = q;
         queue.addHandler(PAYMENT_COMPLETED, this::handlePaymentCompleted);
+        queue.addHandler(PAYMENT_TOKEN_INVALID, this::handlePaymentTokenInvalid);
+        pendingPayments = new ConcurrentHashMap<>();
     }
 
     public PaymentDTO addPayment(PaymentDTO paymentDTO) {
         var correlationId = CorrelationId.randomId();
         pendingPayments.put(correlationId, new CompletableFuture<>());
-        paymentDTO.setCorrelationId(correlationId);
-        Event event = new Event(PAYMENT_INITIATED, new Object[] {paymentDTO});
+        Event event = new Event(PAYMENT_INITIATED, new Object[] {paymentDTO, correlationId});
         queue.publish(event);
         return pendingPayments.get(correlationId).join();
     }
 
     public void handlePaymentCompleted(Event e) {
         PaymentDTO paymentDTO = e.getArgument(0, PaymentDTO.class);
-        pendingPayments.get(paymentDTO.getCorrelationId()).complete(paymentDTO);
+        CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
+        pendingPayments.get(correlationId).complete(paymentDTO);
+    }
+
+    public void handlePaymentTokenInvalid(Event e) {
+        PaymentDTO paymentDTO = e.getArgument(0, PaymentDTO.class);
+        CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
+        pendingPayments.get(correlationId).complete(paymentDTO);
     }
 }

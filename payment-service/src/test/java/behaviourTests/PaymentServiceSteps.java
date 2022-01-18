@@ -31,6 +31,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PaymentServiceSteps {
+    static int id = 0;
+    private String nextId() {
+        id++;
+        return Integer.toString(id);
+    }
+
     MessageQueue queue = mock(MessageQueue.class);
     PaymentService paymentService = new PaymentService(queue);
     Payment payment;
@@ -80,7 +86,7 @@ public class PaymentServiceSteps {
         payment.setCustomerToken("1234");
         payment.setMerchantId(merchantId);
         payment.setAmount(BigDecimal.valueOf(amount));
-        payment.setPaymentId("1");
+        payment.setPaymentId(nextId());
         assertNull(payment.getDescription());
         PaymentDTO paymentDTO = new PaymentDTO();
         Mapper.mapPaymentToDTO(payment, paymentDTO);
@@ -152,7 +158,10 @@ public class PaymentServiceSteps {
 
     @Then("the {string} event is sent with error message")
     public void thePaymentTokenInvalidIsSent(String eventType) {
-        Event event = new Event(eventType, new Object[] {"TokenInvalid", correlationId});
+        PaymentDTO paymentDTO = new PaymentDTO();
+        Mapper.mapPaymentToDTO(payment, paymentDTO);
+        paymentDTO.setDescription("TokenInvalid");
+        Event event = new Event(eventType, new Object[] {paymentDTO, correlationId});
         verify(queue).publish(event);
     }
 

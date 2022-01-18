@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 public class TokenSteps {
-    public static final String TOKEN_CHECK_REQUESTED = "TokenCheckRequested";
+    public static final String TOKEN_VALIDATION_REQUESTED = "TokenValidationRequested";
     public static final String TOKEN_CREATION_REQUESTED = "TokenCreationRequested";
     private CorrelationId correlationId;
     String customerID;

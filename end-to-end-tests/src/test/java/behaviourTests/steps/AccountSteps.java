@@ -40,7 +40,10 @@ public class AccountSteps {
 
     @When("the user is being registered")
     public void theUserIsBeingRegistered() {
-        result1.complete(service.requestAccount(account1));
+        var thread1 = new Thread(() -> {
+            result1.complete(service.requestAccount(account1));
+        });
+        thread1.start();
     }
     @Then("the user is registered")
     public void theUserIsRegistered() {
@@ -90,4 +93,6 @@ public class AccountSteps {
         System.out.println("Accoutn 2 id: " + accountDTO2.getAccountId());
         assertNotEquals(accountDTO1.getAccountId(), accountDTO2.getAccountId());
     }
+
+
 }

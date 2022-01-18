@@ -49,8 +49,17 @@ public class TokenRepository {
         }
     }
 
-    public boolean checkToken(String providedTokenID){
+    public boolean checkToken(String providedTokenID) {
         //Check if digital signature is correct?
         return tokenList.containsKey(providedTokenID);
+    }
+
+    public String getCustomerIdByTokenId(String tokenId) throws Exception{
+        if (tokenList.containsKey(tokenId)) {
+            return tokenList.get(tokenId).getUserID();
+        }
+        else {
+            throw new Exception("CustomerId Not Found");
+        }
     }
 }

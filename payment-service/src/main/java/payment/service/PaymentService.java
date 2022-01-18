@@ -84,8 +84,12 @@ public class PaymentService {
 
     public void handleTokenInvalid(Event e) {
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
+        Payment payment = pendingPayments.get(correlationId);
         pendingPayments.remove(correlationId);
-        Event event = new Event(PAYMENT_TOKEN_INVALID, new Object[] {"TokenInvalid", correlationId});
+        PaymentDTO paymentDTO = new PaymentDTO();
+        Mapper.mapPaymentToDTO(payment, paymentDTO);
+        paymentDTO.setDescription("TokenInvalid");
+        Event event = new Event(PAYMENT_TOKEN_INVALID, new Object[] {paymentDTO, correlationId});
         queue.publish(event);
     }
 

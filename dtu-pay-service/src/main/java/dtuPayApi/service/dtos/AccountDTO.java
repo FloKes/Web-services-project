@@ -1,6 +1,5 @@
 package dtuPayApi.service.dtos;
 
-import dtuPayApi.service.CorrelationId;
 import lombok.Data;
 import lombok.ToString;
 

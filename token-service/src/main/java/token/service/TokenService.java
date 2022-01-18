@@ -1,6 +1,7 @@
 package token.service;
 
 import DTOs.TokenIdDTO;
+import DTOs.TokenValidationDTO;
 import domain.Token;
 import messaging.Event;
 import messaging.MessageQueue;
@@ -12,10 +13,15 @@ import java.util.stream.Collectors;
 public class TokenService {
     MessageQueue queue;
     TokenRepository repository;
-    public static final String TOKEN_CHECK_REQUESTED = "TokenCheckRequested";
+
+    // Event received
+    public static final String TOKEN_VALIDATION_REQUESTED = "TokenValidationRequested";
     public static final String TOKEN_CREATION_REQUESTED = "TokenRequested";
+
+    // Event sent
     public static final String TOKEN_PROVIDED = "TokenProvided";
-    public static final String TOKEN_CHECK_PROVIDED = "TokenCheckProvided";
+    public static final String TOKEN_VALIDATED = "TokenValidated";
+    public static final String TOKEN_INVALID = "TokenInvalid";
     private Map<String, Token> tokenList;
     private List<String> tempTokenIdList;
 
@@ -23,7 +29,7 @@ public class TokenService {
         this.queue = q;
         this.repository = repository;
         this.queue.addHandler(TOKEN_CREATION_REQUESTED, this::handleTokenCreationRequested);
-        this.queue.addHandler(TOKEN_CHECK_REQUESTED, this::handleTokenCheckRequested);
+        this.queue.addHandler(TOKEN_VALIDATION_REQUESTED, this::handleTokenValidRequested);
         this.tokenList = new HashMap<>();
     }
 
@@ -46,6 +52,10 @@ public class TokenService {
     
     public void deleteToken(String tokenID) throws Exception {
         repository.deleteToken(tokenID);
+    }
+
+    private String getCustomerIdByTokenId(String tokenId) throws Exception{
+        return repository.getCustomerIdByTokenId(tokenId);
     }
     
     public Map<String, Token> getTokenList() {
@@ -72,12 +82,27 @@ public class TokenService {
         queue.publish(event);
     }
 
-    public void handleTokenCheckRequested(Event ev) {
-        var tokenID = ev.getArgument(0, String.class);
-//        System.out.println(tokenID);
+    public void handleTokenValidRequested(Event ev) {
+        var tokenValidationDTO = ev.getArgument(0, TokenValidationDTO.class);
+        var tokenID = tokenValidationDTO.getCustomerToken();
+        var correlationId = ev.getArgument(1, CorrelationId.class);
         var checkValue = checkToken(tokenID);
-        //TODO modify event name
-        Event event = new Event(TOKEN_CHECK_PROVIDED, new Object[] { checkValue });
-        queue.publish(event);
+        if (checkValue) {
+            try {
+                tokenValidationDTO.setCustomerId(this.getCustomerIdByTokenId(tokenID)); // set the customerId and return it to payment service
+                deleteToken(tokenID); // retire the token
+                Event event = new Event(TOKEN_VALIDATED, new Object[] {tokenValidationDTO, correlationId});
+                queue.publish(event);
+            } catch (Exception e) {
+                tokenValidationDTO.setErrorMessage(e.getMessage());
+                Event event = new Event(TOKEN_INVALID, new Object[] {tokenValidationDTO, correlationId});
+                queue.publish(event);
+            }
+        }
+        else {
+            tokenValidationDTO.setErrorMessage("TokenInvalid");
+            Event event = new Event(TOKEN_INVALID, new Object[] {tokenValidationDTO, correlationId});
+            queue.publish(event);
+        }
     }
 }

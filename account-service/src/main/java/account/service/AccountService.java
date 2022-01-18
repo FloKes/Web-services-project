@@ -10,13 +10,16 @@ import messaging.MessageQueue;
 public class AccountService {
     public static final String ACCOUNT_REQUESTED = "AccountRequested";
     public static final String ACCOUNT_PROVIDED = "AccountProvided";
+
+    public static final String BANK_ACCOUNT_REQUESTED = "BankAccountRequested";
+    public static final String BANK_ACCOUNT_PROVIDED = "BankAccountProvided";
     AccountManager accountManager = AccountManager.getInstance();
     MessageQueue queue;
 
     public AccountService(MessageQueue q) {
         this.queue = q;
         this.queue.addHandler(ACCOUNT_REQUESTED, this::handleAccountRequested);
-        this.queue.addHandler("BankAccountRequested", this::handleGetBankAccountRequested);
+        this.queue.addHandler(BANK_ACCOUNT_REQUESTED, this::handleGetBankAccountRequested);
     }
 
     public void handleAccountRequested(Event ev) {
@@ -34,11 +37,12 @@ public class AccountService {
 
     public void handleGetBankAccountRequested(Event ev) {
         BankAccountRequestDTO bankAccountRequestDTO = ev.getArgument(0, BankAccountRequestDTO.class);
+        CorrelationId correlationId = ev.getArgument(1, CorrelationId.class);
         Account customerAccount = accountManager.getAccount(bankAccountRequestDTO.getCustomerId());
         Account merchantAccount = accountManager.getAccount(bankAccountRequestDTO.getMerchantId());
         bankAccountRequestDTO.setCustomerBankAccount(customerAccount.getBankAccount());
         bankAccountRequestDTO.setMerchantBankAccount(merchantAccount.getBankAccount());
-        Event event = new Event("BankAccountProvided", new Object[] {bankAccountRequestDTO});
+        Event event = new Event(BANK_ACCOUNT_PROVIDED, new Object[] {bankAccountRequestDTO, correlationId});
         queue.publish(event);
     }
 }
