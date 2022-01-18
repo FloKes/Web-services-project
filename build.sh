@@ -21,3 +21,6 @@ pushd account-service
 ./build.sh
 popd
 
+pushd token-service
+./build.sh
+popd
