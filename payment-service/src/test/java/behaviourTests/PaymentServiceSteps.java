@@ -41,6 +41,7 @@ public class PaymentServiceSteps {
     BankService bankService = new BankServiceService().getBankServicePort();
     BankTransactionService bankTransactionService = new BankTransactionService();
     List<String> accountIds = new ArrayList<>();
+    CorrelationId correlationId;
 
     @Given("a merchant {string} has a bank account with {int} kr")
     public void merchantHasBank(String merchantId, Integer amount) {
@@ -74,37 +75,37 @@ public class PaymentServiceSteps {
 
     @When("a {string} event is received with {int} kr payment amount")
     public void aEventForPayment(String eventType, Integer amount) {
-        var correlationId = CorrelationId.randomId();
+        this.correlationId = CorrelationId.randomId();
         payment = new Payment();
-        payment.setCorrelationId(correlationId);
         payment.setCustomerToken("1234");
         payment.setMerchantId(merchantId);
         payment.setAmount(BigDecimal.valueOf(amount));
+        payment.setPaymentId("1");
         assertNull(payment.getDescription());
         PaymentDTO paymentDTO = new PaymentDTO();
         Mapper.mapPaymentToDTO(payment, paymentDTO);
-        paymentService.handlePaymentInitiated(new Event(eventType, new Object[] {paymentDTO}));
+        paymentService.handlePaymentInitiated(new Event(eventType, new Object[] {paymentDTO, correlationId}));
     }
 
     @Then("the {string} event is sent to validate the token")
     public void theTokenEventIsSent(String eventType) {
         tokenValidationDTO = new TokenValidationDTO();
         Mapper.mapTokenValidationDTO(this.payment, tokenValidationDTO);
-        var event = new Event(eventType, new Object[] {tokenValidationDTO});
+        var event = new Event(eventType, new Object[] {tokenValidationDTO, correlationId});
         verify(queue).publish(event);
     }
 
     @When("the {string} event is received with non-empty customerId")
     public void theEventIsReceivedWithCustomerId(String eventType) {
         tokenValidationDTO.setCustomerId(customerId);
-        paymentService.handleTokenValidated(new Event(eventType, new Object[] {tokenValidationDTO}));
+        paymentService.handleTokenValidated(new Event(eventType, new Object[] {tokenValidationDTO, correlationId}));
     }
 
     @Then("the {string} event is sent to inquire the bankAccountId")
     public void theEventIsSentToInquiryBankAccount(String eventType) {
         bankAccountRequestDTO = new BankAccountRequestDTO();
         Mapper.mapBankAccountRequestDTO(payment, tokenValidationDTO, bankAccountRequestDTO);
-        var event = new Event(eventType, new Object[] {bankAccountRequestDTO});
+        var event = new Event(eventType, new Object[] {bankAccountRequestDTO, correlationId});
         verify(queue).publish(event);
     }
 
@@ -112,14 +113,14 @@ public class PaymentServiceSteps {
     public void theEventIsReceivedWithBankAccount(String eventType) {
         bankAccountRequestDTO.setCustomerBankAccount(customerBankAccountId);
         bankAccountRequestDTO.setMerchantBankAccount(merchantBankAccountId);
-        paymentService.handleBankAccountProvided(new Event(eventType, new Object[] {bankAccountRequestDTO}));
+        paymentService.handleBankAccountProvided(new Event(eventType, new Object[] {bankAccountRequestDTO, correlationId}));
     }
 
     @Then("the {string} event is sent and payment completes")
     public void thePaymentEventIsSentAndNotPending(String eventType) {
         PaymentDTO paymentDTO = new PaymentDTO();
         Mapper.mapPaymentToDTO(payment, paymentDTO);
-        var event = new Event(eventType, new Object[] {paymentDTO});
+        var event = new Event(eventType, new Object[] {paymentDTO, correlationId});
         verify(queue).publish(event);
     }
 

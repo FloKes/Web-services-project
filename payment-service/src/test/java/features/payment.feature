@@ -11,3 +11,5 @@ Feature: Payment service feature
     Then the "PaymentCompleted" event is sent and payment completes
     And the balance of merchant "mid" at the bank is 200 kr
     And the balance of customer "cid" at the bank is 0 kr
+
+    Scenario:
