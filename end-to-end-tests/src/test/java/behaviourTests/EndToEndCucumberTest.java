@@ -17,5 +17,5 @@ For example, the class name CucumberTests (Test with an s) will be ignored by Ma
 			   , publish= false
 			   , features = "src/test/java/behaviourTests/features"  // directory of the feature files
 			   )
-public class CucumberTest {
+public class EndToEndCucumberTest {
 }

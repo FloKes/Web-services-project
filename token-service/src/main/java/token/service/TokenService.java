@@ -1,5 +1,6 @@
 package token.service;
 
+import DTOs.TokenIdDTO;
 import domain.Token;
 import messaging.Event;
 import messaging.MessageQueue;
@@ -12,7 +13,7 @@ public class TokenService {
     MessageQueue queue;
     TokenRepository repository;
     public static final String TOKEN_CHECK_REQUESTED = "TokenCheckRequested";
-    public static final String TOKEN_CREATION_REQUESTED = "TokenCreationRequested";
+    public static final String TOKEN_CREATION_REQUESTED = "TokenRequested";
     public static final String TOKEN_PROVIDED = "TokenProvided";
     public static final String TOKEN_CHECK_PROVIDED = "TokenCheckProvided";
     private Map<String, Token> tokenList;
@@ -30,10 +31,13 @@ public class TokenService {
     //This is new
 
     //I think the client also has to do a digital signature on the token
-    public List<String> createToken(String customerId) throws Exception {
+    public TokenIdDTO createToken(String customerId) throws Exception {
+        System.out.println("Token service customerId: " + customerId);
         var tokenIdList = repository.getTokenIdList(customerId);
+        TokenIdDTO tokenIdDTO = new TokenIdDTO();
+        tokenIdDTO.setTokenIdList(tokenIdList);
         System.out.println("Service list size: " + tokenIdList.size());
-        return tokenIdList;
+        return tokenIdDTO;
     }
 
     public boolean checkToken(String providedTokenID){
@@ -54,15 +58,17 @@ public class TokenService {
 
     public void handleTokenCreationRequested(Event ev) {
         var customerId = ev.getArgument(0, String.class);
+        var correlationId = ev.getArgument(1, CorrelationId.class);
 //        System.out.println(customerId);
-        List<String> tokenIdList = new ArrayList<>();
+        TokenIdDTO tokenIdDTO = new TokenIdDTO();
+        tokenIdDTO.setTokenIdList(new ArrayList<>());
         try {
-            tokenIdList = createToken(customerId);
+            tokenIdDTO = createToken(customerId);
         }
         catch (Exception e){
             System.out.println(e);
         }
-        Event event = new Event(TOKEN_PROVIDED, new Object[] { tokenIdList });
+        Event event = new Event(TOKEN_PROVIDED, new Object[] { tokenIdDTO, correlationId });
         queue.publish(event);
     }
 

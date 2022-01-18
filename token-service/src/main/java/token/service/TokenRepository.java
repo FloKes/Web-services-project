@@ -18,6 +18,9 @@ public class TokenRepository {
     }
 
     public List<String> getTokenIdList(String customerId) throws Exception {
+        if (customerId.length() == 0){
+            throw new Exception("Customer id is empty");
+        }
         List<String> tokens = new ArrayList<>();
         int requiredNumber = 0;
         Long numberOfTokens = tokenList.values().stream()

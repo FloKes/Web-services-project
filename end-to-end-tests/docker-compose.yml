@@ -18,4 +18,8 @@ services:
     image: payment-service
     container_name: payment-service
 
+  token-service:
+    image: token-service
+    container_name: token-service
+
  

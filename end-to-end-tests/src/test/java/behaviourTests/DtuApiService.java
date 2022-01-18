@@ -1,6 +1,7 @@
 package behaviourTests;
 
 import behaviourTests.dtos.AccountDTO;
+import behaviourTests.dtos.TokenIdDTO;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -34,6 +35,12 @@ public class DtuApiService {
         return response;
     }
 
+    public TokenIdDTO requestToken(String customerId) {
+        Client client = ClientBuilder.newClient();
+        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
+        var response = r.path("/customer/tokens/" + customerId + "/tokens").request(MediaType.APPLICATION_JSON_TYPE).get(TokenIdDTO.class);
+        return response;
+        }
 
 //    public Response createUser(UserRest user){
 //
