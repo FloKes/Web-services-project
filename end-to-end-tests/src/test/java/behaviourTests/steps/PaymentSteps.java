@@ -152,6 +152,17 @@ public class PaymentSteps {
         paymentResponse = dtuPayService.requestPayment(paymentDTO);
     }
 
+    @Then("the customer has {int} kr in the bank")
+    public void theCustomerHasKrInTheBank(Integer amount) throws BankServiceException_Exception {
+        var balance = bankService.getAccount(customerAccountDTO.getBankAccount()).getBalance().intValue();
+        assertEquals(amount, balance);
+    }
+    @Then("the merchant {int} bank")
+    public void theMerchantBank(Integer amount) throws BankServiceException_Exception {
+        var balance = bankService.getAccount(merchantAccountDTO.getBankAccount()).getBalance().intValue();
+        assertEquals(amount, balance);
+    }
+
     @When("the customer {string} {string} has invalid tokens")
     public void theCustomerHasInvalidTokens(String string, String string2) {
         tokens = new ArrayList<String>();

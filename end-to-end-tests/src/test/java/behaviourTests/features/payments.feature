@@ -10,6 +10,8 @@ Feature: Payment Processing
     Then the customer "Bingkun" "Wu" receives 6 tokens
     When the merchant "Soft" "Micro" initializes a payment with the customer "Bingkun" "Wu" of 100 kr to the DTUPay
     Then the payment is successful
+    And the customer has 0 kr in the bank
+    And the merchant 1100 bank
 
 
   Scenario: 6 Successful Payments, 7th unsuccessful
