@@ -3,6 +3,7 @@ package behaviourTests.steps;
 import behaviourTests.DtuApiService;
 import behaviourTests.dtos.AccountDTO;
 import behaviourTests.dtos.TokenIdDTO;
+import io.cucumber.java.After;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Given;
@@ -66,5 +67,10 @@ public class TokenSteps {
     public void theCustomerReceivesTokensResponse(Integer numberOfTokens) {
         var tokenIdDTOReceived = result2.join();
         assertEquals(numberOfTokens, tokenIdDTOReceived.getTokenIdList().size());
+    }
+
+    @After
+    public void closeClient() {
+        service.closeClient();
     }
 }

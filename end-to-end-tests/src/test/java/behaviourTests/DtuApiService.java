@@ -14,9 +14,10 @@ import javax.ws.rs.core.Response;
 public class DtuApiService {
 
     WebTarget baseUrl;
+    Client client;
 
     public DtuApiService() {
-        Client client = ClientBuilder.newClient();
+        client = ClientBuilder.newClient();
         baseUrl = client.target("http://localhost:8080/dtuPayApi");
     }
 
@@ -30,25 +31,25 @@ public class DtuApiService {
     }
 
     public Response requestAccount(AccountDTO accountDTO) {
-        Client client = ClientBuilder.newClient();
-        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
+//        Client client = ClientBuilder.newClient();
+//        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
 //        var response = r.path("/customer/accounts").request().post(Entity.json(accountDTO), AccountDTO.class);
-        var response = r.path("/customer/accounts").request().post(Entity.json(accountDTO));
+        var response = baseUrl.path("/customer/accounts").request().post(Entity.json(accountDTO));
         return response;
     }
 
     public TokenIdDTO requestToken(String customerId) {
-        Client client = ClientBuilder.newClient();
-        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
-        var response = r.path("/customer/tokens/" + customerId + "/tokens").request(MediaType.APPLICATION_JSON_TYPE).get(TokenIdDTO.class);
+//        Client client = ClientBuilder.newClient();
+//        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
+        var response = baseUrl.path("/customer/tokens/" + customerId + "/tokens").request(MediaType.APPLICATION_JSON_TYPE).get(TokenIdDTO.class);
         return response;
     }
 
     public Response requestPayment(PaymentDTO paymentDTO) {
-        Client client = ClientBuilder.newClient();
-        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
+//        Client client = ClientBuilder.newClient();
+//        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
         var merchantId = paymentDTO.getMerchantId();
-        var response = r.path("/merchant/payments/" + merchantId + "/payments").request().post(Entity.json(paymentDTO));
+        var response = baseUrl.path("/merchant/payments/" + merchantId + "/payments").request().post(Entity.json(paymentDTO));
         return response;
     }
 
@@ -60,4 +61,6 @@ public class DtuApiService {
     public void closeResponse(Response response) {
         response.close();
     }
+
+    public  void closeClient() {client.close();}
 }

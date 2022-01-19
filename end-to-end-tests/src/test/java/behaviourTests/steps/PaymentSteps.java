@@ -215,4 +215,9 @@ public class PaymentSteps {
             }
         }
     }
+
+    @After
+    public void closeClient() {
+        dtuPayService.closeClient();
+    }
 }

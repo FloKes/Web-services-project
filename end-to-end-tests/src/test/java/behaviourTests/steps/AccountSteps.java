@@ -2,6 +2,7 @@ package behaviourTests.steps;
 
 import behaviourTests.DtuApiService;
 import behaviourTests.dtos.AccountDTO;
+import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -125,5 +126,10 @@ public class AccountSteps {
         System.out.println("Accoutn 1 id: " + accountDTO1.getAccountId());
         System.out.println("Accoutn 2 id: " + accountDTO2.getAccountId());
         assertNotEquals(accountDTO1.getAccountId(), accountDTO2.getAccountId());
+    }
+
+    @After
+    public void closeClient() {
+        service.closeClient();
     }
 }
