@@ -6,6 +6,14 @@ cd token-service
 call build.bat
 cd ..
 
+cd account-service
+call build.bat
+cd ..
+
+cd payment-service
+call build.bat
+cd ..
+
 cd dtu-pay-service
 call build.bat
 cd ..
