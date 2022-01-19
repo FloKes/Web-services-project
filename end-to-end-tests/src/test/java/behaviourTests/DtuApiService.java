@@ -29,10 +29,11 @@ public class DtuApiService {
         return token;
     }
 
-    public AccountDTO requestAccount(AccountDTO accountDTO) {
+    public Response requestAccount(AccountDTO accountDTO) {
         Client client = ClientBuilder.newClient();
         WebTarget r = client.target("http://localhost:8080/dtuPayApi");
-        var response = r.path("/customer/accounts").request().post(Entity.json(accountDTO), AccountDTO.class);
+//        var response = r.path("/customer/accounts").request().post(Entity.json(accountDTO), AccountDTO.class);
+        var response = r.path("/customer/accounts").request().post(Entity.json(accountDTO));
         return response;
     }
 

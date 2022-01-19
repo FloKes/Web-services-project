@@ -4,12 +4,14 @@ import account.service.domain.Account;
 import account.service.dtos.AccountDTO;
 import account.service.dtos.BankAccountRequestDTO;
 import account.service.dtos.Mapper;
+import io.cucumber.java.an.E;
 import messaging.Event;
 import messaging.MessageQueue;
 
 public class AccountService {
     public static final String ACCOUNT_REQUESTED = "AccountRequested";
     public static final String ACCOUNT_PROVIDED = "AccountProvided";
+    public static final String ACCOUNT_EXISTS = "AccountExists";
 
     public static final String BANK_ACCOUNT_REQUESTED = "BankAccountRequested";
     public static final String BANK_ACCOUNT_PROVIDED = "BankAccountProvided";
@@ -22,17 +24,27 @@ public class AccountService {
         this.queue.addHandler(BANK_ACCOUNT_REQUESTED, this::handleGetBankAccountRequested);
     }
 
-    public void handleAccountRequested(Event ev) {
+    public void handleAccountRequested(Event ev){
         var account = new Account();
         var accountDTOReceived = ev.getArgument(0, AccountDTO.class);
         var correlationId = ev.getArgument(1, CorrelationId.class);
         Mapper.mapAccountDTOToAccount(accountDTOReceived, account);
-        System.out.println(account);
-        accountManager.createAccount(account);
+//        System.out.println(account);
         AccountDTO accountDTO = new AccountDTO();
         Mapper.mapAccountToDTO(account, accountDTO);
-        Event event = new Event(ACCOUNT_PROVIDED, new Object[] { accountDTO, correlationId });
-        queue.publish(event);
+        try {
+            var accountId = accountManager.createAccount(account);
+            accountDTO.setAccountId(accountId);
+            System.out.println("Accoutnservice: " + accountDTO);
+            Event event = new Event(ACCOUNT_PROVIDED, new Object[] { accountDTO, correlationId });
+            queue.publish(event);
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            accountDTO.setErrorMessage(e.getMessage());
+            Event event = new Event(ACCOUNT_EXISTS, new Object[] {accountDTO, correlationId});
+            queue.publish(event);
+        }
     }
 
     public void handleGetBankAccountRequested(Event ev) {

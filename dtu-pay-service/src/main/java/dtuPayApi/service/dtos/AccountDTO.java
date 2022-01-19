@@ -14,4 +14,5 @@ public class AccountDTO implements Serializable{
     private String cpr;
     private String accountId;
     private String bankAccount;
+    private String errorMessage;
 }

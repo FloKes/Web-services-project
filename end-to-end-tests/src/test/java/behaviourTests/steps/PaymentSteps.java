@@ -96,10 +96,26 @@ public class PaymentSteps {
     @When("the two accounts are registering at the same time")
     public void theTwoAccountsAreRegisteringAtTheSameTime() {
         var thread1 = new Thread(() -> {
-            merchantAccountWithId.complete(dtuPayService.requestAccount(merchantAccountDTO));
+            var response = dtuPayService.requestAccount(merchantAccountDTO);
+            if (response.getStatus()==201){
+                var accountDTO = response.readEntity(AccountDTO.class);
+                merchantAccountWithId.complete(accountDTO);
+            }
+            else {
+                response.close();
+                fail("Response code: " + response.getStatus());
+            }
         });
         var thread2 = new Thread(() -> {
-            customerAccountId.complete(dtuPayService.requestAccount(customerAccountDTO));
+            var response = dtuPayService.requestAccount(customerAccountDTO);
+            if (response.getStatus()==201){
+                var accountDTO = response.readEntity(AccountDTO.class);
+                customerAccountId.complete(accountDTO);
+            }
+            else {
+                response.close();
+                fail("Response code: " + response.getStatus());
+            }
         });
         thread1.start();
         thread2.start();

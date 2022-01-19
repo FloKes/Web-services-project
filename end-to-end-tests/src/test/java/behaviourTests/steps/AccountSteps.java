@@ -6,6 +6,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
+import javax.ws.rs.core.Response;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,6 +28,8 @@ public class AccountSteps {
     private AccountDTO account2;
     private CompletableFuture<AccountDTO> result2 = new CompletableFuture<>();
     private AccountDTO accountReceived2;
+    private Response response1;
+    private Response response2;
 
     @Given("person with name {string} {string} with cpr {string}, bank accountId {string}")
     public void personWithNameWithCprBankAccountId(String firstName, String lastName, String cpr, String bankAccountId) {
@@ -40,15 +43,28 @@ public class AccountSteps {
 
     @When("the user is being registered")
     public void theUserIsBeingRegistered() {
-        var thread1 = new Thread(() -> {
-            result1.complete(service.requestAccount(account1));
-        });
-        thread1.start();
+        response1 = service.requestAccount(account1);
     }
+
     @Then("the user is registered")
     public void theUserIsRegistered() {
+        if (response1.getStatus()==201){
+            var accountDTO = response1.readEntity(AccountDTO.class);
+            result1.complete(accountDTO);
+        }
+        else {
+            response1.close();
+            fail("Response code: " + response1.getStatus());
+        }
         accountReceived1 = result1.join();
     }
+
+    @Then("an {string} error message is returned")
+    public void anErrorMessageIsReturned(String errorMsg) {
+        var receivedError = response1.readEntity(String.class);
+        assertEquals(errorMsg, receivedError);
+    }
+
     @Then("has a non empty id")
     public void hasANonEmptyId() {
         assertNotNull(accountReceived1.getAccountId());
@@ -67,10 +83,27 @@ public class AccountSteps {
     @When("the two accounts are registered at the same time")
     public void theTwoAccountsAreRegisteredAtTheSameTime() {
         var thread1 = new Thread(() -> {
-            result1.complete(service.requestAccount(account1));
+            var response = service.requestAccount(account1);
+            if (response.getStatus()==201){
+                var accountDTO = response.readEntity(AccountDTO.class);
+                result1.complete(accountDTO);
+            }
+            else {
+                response.close();
+                fail("Response code: " + response.getStatus());
+                return;
+            }
         });
         var thread2 = new Thread(() -> {
-            result2.complete(service.requestAccount(account2));
+            var response = service.requestAccount(account2);
+            if (response.getStatus()==201){
+                var accountDTO = response.readEntity(AccountDTO.class);
+                result2.complete(accountDTO);
+            }
+            else {
+                response.close();
+                fail("Response code: " + response.getStatus());
+            }
         });
         thread1.start();
         thread2.start();
@@ -93,6 +126,4 @@ public class AccountSteps {
         System.out.println("Accoutn 2 id: " + accountDTO2.getAccountId());
         assertNotEquals(accountDTO1.getAccountId(), accountDTO2.getAccountId());
     }
-
-
 }
