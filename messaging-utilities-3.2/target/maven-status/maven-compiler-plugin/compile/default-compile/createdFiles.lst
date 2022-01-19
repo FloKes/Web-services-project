@@ -1,0 +1,3 @@
+messaging\implementations\RabbitMqQueue.class
+messaging\MessageQueue.class
+messaging\Event.class
