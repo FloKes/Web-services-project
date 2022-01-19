@@ -52,7 +52,7 @@ public class PaymentSteps {
         try {
             List<AccountInfo> ids = bankService.getAccounts();
             for (var id : ids) {
-                if (id.getUser().getFirstName().equals(firstName)) {
+                if (id.getUser().getCprNumber().equals(cpr)) {
                     bankService.retireAccount(id.getAccountId());
                 }
             }
@@ -80,7 +80,7 @@ public class PaymentSteps {
         try {
             List<AccountInfo> ids = bankService.getAccounts();
             for (var id : ids) {
-                if (id.getUser().getFirstName().equals(firstName)) {
+                if (id.getUser().getCprNumber().equals(cpr)) {
                     bankService.retireAccount(id.getAccountId());
                 }
             }
