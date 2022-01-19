@@ -142,10 +142,25 @@ public class PaymentSteps {
     @When("the merchant {string} {string} initializes a payment with the customer {string} {string} of {int} kr to the DTUPay")
     public void paymentInitialization(String merchantFirstName, String merchantLastName, String customerFirstName, String customerLastName, Integer amount) {
         PaymentDTO paymentDTO = new PaymentDTO();
-        paymentDTO.setCustomerToken(tokens.get(0));
+        if (tokens.size() > 0){
+            paymentDTO.setCustomerToken(tokens.get(0));
+            tokens.remove(0);
+        }
+        else paymentDTO.setCustomerToken("No tokens");
         paymentDTO.setMerchantId(merchantAccount.getAccountId());
         paymentDTO.setAmount(BigDecimal.valueOf(amount));
         paymentResponse = dtuPayService.requestPayment(paymentDTO);
+    }
+
+    @When("the customer {string} {string} has invalid tokens")
+    public void theCustomerHasInvalidTokens(String string, String string2) {
+        tokens = new ArrayList<String>();
+        tokens.add("This is invalid");
+    }
+
+    @Then("the payment is unsuccessful")
+    public void thePaymentIsUnsuccessful() {
+        assertEquals(400, paymentResponse.getStatus());
     }
 
     @Then("the payment is successful")
