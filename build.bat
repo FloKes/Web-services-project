@@ -17,3 +17,5 @@ cd ..
 cd dtu-pay-service
 call build.bat
 cd ..
+
+pause

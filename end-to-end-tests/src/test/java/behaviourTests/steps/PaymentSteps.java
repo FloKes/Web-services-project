@@ -161,11 +161,13 @@ public class PaymentSteps {
     @Then("the payment is unsuccessful")
     public void thePaymentIsUnsuccessful() {
         assertEquals(400, paymentResponse.getStatus());
+        paymentResponse.close();
     }
 
     @Then("the payment is successful")
     public void paymentSuccess() {
         assertEquals(201, paymentResponse.getStatus());
+        paymentResponse.close();
     }
 
     @After
