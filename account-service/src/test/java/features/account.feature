@@ -6,8 +6,16 @@ Feature: Registration
 
   Scenario: Existing account
     When a "AccountRequested" event for a customer with name "Josephine", surname "Mellin", cpr "000000-1234", bank account "1234" is received
+    When a "AccountRequested" event for a customer with name "Josephine", surname "Mellin", cpr "000000-1234", bank account "1234" is received
     Then the "AccountExists" event is sent with error message "Account already exists"
 
+  Scenario: Delete account
+    When a "AccountRequested" event for a customer with name "Florian", surname "Keste", cpr "000000-5321", bank account "1111" is received
+    Then the account gets an account with id "0"
+    When the AccountDeletionRequested event with accountId "0" is received
+    Then the AccountDeleted event is sent
+
+  # TODO Add scenario to delete non existent account
 #  Scenario: Successful Registration to DTUPay
 #    When a "AccountRequested" event for an account is received
 #    Then the "AccountProvided" event is sent

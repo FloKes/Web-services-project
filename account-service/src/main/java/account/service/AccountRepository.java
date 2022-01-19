@@ -7,18 +7,11 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
-public class AccountManager {
-    private static AccountManager accountManager = null;
+public class AccountRepository {
     HashMap<String, Account> accounts;
 
-    private AccountManager() {
+    public AccountRepository() {
         accounts = new HashMap<String,Account>();
-    }
-
-    public static AccountManager getInstance() {
-        if (accountManager == null)
-            accountManager = new AccountManager();
-        return accountManager;
     }
 
     public String createAccount(Account account) throws Exception {
@@ -33,8 +26,11 @@ public class AccountManager {
         return account.getAccountId();
     }
 
-
     public Account getAccount(String id) {
         return accounts.get(id);
+    }
+
+    public Account deleteAccount(String id){
+        return accounts.remove(id);
     }
 }

@@ -29,6 +29,15 @@ public class CustomerResource {
                 : Response.status(Response.Status.CONFLICT).entity(accountDTOProvided.getErrorMessage()).build();
     }
 
+    @Path("/accounts/{accountId}")
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteAccount(@PathParam("accountId") String accountId) throws URISyntaxException {
+        var accountIdProvided = accountService.deleteAccount(accountId);
+        return accountIdProvided.equals(accountId) ? Response.noContent().build()
+                : Response.status(Response.Status.CONFLICT).entity(accountId).build();
+    }
+
     @Path("/tokens/{customerId}/tokens")
     @GET
     @Produces("application/json")

@@ -2,11 +2,16 @@ package behaviourTests.steps;
 
 import behaviourTests.DtuApiService;
 import behaviourTests.dtos.AccountDTO;
+import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.jupiter.api.AfterEach;
+import org.picocontainer.lifecycle.LifecycleState;
 
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -32,6 +37,8 @@ public class AccountSteps {
     private AccountDTO accountReceived2;
     private Response response1;
     private Response response2;
+    private String accountId;
+    private List<String> accountIds = new ArrayList<>();
 
     @Given("person with name {string} {string} with cpr {string}, bank accountId {string}")
     public void personWithNameWithCprBankAccountId(String firstName, String lastName, String cpr, String bankAccountId) {
@@ -69,7 +76,9 @@ public class AccountSteps {
 
     @Then("has a non empty id")
     public void hasANonEmptyId() {
-        assertNotNull(accountReceived1.getAccountId());
+        accountId = accountReceived1.getAccountId();
+        accountIds.add(accountId);
+        assertNotNull(accountId);
     }
 
     @Given("second person with name {string} {string} with cpr {string}, bank accountId {string}")
@@ -118,6 +127,8 @@ public class AccountSteps {
         var accountDTO = result1.join();
         assertEquals(account1.getFirstname(), accountDTO.getFirstname());
         assertNotNull(accountDTO.getAccountId());
+        accountIds.add(accountDTO.getAccountId());
+        System.out.println("Accountids when the first account:" + accountIds);
     }
 
     @Then("the second account has a non empty id different from the first student")
@@ -136,8 +147,28 @@ public class AccountSteps {
         }
         assertEquals(account2.getFirstname(), accountDTO2.getFirstname());
         assertNotNull(accountDTO2.getAccountId());
+        accountIds.add(accountDTO2.getAccountId());
+        System.out.println("Accountids when the second account:" + accountIds);
         System.out.println("Account 1 id: " + accountDTO1.getAccountId());
         System.out.println("Account 2 id: " + accountDTO2.getAccountId());
         assertNotEquals(accountDTO1.getAccountId(), accountDTO2.getAccountId());
+    }
+
+    @When("user deletion is requested")
+    public void userDeletionIsRequested() {
+        response1 = service.deleteCustomerAccount(accountId);
+    }
+    @Then("the account is deleted")
+    public void theAccountIsDeleted() {
+        assertEquals(response1.getStatus(), 204);
+        accountIds.remove(accountId);
+    }
+
+    @After
+    public void deleteAccounts(){
+        for (String id : accountIds) {
+            //TODO we should diferrentiate between customers and merchants in account-service
+            service.deleteCustomerAccount(id);
+        }
     }
 }

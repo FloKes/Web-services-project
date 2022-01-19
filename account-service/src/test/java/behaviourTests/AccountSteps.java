@@ -1,5 +1,6 @@
 package behaviourTests;
 
+import account.service.AccountRepository;
 import account.service.domain.Account;
 import account.service.AccountService;
 import account.service.dtos.AccountDTO;
@@ -9,22 +10,31 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.w3c.dom.stylesheets.LinkStyle;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class AccountSteps {
     Account account;
     private MessageQueue queue = mock(MessageQueue.class);
-    private AccountService accountService = new AccountService(queue);
+    private AccountRepository accountRepository = new AccountRepository();
+    private AccountService accountService = new AccountService(queue, accountRepository);
     private CorrelationId correlationId;
     Account customerAccount;
     AccountDTO customerAccountDTO, merchantAccountDTO;
+    String accountId;
+    List<String> accountIds = new ArrayList<>();
 
-    public AccountSteps(){
-    }
 
     @When("a {string} event for a customer with name {string}, surname {string}, cpr {string}, bank account {string} is received")
     public void anEventForAnCustomerAccountIsReceived(String eventName, String name, String surname,
@@ -45,7 +55,9 @@ public class AccountSteps {
     @Then("the account gets an account with id {string}")
     public void theAccountGetsId(String id) {
         customerAccount.setAccountId(id);
-        assertNotNull(customerAccount.getAccountId());
+        accountIds.add(id);
+        var actual = accountRepository.getAccount(id);
+        assertEquals(customerAccount, actual);
     }
 
     @Then("the {string} event is sent")
@@ -71,4 +83,26 @@ public class AccountSteps {
         var event =  new Event(eventType, new Object[]{accountDTO, correlationId});
         verify(queue).publish(event);
     }
+
+    @When("the AccountDeletionRequested event with accountId {string} is received")
+    public void the_event_with_account_id_is_received(String accountId) {
+        correlationId = CorrelationId.randomId();
+        this.accountId = accountId;
+        accountService.handleAccountDeletionRequested(new Event("AccountDeletionRequested",new Object[] {accountId, correlationId}));
+    }
+
+    @Then("the AccountDeleted event is sent")
+    public void the_account_deleted_event_is_sent() {
+        Event event = new Event("AccountDeleted", new Object[]{accountId, correlationId});
+        accountIds.remove(accountId);
+        verify(queue).publish(event);
+    }
+
+//    @AfterEach
+//    public void delete_accounts(){
+//        for (String id : accountIds) {
+//            System.out.println(id);
+//            //accountService.deleteAccount(id);
+//        }
+//    }
 }
