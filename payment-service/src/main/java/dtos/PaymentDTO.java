@@ -13,6 +13,6 @@ public class PaymentDTO implements Serializable {
     private String merchantId;
     private String customerToken;
     private BigDecimal amount;
-    private String description;
+    private String errorDescription;
 }
 

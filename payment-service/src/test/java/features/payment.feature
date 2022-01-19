@@ -18,4 +18,4 @@ Feature: Payment service feature
     When a "PaymentInitiated" event is received with 100 kr payment amount
     Then the "TokenValidationRequested" event is sent to validate the token
     When the "TokenInvalid" event is received with null customerId
-    Then the "PaymentTokenInvalid" event is sent with error message
+    Then the "PaymentError" event is sent with error message

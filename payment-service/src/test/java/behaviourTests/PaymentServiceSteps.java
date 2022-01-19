@@ -160,7 +160,7 @@ public class PaymentServiceSteps {
     public void thePaymentTokenInvalidIsSent(String eventType) {
         PaymentDTO paymentDTO = new PaymentDTO();
         Mapper.mapPaymentToDTO(payment, paymentDTO);
-        paymentDTO.setDescription("TokenInvalid");
+        paymentDTO.setErrorDescription("Token invalid");
         Event event = new Event(eventType, new Object[] {paymentDTO, correlationId});
         verify(queue).publish(event);
     }

@@ -175,6 +175,14 @@ public class PaymentSteps {
         paymentResponse.close();
     }
 
+    @Then("the payment is unsuccessful with error {string}")
+    public void thePaymentIsUnsuccessfulWithError(String errorDescription) {
+        assertEquals(400, paymentResponse.getStatus());
+        var errorDescriptionReceived = paymentResponse.readEntity(String.class);
+        assertEquals(errorDescription, errorDescriptionReceived);
+        paymentResponse.close();
+    }
+
     @Then("the payment is successful")
     public void paymentSuccess() {
         assertEquals(201, paymentResponse.getStatus());

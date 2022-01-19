@@ -11,7 +11,7 @@ public class Mapper {
         paymentDTO.setPaymentId(payment.getPaymentId());
         paymentDTO.setCustomerToken(payment.getCustomerToken());
         paymentDTO.setMerchantId(payment.getMerchantId());
-        paymentDTO.setDescription(payment.getDescription());
+        paymentDTO.setErrorDescription(payment.getDescription());
     }
 
     public static void mapPaymentDTOToPayment(PaymentDTO paymentDTO, Payment payment){
@@ -19,7 +19,7 @@ public class Mapper {
         payment.setPaymentId(paymentDTO.getPaymentId());
         payment.setCustomerToken(paymentDTO.getCustomerToken());
         payment.setMerchantId(paymentDTO.getMerchantId());
-        payment.setDescription(paymentDTO.getDescription());
+        payment.setDescription(paymentDTO.getErrorDescription());
     }
 
     public static void mapBankAccountRequestDTO(Payment payment, TokenValidationDTO tokenValidationDTO, BankAccountRequestDTO bankAccountRequestDTO){

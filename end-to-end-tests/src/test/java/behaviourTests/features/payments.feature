@@ -13,6 +13,18 @@ Feature: Payment Processing
     And the customer has 0 kr in the bank
     And the merchant 1100 bank
 
+  Scenario: Unsucessful payment when insufficient funds
+    Given merchant with name "Mirko" "Soft" with CPR "000000-1111" has a bank account with 1000 kr
+    And customer with name "Florian" "Kesten" with CPR "000000-2222" has a bank account with 5 kr
+    When the two accounts are registering at the same time
+    Then the customer and merchant has different id
+    When the customer "Florian" "Kesten" has no tokens
+    And the customer "Florian" "Kesten" asks for a token
+    Then the customer "Florian" "Kesten" receives 6 tokens
+    When the merchant "Mirko" "Soft" initializes a payment with the customer "Florian" "Kesten" of 100 kr to the DTUPay
+    Then the payment is unsuccessful with error "Debtor balance will be negative"
+    And the customer has 5 kr in the bank
+    And the merchant 1000 bank
 
   Scenario: 6 Successful Payments, 7th unsuccessful
     Given merchant with name "Softer" "Microer" with CPR "783472-3333" has a bank account with 1000 kr
@@ -44,7 +56,7 @@ Feature: Payment Processing
     Then the customer and merchant has different id
     When the customer "Bingkun" "Wu" has invalid tokens
     When the merchant "Soft" "Micro" initializes a payment with the customer "Bingkun" "Wu" of 100 kr to the DTUPay
-    Then the payment is unsuccessful
+    Then the payment is unsuccessful with error "Token invalid"
 
 
 

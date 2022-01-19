@@ -26,8 +26,9 @@ public class PaymentService {
     public static final String PAYMENT_COMPLETED = "PaymentCompleted";
     public static final String TOKEN_VALIDATION_REQUESTED = "TokenValidationRequested";
     public static final String BANK_ACCOUNT_REQUESTED = "BankAccountRequested";
-    public static final String PAYMENT_BANK_ERROR = "PaymentBankError";
-    public static final String PAYMENT_TOKEN_INVALID = "PaymentTokenInvalid";
+    public static final String PAYMENT_ERROR = "PaymentError";
+//    public static final String PAYMENT_BANK_ERROR = "PaymentBankError";
+//    public static final String PAYMENT_TOKEN_INVALID = "PaymentTokenInvalid";
 
 
     private MessageQueue queue;
@@ -88,8 +89,8 @@ public class PaymentService {
         pendingPayments.remove(correlationId);
         PaymentDTO paymentDTO = new PaymentDTO();
         Mapper.mapPaymentToDTO(payment, paymentDTO);
-        paymentDTO.setDescription("TokenInvalid");
-        Event event = new Event(PAYMENT_TOKEN_INVALID, new Object[] {paymentDTO, correlationId});
+        paymentDTO.setErrorDescription("Token invalid");
+        Event event = new Event(PAYMENT_ERROR, new Object[] {paymentDTO, correlationId});
         queue.publish(event);
     }
 
@@ -107,7 +108,11 @@ public class PaymentService {
             queue.publish(event);
         } catch (BankServiceException_Exception err) {
             pendingPayments.remove(correlationId);
-            Event event = new Event(PAYMENT_BANK_ERROR, new Object[] {err.getMessage(), correlationId});
+            PaymentDTO paymentDTO = new PaymentDTO();
+            Mapper.mapPaymentToDTO(payment, paymentDTO);
+            // Add new error field to payment dto
+            paymentDTO.setErrorDescription(err.getMessage());
+            Event event = new Event(PAYMENT_ERROR, new Object[] {paymentDTO, correlationId});
             queue.publish(event);
         }
     }

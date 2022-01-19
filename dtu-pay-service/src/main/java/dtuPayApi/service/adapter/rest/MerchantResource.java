@@ -7,7 +7,6 @@ import dtuPayApi.service.factories.PaymentFactory;
 import dtuPayApi.service.services.AccountService;
 import dtuPayApi.service.services.PaymentService;
 
-import javax.validation.constraints.Positive;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -33,10 +32,14 @@ public class MerchantResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addPayment(@PathParam("merchantId") String merchantId, PaymentDTO paymentDTO) throws URISyntaxException {
         PaymentDTO returnedPaymentDTO = paymentService.addPayment(paymentDTO); // successful payment returns a paymentDTO with id and description
-        if (returnedPaymentDTO.getDescription() != null && returnedPaymentDTO.getDescription().equals("TokenInvalid")) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("TokenInvalid").build();
-        }
-        return Response.created(new URI("/payments/" + returnedPaymentDTO.getPaymentId())).build();
+//        if (returnedPaymentDTO.getErrorDescription() != null && returnedPaymentDTO.getErrorDescription().equals("TokenInvalid")) {
+//            return Response.status(Response.Status.BAD_REQUEST)
+//                    .entity("TokenInvalid").build();
+//        }
+//        else if(returnedPaymentDTO.getErrorDescription() != null){
+//
+//        }
+        return returnedPaymentDTO.getErrorDescription() == null ? Response.created(new URI("/payments/" + returnedPaymentDTO.getPaymentId())).build()
+                : Response.status(Response.Status.BAD_REQUEST).entity(returnedPaymentDTO.getErrorDescription()).build();
     }
 }
