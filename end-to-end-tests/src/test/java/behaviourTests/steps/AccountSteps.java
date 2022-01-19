@@ -7,7 +7,9 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import javax.ws.rs.core.Response;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,26 +85,28 @@ public class AccountSteps {
     @When("the two accounts are registered at the same time")
     public void theTwoAccountsAreRegisteredAtTheSameTime() {
         var thread1 = new Thread(() -> {
-            var response = service.requestAccount(account1);
-            if (response.getStatus()==201){
-                var accountDTO = response.readEntity(AccountDTO.class);
+            response1 = service.requestAccount(account1);
+            if (response1.getStatus()==201){
+                var accountDTO = response1.readEntity(AccountDTO.class);
                 result1.complete(accountDTO);
             }
             else {
-                response.close();
-                fail("Response code: " + response.getStatus());
-                return;
+                response1.close();
+                // Try catch doesnt seem to work for Cancellation Exception
+                result1.cancel(true);
+                fail("Response code for account 1: " + response1.getStatus());
             }
         });
         var thread2 = new Thread(() -> {
-            var response = service.requestAccount(account2);
-            if (response.getStatus()==201){
-                var accountDTO = response.readEntity(AccountDTO.class);
+            response2 = service.requestAccount(account2);
+            if (response2.getStatus()==201){
+                var accountDTO = response2.readEntity(AccountDTO.class);
                 result2.complete(accountDTO);
             }
             else {
-                response.close();
-                fail("Response code: " + response.getStatus());
+                response2.close();
+                result2.cancel(true);
+                fail("Response code for account 2: " + response2.getStatus());
             }
         });
         thread1.start();
@@ -118,12 +122,22 @@ public class AccountSteps {
 
     @Then("the second account has a non empty id different from the first student")
     public void theSecondAccountHasANonEmptyIdDifferentFromTheFirstStudent() {
-        var accountDTO1 = result1.join();
-        var accountDTO2 = result2.join();
+        var accountDTO1 = new AccountDTO();
+        var accountDTO2 = new AccountDTO();
+        try {
+            accountDTO1 = result1.join();
+        } catch (CompletionException e) {
+            fail("Response code for first account: " + response1.getStatus());
+        }
+        try {
+            accountDTO2 = result2.join();
+        } catch (CompletionException e) {
+            fail("Response code for second account: " + response2.getStatus());
+        }
         assertEquals(account2.getFirstname(), accountDTO2.getFirstname());
         assertNotNull(accountDTO2.getAccountId());
-        System.out.println("Accoutn 1 id: " + accountDTO1.getAccountId());
-        System.out.println("Accoutn 2 id: " + accountDTO2.getAccountId());
+        System.out.println("Account 1 id: " + accountDTO1.getAccountId());
+        System.out.println("Account 2 id: " + accountDTO2.getAccountId());
         assertNotEquals(accountDTO1.getAccountId(), accountDTO2.getAccountId());
     }
 }

@@ -103,6 +103,7 @@ public class PaymentSteps {
             }
             else {
                 response.close();
+                merchantAccountWithId.cancel(true);
                 fail("Response code: " + response.getStatus());
             }
         });
@@ -114,6 +115,7 @@ public class PaymentSteps {
             }
             else {
                 response.close();
+                customerAccountId.cancel(true);
                 fail("Response code: " + response.getStatus());
             }
         });
