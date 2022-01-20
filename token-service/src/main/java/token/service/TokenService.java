@@ -44,9 +44,6 @@ public class TokenService {
         this.pendingAccountChecks = new ConcurrentHashMap<>();
     }
 
-    //*************************************************************************************
-    //This is new
-
     //I think the client also has to do a digital signature on the token
     public TokenIdDTO createToken(String customerId) throws Exception {
         System.out.println("Token service customerId: " + customerId);

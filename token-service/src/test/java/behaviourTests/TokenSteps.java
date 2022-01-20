@@ -44,7 +44,7 @@ public class TokenSteps {
     private Map<CorrelationId, CompletableFuture<Event>> otherEventsPublished = new HashMap<>();
 
     /**
-     * @author based on Huberts implementation, Florian
+     * @author Florian, based on Huberts implementation
      */
     private MessageQueue customQueue = new MessageQueue() {
         @Override

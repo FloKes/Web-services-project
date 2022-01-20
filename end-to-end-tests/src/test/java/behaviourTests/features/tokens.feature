@@ -18,10 +18,10 @@ Feature: TokenRequestFeature
     When the customer asks for 6 tokens
     Then the customer receives 6 tokens
 
-  Scenario: Registered customer asks for 4 tokens
-    Given person with name "Flo" "Ki" with cpr "000000-5555", bank accountId "56741" is registered
-    When the customer asks for 4 tokens
-    Then the customer receives 4 tokens
+#  Scenario: Registered customer asks for 4 tokens
+#    Given person with name "Flo" "Ki" with cpr "000000-5555", bank accountId "56741" is registered
+#    When the customer asks for 4 tokens
+#    Then the customer receives 4 tokens
 
   Scenario: Unregistered customer asks for tokens
     Given person with id "56741" is not registered

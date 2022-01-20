@@ -16,16 +16,19 @@ public class AccountService {
     public static final String ACCOUNT_EXISTS = "AccountExists";
     public static final String ACCOUNT_DELETION_REQUESTED = "AccountDeletionRequested";
     public static final String ACCOUNT_DELETED = "AccountDeleted";
+    public static final String ACCOUNT_NON_EXISTENT = "AccountNonExistent";
     private MessageQueue queue;
     private Map<CorrelationId, CompletableFuture<AccountDTO>> pendingAccountRequests = new ConcurrentHashMap<>();
     private Map<CorrelationId, CompletableFuture<String>> pendingAccountDeletionRequests = new ConcurrentHashMap<>();
+
 
     public AccountService(MessageQueue q) {
         queue = q;
         queue.addHandler(ACCOUNT_PROVIDED, this::handleAccountProvided);
         queue.addHandler(ACCOUNT_EXISTS, this::handleAccountExists);
-        queue.addHandler(ACCOUNT_EXISTS, this::handleAccountExists);
         queue.addHandler(ACCOUNT_DELETED, this::handleAccountDeleted);
+        queue.addHandler(ACCOUNT_NON_EXISTENT, this::handleAccountNonExistent);
+
     }
 
     public AccountDTO requestAccount(AccountDTO accountDTO) {
@@ -62,5 +65,11 @@ public class AccountService {
         var accountId = e.getArgument(0, String.class);
         var correlationId = e.getArgument(1, CorrelationId.class);
         pendingAccountDeletionRequests.get(correlationId).complete(accountId);
+    }
+
+    public void handleAccountNonExistent(Event e) {
+        var accountId = e.getArgument(0, String.class);
+        var correlationId = e.getArgument(1, CorrelationId.class);
+        pendingAccountDeletionRequests.get(correlationId).complete("Non Existing Account");
     }
 }

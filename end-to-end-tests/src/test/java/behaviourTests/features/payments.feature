@@ -81,4 +81,12 @@ Feature: Payment Processing
     Then the payment is unsuccessful with error "Creditor account does not exist"
 
 
-
+  Scenario: Unsucessful payment, invalid merchant
+    Given merchant with name "Mirko" "Soft" with CPR "000000-1111" has is not registered with DTUPay
+    And customer with name "Florian" "Kesten" with CPR "000000-2222" has a bank account with 100 kr
+    When the customer registers
+    When the customer "Florian" "Kesten" has no tokens
+    And the customer "Florian" "Kesten" asks for a token
+    Then the customer "Florian" "Kesten" receives 6 tokens
+    When the merchant initializes a payment with the customer of 10 kr to DTUPay
+    Then the payment is unsuccessful with error "Merchant not found"
