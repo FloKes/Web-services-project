@@ -9,9 +9,15 @@ import static java.util.stream.Collectors.groupingBy;
 
 public class AccountRepository {
     HashMap<String, Account> accounts;
+    static int id = 0;
 
     public AccountRepository() {
         accounts = new HashMap<String,Account>();
+    }
+
+    private String nextId() {
+        id++;
+        return Integer.toString(id);
     }
 
     public String createAccount(Account account) throws Exception {
@@ -21,7 +27,7 @@ public class AccountRepository {
         if (!existingAccount.isEmpty()) {
             throw new Exception("Account already exists");
         }
-        account.setAccountId(String.valueOf(accounts.size()));
+        account.setAccountId(nextId());
         accounts.put(account.getAccountId(), account);
         return account.getAccountId();
     }

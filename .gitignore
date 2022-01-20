@@ -7,6 +7,6 @@
 /demo_client/.idea
 .idea/
 
-.DT_Store
+.DS_Store
 
 *.bak

@@ -1,7 +1,7 @@
 Feature: Registration
   Scenario: Successful Registration to DTUPay
     When a "AccountRequested" event for a customer with name "Josephine", surname "Mellin", cpr "000000-1234", bank account "1234" is received
-    And the account gets an account with id "0"
+    And the account gets an account with id "1"
     Then the "AccountProvided" event is sent
 
   Scenario: Existing account
