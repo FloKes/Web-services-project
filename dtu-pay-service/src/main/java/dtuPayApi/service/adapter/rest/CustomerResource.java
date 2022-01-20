@@ -31,7 +31,6 @@ public class CustomerResource {
 
     @Path("/accounts/{accountId}")
     @DELETE
-    //TODO: stops if account doesn't exist
     public Response deleteAccount(@PathParam("accountId") String accountId) throws URISyntaxException {
         var accountIdProvided = accountService.deleteAccount(accountId);
         return accountIdProvided.equals(accountId) ? Response.noContent().build()
