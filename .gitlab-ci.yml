@@ -1,0 +1,10 @@
+build:
+  stage: build
+  script:
+    - './build.sh'
+
+test:
+  stage: test
+  script:
+    - './test.sh'
+
