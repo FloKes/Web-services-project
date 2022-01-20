@@ -47,21 +47,23 @@ public class ReportRepository {
     }
 
     public List<Payment> getCustomerReportById(String id) throws Exception {
-        System.out.println("report customer id: "+id);
-        System.out.println("report contains customer id: "+customerReport.containsKey(id));
-
-
         if(customerReport.containsKey(id)){
             return customerReport.get(id);
         }
-        else throw new Exception();
+        else throw new Exception("No report for customer");
     }
 
-    public List<MerchantPayment> getMerchantReportById(String id) {
-        return merchantReport.get(id);
+    public List<MerchantPayment> getMerchantReportById(String id) throws Exception {
+        if(merchantReport.containsKey(id)){
+            return merchantReport.get(id);
+        }
+        else throw new Exception("No report for merchant");
     }
 
-    public List<Payment> getManagerReport() {
+    public List<Payment> getManagerReport() throws Exception {
+        if(managerReport.size()==0) {
+            throw new Exception("No report for manager");
+        }
         return managerReport;
     }
 

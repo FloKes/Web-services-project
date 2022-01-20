@@ -65,7 +65,7 @@ public class ReportService {
             queue.publish(event);
         } catch (Exception e) {
             e.printStackTrace();
-            Event event = new Event(REQUEST_REPORT_ERROR, new Object[] {customerId, correlationId});
+            Event event = new Event(REQUEST_REPORT_ERROR, new Object[] {e.getMessage(), correlationId});
             queue.publish(event);
         }
     }
@@ -73,21 +73,38 @@ public class ReportService {
     public void handleMerchantReportRequested(Event ev) {
         var merchantId = ev.getArgument(0, String.class);
         var correlationId = ev.getArgument(1, CorrelationId.class);
-        List<MerchantPayment> merchantReports = repository.getMerchantReportById(merchantId);
-        MerchantReportDTO reportDTO = new MerchantReportDTO();
-        reportDTO.setMerchantReportList(merchantReports);
-        Event event = new Event(MERCHANT_REPORT_PROVIDED, new Object[] { reportDTO, correlationId });
-        queue.publish(event);
+        List<MerchantPayment> merchantReports = null;
+        try {
+            merchantReports = repository.getMerchantReportById(merchantId);
+            MerchantReportDTO reportDTO = new MerchantReportDTO();
+            reportDTO.setMerchantReportList(merchantReports);
+            Event event = new Event(MERCHANT_REPORT_PROVIDED, new Object[] { reportDTO, correlationId });
+            queue.publish(event);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Event event = new Event(REQUEST_REPORT_ERROR, new Object[] {e.getMessage(), correlationId});
+            queue.publish(event);
+        }
+
 
     }
 
     public void handleManagerReportRequested(Event ev) {
         var correlationId = ev.getArgument(0, CorrelationId.class);
-        List<Payment> managerReports = repository.getManagerReport();
-        ReportDTO reportDTO = new ReportDTO();
-        reportDTO.setReportList(managerReports);
-        Event event = new Event(MANAGER_REPORT_PROVIDED, new Object[] { reportDTO, correlationId });
-        queue.publish(event);
+        List<Payment> managerReports = null;
+        try {
+            managerReports = repository.getManagerReport();
+            ReportDTO reportDTO = new ReportDTO();
+            reportDTO.setReportList(managerReports);
+            Event event = new Event(MANAGER_REPORT_PROVIDED, new Object[] { reportDTO, correlationId });
+            queue.publish(event);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            Event event = new Event(REQUEST_REPORT_ERROR, new Object[] {e.getMessage(), correlationId});
+            queue.publish(event);
+        }
+
     }
 
 

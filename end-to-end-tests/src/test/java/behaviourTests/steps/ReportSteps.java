@@ -1,11 +1,9 @@
 package behaviourTests.steps;
 
 import behaviourTests.DtuApiService;
+import behaviourTests.domain.MerchantPayment;
 import behaviourTests.domain.Payment;
-import behaviourTests.dtos.AccountDTO;
-import behaviourTests.dtos.PaymentDTO;
-import behaviourTests.dtos.ReportDTO;
-import behaviourTests.dtos.TokenIdDTO;
+import behaviourTests.dtos.*;
 import dtu.ws.fastmoney.*;
 import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
@@ -18,8 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ReportSteps {
 
@@ -32,6 +29,9 @@ public class ReportSteps {
     private CompletableFuture<AccountDTO> customerAccountId = new CompletableFuture<>();
     private CompletableFuture<TokenIdDTO> customerToken = new CompletableFuture<>();
     private CompletableFuture<ReportDTO> customerReport = new CompletableFuture<>();
+    private CompletableFuture<MerchantReportDTO> merchantReport = new CompletableFuture<>();
+    private CompletableFuture<ReportDTO> managerReport = new CompletableFuture<>();
+
     List<String> accountIds = new ArrayList<>();
     AccountDTO merchantAccount;
     AccountDTO customerAccount;
@@ -83,6 +83,7 @@ public class ReportSteps {
             fail("Response code: " + response.getStatus());
         }
         merchantAccount = merchantAccountWithId.join();
+        accountIds.add(merchantAccount.getAccountId());
     }
     @Given("a customer {string} {string} with CPR {string} has a bank account with balance {int} and is registered to DTU pay")
     public void aCustomerWithCPRHasABankAccountWithBalanceAndIsRegisteredToDTUPay(String firstName, String lastName, String cpr, Integer balance) {
@@ -111,6 +112,7 @@ public class ReportSteps {
             if (response.getStatus()==201){
                 var accountDTO = response.readEntity(AccountDTO.class);
                 customerAccountId.complete(accountDTO);
+
             }
             else {
                 response.close();
@@ -118,6 +120,7 @@ public class ReportSteps {
                 fail("Response code: " + response.getStatus());
             }
             customerAccount = customerAccountId.join();
+            accountIds.add(customerAccount.getAccountId());
         } catch (BankServiceException_Exception e) {
             System.out.println(e.getMessage());
         }
@@ -143,6 +146,7 @@ public class ReportSteps {
         assertEquals(201, paymentResponse.getStatus());
         paymentResponse.close();
     }
+
     @When("the customer request a report of the payments")
     public void theCustomerRequestAReportOfThePayments() {
         var thread1 = new Thread(() -> {
@@ -154,7 +158,35 @@ public class ReportSteps {
     public void theCustomerReceivesAReportWithPayment(Integer numberOfPayments) {
         var customerReportDTUReceived = customerReport.join();
         List<Payment> report = customerReportDTUReceived.getReportList();
-        assertEquals(numberOfPayments, report.size());
+        assertTrue(numberOfPayments<report.size());
+    }
+
+    @When("the merchant request a report of the payments")
+    public void theMerchantRequestAReportOfThePayments() {
+        var thread1 = new Thread(() -> {
+            merchantReport.complete(dtuPayService.requestMerchantReport(merchantAccount.getAccountId()));
+        });
+        thread1.start();
+    }
+    @Then("the merchant receives a report with {int} payment")
+    public void theMerchantReceivesAReportWithPayment(Integer numberOfPayments) {
+        var merchantReportDTUReceived = merchantReport.join();
+        List<MerchantPayment> report = merchantReportDTUReceived.getMerchantReportList();
+        assertTrue(numberOfPayments<report.size());
+    }
+
+    @When("the manager request a report of the payments")
+    public void theManagerRequestAReportOfThePayments() {
+        var thread1 = new Thread(() -> {
+            managerReport.complete(dtuPayService.requestManagerReport());
+        });
+        thread1.start();
+    }
+    @Then("the manager receives a report with payments")
+    public void theManagerReceivesAReportWithPayments() {
+        var managerReportDTUReceived = managerReport.join();
+        List<Payment> report = managerReportDTUReceived.getReportList();
+        assertNotNull(report);
     }
 
     @After

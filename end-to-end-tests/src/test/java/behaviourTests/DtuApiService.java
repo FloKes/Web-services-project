@@ -1,9 +1,6 @@
 package behaviourTests;
 
-import behaviourTests.dtos.AccountDTO;
-import behaviourTests.dtos.ReportDTO;
-import behaviourTests.dtos.TokenIdDTO;
-import behaviourTests.dtos.PaymentDTO;
+import behaviourTests.dtos.*;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -51,6 +48,20 @@ public class DtuApiService {
 //        Client client = ClientBuilder.newClient();
 //        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
         var response = baseUrl.path("/customer/reports/" + customerId).request(MediaType.APPLICATION_JSON_TYPE).get(ReportDTO.class);
+        return response;
+    }
+
+    public MerchantReportDTO requestMerchantReport(String customerId) {
+//        Client client = ClientBuilder.newClient();
+//        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
+        var response = baseUrl.path("/merchant/reports/" + customerId).request(MediaType.APPLICATION_JSON_TYPE).get(MerchantReportDTO.class);
+        return response;
+    }
+
+    public ReportDTO requestManagerReport() {
+//        Client client = ClientBuilder.newClient();
+//        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
+        var response = baseUrl.path("/manager/reports/").request(MediaType.APPLICATION_JSON_TYPE).get(ReportDTO.class);
         return response;
     }
 

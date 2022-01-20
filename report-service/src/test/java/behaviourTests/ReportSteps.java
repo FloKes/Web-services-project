@@ -49,7 +49,7 @@ public class ReportSteps {
 
 
     @Then("the payment is added to the merchant report")
-    public void thePaymentIsAddedToTheMerchantReport() {
+    public void thePaymentIsAddedToTheMerchantReport() throws Exception {
         List<MerchantPayment> merchantPayments = repository.getMerchantReportById(payment.getMerchantId());
         System.out.println(merchantPayments.size());
         MerchantPayment payment = merchantPayments.get(merchantPayments.size()-1);
@@ -70,7 +70,7 @@ public class ReportSteps {
 
 
     @Then("the payment is added to the manager report")
-    public void thePaymentIsAddedToTheManagerReport() {
+    public void thePaymentIsAddedToTheManagerReport() throws Exception {
         List<Payment> managerPayments = repository.getManagerReport();
         Payment payment = managerPayments.get(managerPayments.size()-1);
         Payment expectedPayment = new Payment();
@@ -103,7 +103,7 @@ public class ReportSteps {
     }
 
     @Then("the {string} event is sent to merchant")
-    public void theEventIsSentToMerchant(String eventName) {
+    public void theEventIsSentToMerchant(String eventName) throws Exception {
         List<MerchantPayment> merchantPayments = repository.getMerchantReportById(payment.getMerchantId());
         MerchantReportDTO reportDTO = new MerchantReportDTO();
         reportDTO.setMerchantReportList(merchantPayments);
@@ -119,7 +119,7 @@ public class ReportSteps {
     }
 
     @Then("the {string} event is sent to manager")
-    public void theEventIsSentToManager(String eventName) {
+    public void theEventIsSentToManager(String eventName) throws Exception {
         List<Payment> managerPayments = repository.getManagerReport();
         ReportDTO reportDTO = new ReportDTO();
         reportDTO.setReportList(managerPayments);
