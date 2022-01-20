@@ -28,3 +28,8 @@ Feature: AccountRequestFeature
     And has a non empty id
     When user deletion is requested
     Then the account is deleted
+
+  Scenario: Account Deletion of a non existing user
+    Given person with name "Flo" "Ki" with cpr "000000-0000", bank accountId "56741"
+    When user deletion is requested
+    Then the account is not found

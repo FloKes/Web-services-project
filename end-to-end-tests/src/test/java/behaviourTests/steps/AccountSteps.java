@@ -163,6 +163,12 @@ public class AccountSteps {
         accountIds.remove(accountId);
     }
 
+    @Then("the account is not found")
+    public void theAccountIsNotFound() {
+        assertEquals(response1.getStatus(), 409);
+
+    }
+
     @After
     public void deleteAccounts(){
         for (String id : accountIds) {
