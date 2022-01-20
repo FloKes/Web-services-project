@@ -9,16 +9,13 @@ import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
 import org.junit.Assert;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import token.service.CorrelationId;
 import token.service.TokenRepository;
 import token.service.TokenService;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,19 +24,54 @@ import static org.mockito.Mockito.*;
 public class TokenSteps {
     public static final String TOKEN_VALIDATION_REQUESTED = "TokenValidationRequested";
     public static final String TOKEN_CREATION_REQUESTED = "TokenCreationRequested";
-    private CorrelationId correlationId;
-    String customerID;
-    String tokenID;
-    List<String> tokenIDList;
-    boolean valid;
-    Exception error;
+    private String customerID;
+    private String tokenID;
+    private List<String> tokenIDList;
+    private boolean valid;
+    private Exception error;
 
     private MessageQueue queue = mock(MessageQueue.class);
     private TokenRepository mockRepository = mock(TokenRepository.class);
     private TokenRepository repository = new TokenRepository();
     private TokenService service = new TokenService(queue, repository);
     private TokenService service2 = new TokenService(queue, mockRepository);
+    private CorrelationId correlationId;
+    private CorrelationId correlationAccountCheckId;
+    private Event eventPublishedByQueue;
+
     private List<String> tokenIds = new ArrayList<>();
+    private Map<String, CompletableFuture<Event>> accountCheckEventsPublished = new HashMap<>();
+    private Map<CorrelationId, CompletableFuture<Event>> otherEventsPublished = new HashMap<>();
+
+    /**
+     * @author Florian, based on Huberts implementation
+     */
+    private MessageQueue customQueue = new MessageQueue() {
+        @Override
+        public void publish(Event event) {
+            if (event.getType().equals("AccountCheckRequested")){
+                var customerId = event.getArgument(0, String.class);
+                correlationAccountCheckId = event.getArgument(1, CorrelationId.class);
+                System.out.println(customerId + ", cid: " + correlationAccountCheckId.toString());
+                accountCheckEventsPublished.get(customerId).complete(event);
+            }
+            else {
+                var correlationId = event.getArgument(1, CorrelationId.class);
+                otherEventsPublished.get(correlationId).complete(event);
+            }
+        }
+        @Override
+        public void addHandler(String eventType, Consumer<Event> handler) {
+        }
+    };
+
+    @Before
+    public void initList(){
+        tokenIDList = new ArrayList<>();
+        System.out.println("Initial list size: " + tokenIDList.size());
+    }
+
+    private TokenService service3 = new TokenService(customQueue, mockRepository);
 
     @Given("The customerID is {string}")
     public void the_customer_id_is(String customerID) {
@@ -66,24 +98,6 @@ public class TokenSteps {
         System.out.println(this.tokenID);
         assertNotNull(this.tokenID);
         Assert.assertEquals("5e6050e9-319e-42ec-bc32-132f567452ba".length(), this.tokenID.length());
-    }
-
-    @After
-    public void deleteUserIDsFromDTUPay(){
-        for ( String ID : tokenIDList){
-            try{
-                service.deleteToken(ID);
-            }
-            catch(Exception e){
-                System.out.println(e.getMessage());
-            }
-        }
-    }
-
-    @Before
-    public void initList(){
-        tokenIDList = new ArrayList<>();
-        System.out.println("Initial list size: " + tokenIDList.size());
     }
 
     @When("his token is being checked")
@@ -139,38 +153,64 @@ public class TokenSteps {
 
     /**
      *
-     * @authoer Florian
+     * @author Florian
      */
-    @When("a {string} event for a {string} is received")
-    public void aEventForACustomerAccountIsReceived(String eventName, String customerId) throws Exception {
-//        List<String> mockList = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6"));
-//        correlationId = CorrelationId.randomId();
-//        Event eventAccountCheckRequested = new Event("AccountCheckRequested", new Object[]{customerId, correlationId});
-//        Event eventAccountCheckProvided = new Event("AccountCheckResultProvided", new Object[]{Boolean.TRUE, correlationId});
-//        when(mockRepository.getTokenIdList(customerId)).thenReturn(mockList);
-//
-//        CompletableFuture<Boolean> checkReceived = new CompletableFuture<>();
-//        var thread1 = new Thread(() -> {
-//            service2.handleTokenCreationRequested(new Event(eventName,new Object[] {customerId, correlationId}));
-//            System.out.println("This happen");
-//        });
-//        thread1.join();
+    @Given("there is a user {string}")
+    public void thereIsAUser(String customerId) throws Exception {
+        this.customerID = customerId;
+        List<String> mockList = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6"));
+        when(mockRepository.getTokenIdList(customerId)).thenReturn(mockList);
+        correlationId = CorrelationId.randomId();
+        System.out.println("correlation id: " + correlationId);
+        accountCheckEventsPublished.put(customerID, new CompletableFuture<>());
+        otherEventsPublished.put(correlationId, new CompletableFuture<>());
     }
 
-
-    @Then("the token is created and its id is not null")
-    public void theTokenIsCreatedAndItsIdIsNotNull() {
+    /**
+     *
+     * @author Florian
+     */
+    @When("a {string} event is received")
+    public void aEventForACustomerAccountIsReceived(String eventName) throws Exception {
+        Event eventReceived = new Event(eventName,new Object[] {customerID, correlationId});
+        var thread = new Thread(() -> {
+            service3.handleTokenCreationRequested(eventReceived);
+        }
+        );
+        thread.start();
     }
 
+    /**
+     * @author Florian
+     */
+    @Then("a AccountCheckRequested event is published")
+    public void aEventIsPublished() {
+        Event event = accountCheckEventsPublished.get(customerID).join();
+        assertEquals("AccountCheckRequested", event.getType());
+        assertEquals(customerID, event.getArgument(0, String.class));
+    }
+
+    /**
+     * @author Florian
+     */
+    @When("a AccountCheckResultProvided event is received with true result")
+    public void aAccountCheckResultProvidedEventIsReceivedWithTrueResult() {
+        Event eventAccountCheckProvided = new Event("AccountCheckResultProvided", new Object[]{Boolean.TRUE, correlationAccountCheckId});
+        service3.handleAccountCheckResultProvided(eventAccountCheckProvided);
+    }
+
+    /**
+     * @author Florian
+     */
     @Then("the {string} event is sent")
     public void theEventIsSent(String eventName) {
-//        List<String> expectedList = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6"));
-//        TokenIdDTO tokenIdDTO = new TokenIdDTO();
-//        tokenIdDTO.setTokenIdList(expectedList);
-//        var event = new Event(eventName, new Object[] {tokenIdDTO, correlationId});
-//        verify(queue).publish(event);
+        List<String> expectedList = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6"));
+        TokenIdDTO tokenIdDTO = new TokenIdDTO();
+        tokenIdDTO.setTokenIdList(expectedList);
+        var event = new Event(eventName, new Object[] {tokenIdDTO, correlationId});
+        var eventPublished = otherEventsPublished.get(correlationId).join();
+        assertEquals(event, eventPublished);
     }
-
 
     /**
      * @author Florian
@@ -213,5 +253,17 @@ public class TokenSteps {
     public void theAllTokensForThatUserAreDeleted() {
         var tokenCount = service.getNumberOfTokensForUser(customerID);
         assertEquals(0, tokenCount);
+    }
+
+    @After
+    public void deleteUserIDsFromDTUPay(){
+        for ( String ID : tokenIDList){
+            try{
+                service.deleteToken(ID);
+            }
+            catch(Exception e){
+                System.out.println(e.getMessage());
+            }
+        }
     }
 }

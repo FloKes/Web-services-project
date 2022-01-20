@@ -44,9 +44,6 @@ public class TokenService {
         this.pendingAccountChecks = new ConcurrentHashMap<>();
     }
 
-    //*************************************************************************************
-    //This is new
-
     //I think the client also has to do a digital signature on the token
     public TokenIdDTO createToken(String customerId) throws Exception {
         System.out.println("Token service customerId: " + customerId);
@@ -60,7 +57,7 @@ public class TokenService {
     public boolean checkToken(String providedTokenID){
         return repository.checkToken(providedTokenID);
     }
-    
+
     public void deleteToken(String tokenID) throws Exception {
         repository.deleteToken(tokenID);
     }
@@ -68,17 +65,16 @@ public class TokenService {
     private String getCustomerIdByTokenId(String tokenId) throws Exception{
         return repository.getCustomerIdByTokenId(tokenId);
     }
-    
+
     public Map<String, Token> getTokenList() {
         return tokenList;
     }
-    
+
     public List<String> getTempTokenIdList(){
         return tempTokenIdList;
     }
 
 
-    //TODO make it unable to create new tokens if no such user is registered
     public void handleTokenCreationRequested(Event ev) {
         var customerId = ev.getArgument(0, String.class);
         var correlationId = ev.getArgument(1, CorrelationId.class);
@@ -88,6 +84,7 @@ public class TokenService {
 
         pendingAccountChecks.put(correlationIdCheckAccount, accountCheckResult);
         Event eventAccountCheck = new Event(ACCOUNT_CHECK_REQUESTED, new Object[]{customerId, correlationIdCheckAccount});
+
         queue.publish(eventAccountCheck);
 
         var result = accountCheckResult.join();
