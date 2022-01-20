@@ -30,7 +30,7 @@ public class DtuApiService {
         return token;
     }
 
-    public Response requestAccount(AccountDTO accountDTO) {
+    public Response registerCustomerAccount(AccountDTO accountDTO) {
 //        Client client = ClientBuilder.newClient();
 //        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
 //        var response = r.path("/customer/accounts").request().post(Entity.json(accountDTO), AccountDTO.class);
@@ -40,9 +40,20 @@ public class DtuApiService {
         return response;
     }
 
-    public TokenIdDTO requestToken(String customerId) {
+    public Response registerMerchantAccount(AccountDTO accountDTO) {
 //        Client client = ClientBuilder.newClient();
 //        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
+
+//        var response = r.path("/customer/accounts").request().post(Entity.json(accountDTO), AccountDTO.class);
+        var response = baseUrl.path("/merchant/accounts").request().post(Entity.json(accountDTO));
+        return response;
+    }
+
+    public TokenIdDTO requestToken(String customerId, int amount) {
+//        Client client = ClientBuilder.newClient();
+//        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
+//        var response = baseUrl.path("/customer/tokens/" + customerId + "/tokens").queryParam("amount", amount).request(MediaType.APPLICATION_JSON_TYPE).get(TokenIdDTO.class);
+
         var response = baseUrl.path("/customer/tokens/" + customerId + "/tokens")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(TokenIdDTO.class);
