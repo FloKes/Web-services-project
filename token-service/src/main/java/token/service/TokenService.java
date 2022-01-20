@@ -75,6 +75,7 @@ public class TokenService {
     }
 
 
+    //TODO make it unable to create new tokens if no such user is registered
     public void handleTokenCreationRequested(Event ev) {
         var customerId = ev.getArgument(0, String.class);
         var correlationId = ev.getArgument(1, CorrelationId.class);
