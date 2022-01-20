@@ -106,6 +106,7 @@ public class PaymentService {
             paymentDTO.setErrorDescription(bankAccountRequestDTO.getErrorMessage());
             Event event = new Event(PAYMENT_ERROR, new Object[] {paymentDTO, correlationId});
             queue.publish(event);
+            return;
         }
         try { // conduct the bank transaction
             bankTransactionService.transferMoney(
