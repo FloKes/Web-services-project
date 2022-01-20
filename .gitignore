@@ -7,7 +7,10 @@
 /demo_client/.idea
 .idea/
 
+
 .DT_Store
 .gitlab-ci.yml
+.DS_Store
+
 
 *.bak
