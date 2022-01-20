@@ -5,8 +5,6 @@ call deploy.bat
 timeout /t 5
 call test.bat
 timeout /t 5
-call stop_service.bat
-
 
 cd ..
 
