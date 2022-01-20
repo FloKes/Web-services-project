@@ -79,6 +79,7 @@ public class AccountService {
     /**
      * @author Florian
      */
+    //TODO add case where user id is empty
     public void handleAccountDeletionRequested(Event ev) {
         var accountId = ev.getArgument(0, String.class);
         CorrelationId correlationId = ev.getArgument(1, CorrelationId.class);
