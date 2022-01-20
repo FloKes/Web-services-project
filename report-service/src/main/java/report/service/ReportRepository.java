@@ -1,5 +1,6 @@
-package token.service;
+package report.service;
 
+import domain.MerchantPayment;
 import domain.Payment;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.Map;
 
 public class ReportRepository {
     private Map<String, List<Payment>> customerReport;
-    private Map<String, List<Payment>> merchantReport;
+    private Map<String, List<MerchantPayment>> merchantReport;
     private List<Payment> managerReport;
 
     public ReportRepository() {
@@ -29,12 +30,13 @@ public class ReportRepository {
         }
     }
 
-    public void addPaymentToMerchantList(String id, Payment payment){
+    public void addPaymentToMerchantList(String id, MerchantPayment payment){
+        System.out.println(id);
         if(merchantReport.containsKey(id)){
             merchantReport.get(id).add(payment);
         }
         else {
-            List<Payment> payments = new ArrayList<>();
+            List<MerchantPayment> payments = new ArrayList<>();
             payments.add(payment);
             merchantReport.put(id, payments);
         }
@@ -48,7 +50,7 @@ public class ReportRepository {
         return customerReport.get(id);
     }
 
-    public List<Payment> getMerchantReportById(String id) {
+    public List<MerchantPayment> getMerchantReportById(String id) {
         return merchantReport.get(id);
     }
 

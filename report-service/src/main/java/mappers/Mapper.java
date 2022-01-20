@@ -1,6 +1,7 @@
 package mappers;
 
 import DTOs.PaymentReportDTO;
+import domain.MerchantPayment;
 import domain.Payment;
 
 public class Mapper {
@@ -9,7 +10,16 @@ public class Mapper {
         payment.setPaymentId(paymentReportDTO.getPaymentId());
         payment.setDescription(paymentReportDTO.getDescription());
         payment.setAmount(paymentReportDTO.getAmount());
-        payment.setMerchantId(payment.getMerchantId());
-        payment.setCustomerId(payment.getCustomerId());
+        payment.setMerchantId(paymentReportDTO.getMerchantId());
+        payment.setCustomerId(paymentReportDTO.getCustomerId());
+        payment.setTokenId(paymentReportDTO.getTokenId());
+    }
+
+    public static void PaymentReportDTOtoMerchantPaymentMapper(PaymentReportDTO paymentReportDTO, MerchantPayment payment) {
+        payment.setPaymentId(paymentReportDTO.getPaymentId());
+        payment.setDescription(paymentReportDTO.getDescription());
+        payment.setAmount(paymentReportDTO.getAmount());
+        payment.setMerchantId(paymentReportDTO.getMerchantId());
+        payment.setTokenId(paymentReportDTO.getTokenId());
     }
 }

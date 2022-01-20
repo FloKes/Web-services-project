@@ -4,22 +4,21 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
-@Data // Automatic getter and setters and equals etc
-public class Payment {
-
+@Data
+public class MerchantPayment {
     private String paymentId;
     private String merchantId;
-    private String customerId;
+    private String tokenId;
     private BigDecimal amount;
     private String description;
-    private String tokenId;
+
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Payment)) {
+        if (!(o instanceof MerchantPayment)) {
             return false;
         }
-        var c = (Payment) o;
+        var c = (MerchantPayment) o;
         return paymentId != null && paymentId.equals(c.getPaymentId()) ||
                 paymentId == null && c.getPaymentId() == null;
     }
@@ -34,3 +33,6 @@ public class Payment {
         return String.format("PaymentId:  %s", paymentId);
     }
 }
+
+
+

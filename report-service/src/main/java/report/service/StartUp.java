@@ -1,4 +1,4 @@
-package token.service;
+package report.service;
 import messaging.implementations.RabbitMqQueue;
 
 public class StartUp {
