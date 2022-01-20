@@ -24,11 +24,11 @@ public class PaymentSteps {
     List<String> bankAccountIds = new ArrayList<>();
     AccountDTO merchantAccountDTO; // AccountDTO received for registration
     AccountDTO customerAccountDTO; // AccountDTO received for registration
-    private CompletableFuture<AccountDTO> merchantAccountWithId = new CompletableFuture<>();
-    private CompletableFuture<AccountDTO> customerAccountId = new CompletableFuture<>();
+    private CompletableFuture<AccountDTO> merchantAccountCompletableFuture = new CompletableFuture<>();
+    private CompletableFuture<AccountDTO> customerAccountCompletableFuture = new CompletableFuture<>();
     private CompletableFuture<TokenIdDTO> customerToken = new CompletableFuture<>();
-    AccountDTO merchantAccount;
-    AccountDTO customerAccount;
+    AccountDTO receivedMerchantAccountDTO;
+    AccountDTO receivedCustomerAccountDTO;
     private List<String> tokens;
     private Response paymentResponse;
     private String accountId;
@@ -119,11 +119,11 @@ public class PaymentSteps {
             var response = dtuPayService.registerMerchantAccount(merchantAccountDTO);
             if (response.getStatus()==201){
                 var accountDTO = response.readEntity(AccountDTO.class);
-                merchantAccountWithId.complete(accountDTO);
+                merchantAccountCompletableFuture.complete(accountDTO);
             }
             else {
                 response.close();
-                merchantAccountWithId.cancel(true);
+                merchantAccountCompletableFuture.cancel(true);
                 fail("Response code: " + response.getStatus());
             }
         });
@@ -131,11 +131,11 @@ public class PaymentSteps {
             var response = dtuPayService.registerCustomerAccount(customerAccountDTO);
             if (response.getStatus()==201){
                 var accountDTO = response.readEntity(AccountDTO.class);
-                customerAccountId.complete(accountDTO);
+                customerAccountCompletableFuture.complete(accountDTO);
             }
             else {
                 response.close();
-                customerAccountId.cancel(true);
+                customerAccountCompletableFuture.cancel(true);
                 fail("Response code: " + response.getStatus());
             }
         });
@@ -147,17 +147,17 @@ public class PaymentSteps {
 
     @Then("the customer and merchant has different id")
     public void theMerchantHasANonEmptyId() {
-        merchantAccount = merchantAccountWithId.join();
-        customerAccount = customerAccountId.join();
-        assertEquals(customerAccountDTO.getFirstname(), customerAccount.getFirstname());
-        assertEquals(merchantAccountDTO.getFirstname(), merchantAccount.getFirstname());
-        assertNotNull(customerAccount.getAccountId());
-        assertNotNull(merchantAccount.getAccountId());
-        accountIds.add(customerAccount.getAccountId());
-        accountIds.add(merchantAccount.getAccountId());
-        System.out.println("customer id: " + customerAccount.getAccountId());
-        System.out.println("merchant id: " + merchantAccount.getAccountId());
-        assertNotEquals(customerAccount.getAccountId(), merchantAccount.getAccountId());
+        receivedMerchantAccountDTO = merchantAccountCompletableFuture.join();
+        receivedCustomerAccountDTO = customerAccountCompletableFuture.join();
+        assertEquals(customerAccountDTO.getFirstname(), receivedCustomerAccountDTO.getFirstname());
+        assertEquals(merchantAccountDTO.getFirstname(), receivedMerchantAccountDTO.getFirstname());
+        assertNotNull(receivedCustomerAccountDTO.getAccountId());
+        assertNotNull(receivedMerchantAccountDTO.getAccountId());
+        accountIds.add(receivedCustomerAccountDTO.getAccountId());
+        accountIds.add(receivedMerchantAccountDTO.getAccountId());
+        System.out.println("customer id: " + receivedCustomerAccountDTO.getAccountId());
+        System.out.println("merchant id: " + receivedMerchantAccountDTO.getAccountId());
+        assertNotEquals(receivedCustomerAccountDTO.getAccountId(), receivedMerchantAccountDTO.getAccountId());
     }
 
     @When("the customer {string} {string} has no tokens")
@@ -169,7 +169,7 @@ public class PaymentSteps {
     @When("the customer {string} {string} asks for a token")
     public void theCustomerAsksForAToken(String firstName, String lastName) {
         var thread1 = new Thread(() -> {
-            customerToken.complete(dtuPayService.requestToken(customerAccount.getAccountId(), 6));
+            customerToken.complete(dtuPayService.requestToken(receivedCustomerAccountDTO.getAccountId(), 6));
         });
         thread1.start();
     }
@@ -189,10 +189,28 @@ public class PaymentSteps {
             tokens.remove(0);
         }
         else paymentDTO.setCustomerToken("No tokens");
-        paymentDTO.setMerchantId(merchantAccount.getAccountId());
+        paymentDTO.setMerchantId(receivedMerchantAccountDTO.getAccountId());
         paymentDTO.setAmount(BigDecimal.valueOf(amount));
         paymentResponse = dtuPayService.requestPayment(paymentDTO);
     }
+
+    @When("the invalid merchant {string} {string} with CPR {string} initializes a payment with the customer {string} {string} of {int} kr to the DTUPay")
+    public void invalidMerchant(String merchantFirstName, String merchantLastName, String merchantCpr, String customerFirstName, String customerLastName, Integer amount) {
+        PaymentDTO paymentDTO = new PaymentDTO();
+        if (tokens.size() > 0){
+            paymentDTO.setCustomerToken(tokens.get(0));
+            tokens.remove(0);
+        }
+        else paymentDTO.setCustomerToken("No tokens");
+        AccountDTO invalidMerchantAccount = new AccountDTO();
+        invalidMerchantAccount.setFirstname(merchantFirstName);
+        invalidMerchantAccount.setLastname(merchantLastName);
+        invalidMerchantAccount.setAccountId("4u289u49238u");
+        paymentDTO.setMerchantId(invalidMerchantAccount.getAccountId());
+        paymentDTO.setAmount(BigDecimal.valueOf(amount));
+        paymentResponse = dtuPayService.requestPayment(paymentDTO);
+    }
+
 
     @Then("the customer has {int} kr in the bank")
     public void theCustomerHasKrInTheBank(Integer amount) throws BankServiceException_Exception {
