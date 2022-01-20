@@ -88,6 +88,7 @@ public class TokenService {
 
         pendingAccountChecks.put(correlationIdCheckAccount, accountCheckResult);
         Event eventAccountCheck = new Event(ACCOUNT_CHECK_REQUESTED, new Object[]{customerId, correlationIdCheckAccount});
+
         queue.publish(eventAccountCheck);
 
         var result = accountCheckResult.join();

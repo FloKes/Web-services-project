@@ -41,8 +41,8 @@ public class CustomerResource {
     @Path("/tokens/{customerId}/tokens")
     @GET
     @Produces("application/json")
-    public TokenIdDTO requestTokens(@PathParam("customerId") String customerId) throws URISyntaxException {
-        System.out.println("Facade customer id: " + customerId);
+    public TokenIdDTO requestTokens(@PathParam("customerId") String customerId, @QueryParam("amount") int amount) throws URISyntaxException {
+        System.out.println("Facade customer id: " + customerId + ", requested amount: " + amount);
         var tokenIdDTO = tokenService.requestTokenId(customerId);
         return tokenIdDTO;
     }

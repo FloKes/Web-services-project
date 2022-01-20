@@ -43,14 +43,14 @@ public class TokenSteps {
         assertEquals(tokenCount, tokens.size());
     }
 
-    @When("the customer asks for a token")
-    public void theCustomerAsksForAToken() {
-        result1.complete(service.requestToken(accountId));
+    @When("the customer asks for {int} tokens")
+    public void theCustomerAsksForAToken(int amount) {
+        result1.complete(service.requestToken(accountId, amount));
     }
 
-    @When("the customer asks again for a token")
-    public void theCustomerAsksAgainForAToken() {
-        result2.complete(service.requestToken(accountId));
+    @When("the customer asks again for {int} tokens")
+    public void theCustomerAsksAgainForAToken(int amount) {
+        result2.complete(service.requestToken(accountId, amount));
     }
 
     @Then("the customer receives {int} tokens")
@@ -75,7 +75,7 @@ public class TokenSteps {
         account1.setCpr(cpr);
         account1.setBankAccount(bankAccountId);
         assertNull(account1.getAccountId());
-        var response = service.requestAccount(account1);
+        var response = service.registerCustomerAccount(account1);
         var accountDTO = response.readEntity(AccountDTO.class);
         assertNotNull(accountDTO.getAccountId());
         accountId = accountDTO.getAccountId();
