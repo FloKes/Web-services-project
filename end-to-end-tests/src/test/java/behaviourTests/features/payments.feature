@@ -58,5 +58,27 @@ Feature: Payment Processing
     When the merchant "Soft" "Micro" initializes a payment with the customer "Bingkun" "Wu" of 100 kr to the DTUPay
     Then the payment is unsuccessful with error "Token invalid"
 
+  Scenario: Unsuccessful Payment, wrong customer bank account
+    Given merchant with name "Soft" "Micro" with CPR "783472-4235" has a bank account with 1000 kr
+    And customer with name "Bingkun" "Wu" with CPR "123456-2234" has registered with wrong bank account
+    When the two accounts are registering at the same time
+    Then the customer and merchant has different id
+    When the customer "Bingkun" "Wu" has no tokens
+    And the customer "Bingkun" "Wu" asks for a token
+    Then the customer "Bingkun" "Wu" receives 6 tokens
+    When the merchant "Soft" "Micro" initializes a payment with the customer "Bingkun" "Wu" of 100 kr to the DTUPay
+    Then the payment is unsuccessful with error "Debtor account does not exist"
+
+  Scenario: Unsuccessful Payment, wrong merchant bank account
+    Given merchant with name "Soft" "Micro" with CPR "783472-4235" has registered with wrong bank account
+    And customer with name "Bingkun" "Wu" with CPR "123456-2234" has a bank account with 100 kr
+    When the two accounts are registering at the same time
+    Then the customer and merchant has different id
+    When the customer "Bingkun" "Wu" has no tokens
+    And the customer "Bingkun" "Wu" asks for a token
+    Then the customer "Bingkun" "Wu" receives 6 tokens
+    When the merchant "Soft" "Micro" initializes a payment with the customer "Bingkun" "Wu" of 100 kr to the DTUPay
+    Then the payment is unsuccessful with error "Creditor account does not exist"
+
 
 

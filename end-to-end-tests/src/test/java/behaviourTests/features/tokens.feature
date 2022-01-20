@@ -28,7 +28,7 @@ Feature: TokenRequestFeature
     When the customer asks for a token
     Then the customer receives 6 tokens
     When account is deleted
-    And the customer asks for a token
-    Then a no account response is received
+    And the customer asks again for a token
+    Then the customer receives 0 tokens response
 
 
