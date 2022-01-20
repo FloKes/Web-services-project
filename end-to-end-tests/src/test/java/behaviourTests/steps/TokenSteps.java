@@ -37,20 +37,16 @@ public class TokenSteps {
     private String accountId;
 
 
-//    @Given("the customer with id {string} has no tokens")
-//    public void theCustomerWithIdHasNoToken(String customerId) {
-//        this.customerId = customerId;
-//        tokens = new ArrayList<>();
-//        assertEquals(0,tokens.size());
-//    }
-
     @Given("the customer with id {string} has {int} tokens")
     public void theCustomerWithIdHasTokens(String customerId, Integer tokenCount) {
         this.customerId = customerId;
         assertEquals(tokenCount, tokens.size());
     }
 
-
+    @When("the customer asks for a token")
+    public void theCustomerAsksForAToken() {
+        result1.complete(service.requestToken(accountId));
+    }
 
     @When("the customer asks again for a token")
     public void theCustomerAsksAgainForAToken() {
@@ -64,6 +60,7 @@ public class TokenSteps {
         assertEquals(numberOfTokens, tokenIdDTOReceived.getTokenIdList().size());
     }
 
+    
     @Then("the customer receives {int} tokens response")
     public void theCustomerReceivesTokensResponse(Integer numberOfTokens) {
         var tokenIdDTOReceived = result2.join();
@@ -85,10 +82,7 @@ public class TokenSteps {
         accountIds.add(accountId);
     }
 
-    @When("the customer asks for a token")
-    public void theCustomerAsksForAToken() {
-        result1.complete(service.requestToken(accountId));
-    }
+
 
     @When("account is deleted")
     public void accountIsDeleted() {

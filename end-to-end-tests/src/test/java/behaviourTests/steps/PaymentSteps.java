@@ -95,6 +95,24 @@ public class PaymentSteps {
         }
     }
 
+    @Given("customer with name {string} {string} with CPR {string} has registered with wrong bank account")
+    public void customerWithNameWithCPRHasRegisteredWithWrongBankAccount(String firstName, String lastName, String cpr) {
+        customerAccountDTO = new AccountDTO();
+        customerAccountDTO.setFirstname(firstName);
+        customerAccountDTO.setLastname(lastName);
+        customerAccountDTO.setCpr(cpr);
+        customerAccountDTO.setAccountId("0142");
+    }
+
+    @Given("merchant with name {string} {string} with CPR {string} has registered with wrong bank account")
+    public void merchantWithNameWithCPRHasRegisteredWithWrongBankAccount(String firstName, String lastName, String cpr) {
+        merchantAccountDTO = new AccountDTO();
+        merchantAccountDTO.setFirstname(firstName);
+        merchantAccountDTO.setLastname(lastName);
+        merchantAccountDTO.setCpr(cpr);
+        merchantAccountDTO.setAccountId("01424");
+    }
+
     @When("the two accounts are registering at the same time")
     public void theTwoAccountsAreRegisteringAtTheSameTime() {
         var thread1 = new Thread(() -> {
@@ -124,6 +142,8 @@ public class PaymentSteps {
         thread1.start();
         thread2.start();
     }
+
+
 
     @Then("the customer and merchant has different id")
     public void theMerchantHasANonEmptyId() {
@@ -210,6 +230,8 @@ public class PaymentSteps {
         assertEquals(201, paymentResponse.getStatus());
         paymentResponse.close();
     }
+
+
 
     @After
     public void removeAccounts() {
