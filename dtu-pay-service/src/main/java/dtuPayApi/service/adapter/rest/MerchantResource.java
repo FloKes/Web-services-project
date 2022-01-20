@@ -55,8 +55,9 @@ public class MerchantResource {
     @Path("/reports/{merchantId}")
     @GET
     @Produces("application/json")
-    public MerchantReportDTO requestCustomerReport(@PathParam("merchantId") String merchantId) {
+    public Response requestCustomerReport(@PathParam("merchantId") String merchantId) throws URISyntaxException {
         var reportDTO = reportService.requestMerchantReport(merchantId);
-        return reportDTO;
+        return reportDTO.getMerchantReportList().size() == 0 ? Response.status(Response.Status.NOT_FOUND).entity(reportDTO).build()
+                : Response.created(new URI("merchant/reports/" + merchantId)).entity(reportDTO).build();
     }
 }

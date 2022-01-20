@@ -150,18 +150,13 @@ public class ReportSteps {
     @When("the customer request a report of the payments")
     public void theCustomerRequestAReportOfThePayments() {
         customerResponse = dtuPayService.requestCustomerReport(customerAccount.getAccountId());
-
-    /*    var thread1 = new Thread(() -> {
-            customerReport.complete(dtuPayService.requestCustomerReport(customerAccount.getAccountId()));
-        });
-        thread1.start();
-    }*/
     }
 
     @Then("the customer receives a report with at least {int} payments")
     public void theCustomerReceivesAReportWithPayment(Integer numberOfPayments) {
         if(customerResponse.getStatus() == 201){
             var reportDTO = customerResponse.readEntity(ReportDTO.class);
+
             customerReport.complete(reportDTO);
         } else if (customerResponse.getStatus() == 404) {
             var reportDTO = customerResponse.readEntity(ReportDTO.class);
@@ -174,16 +169,17 @@ public class ReportSteps {
 
     @When("the merchant request a report of the payments")
     public void theMerchantRequestAReportOfThePayments() {
-        var thread1 = new Thread(() -> {
-            merchantReport.complete(dtuPayService.requestMerchantReport(merchantAccount.getAccountId()));
-        });
-        thread1.start();
+        System.out.println("merchant request payments");
+        merchantResponse = dtuPayService.requestMerchantReport(merchantAccount.getAccountId());
     }
 
-    @Then("the merchant receives a report with {int} payment")
+    @Then("the merchant receives a report with at least {int} payments")
     public void theMerchantReceivesAReportWithPayment(Integer numberOfPayments) {
+        System.out.println("merchant receives payments");
+        System.out.println("responseCode: " + merchantResponse.getStatus());
         if (merchantResponse.getStatus() == 201) {
             var reportDTO = merchantResponse.readEntity(MerchantReportDTO.class);
+            System.out.println(reportDTO.getMerchantReportList().size());
             merchantReport.complete(reportDTO);
         }
         else if (merchantResponse.getStatus() == 404) {
@@ -197,17 +193,14 @@ public class ReportSteps {
 
     @When("the manager request a report of the payments")
     public void theManagerRequestAReportOfThePayments() {
-        var thread1 = new Thread(() -> {
-            managerReport.complete(dtuPayService.requestManagerReport());
-        });
-        thread1.start();
+        managerResponse = dtuPayService.requestManagerReport();
     }
 
 
     @Then("the manager receives a report with payments")
     public void theManagerReceivesAReportWithPayments() {
             if (managerResponse.getStatus() == 201) {
-                var reportDTO = merchantResponse.readEntity(ReportDTO.class);
+                var reportDTO = managerResponse.readEntity(ReportDTO.class);
                 managerReport.complete(reportDTO);
             } else if (managerResponse.getStatus() == 404) {
                 var reportDTO = managerResponse.readEntity(ReportDTO.class);
@@ -229,7 +222,10 @@ public class ReportSteps {
             customerReport.complete(null);
             fail("ResponseCode: " + customerResponse.getStatus());
         }*/
-        customerReportReceived = customerReport.join();
+        //customerReport.complete(customerResponse.readEntity(ReportDTO.class));
+        //customerReportReceived = customerReport.join(); //TODO: use this or the one below?
+        customerReportReceived = customerResponse.readEntity(ReportDTO.class);
+
         assertEquals(customerResponse.getStatus(), 404);
         assertEquals(customerReportReceived.getReportList().size(), 0);
     }
@@ -238,7 +234,8 @@ public class ReportSteps {
 
     @Then("the merchant receives a empty report")
     public void theMerchantReceivesAEmptyReport() {
-        merchantReportReceived = merchantReport.join();
+        merchantReportReceived = merchantResponse.readEntity(MerchantReportDTO.class);
+        //merchantReportReceived = merchantReport.join();
         assertEquals(merchantResponse.getStatus(), 404);
         assertEquals(merchantReportReceived.getMerchantReportList().size(), 0);
         /*
@@ -251,8 +248,9 @@ public class ReportSteps {
 
     @Then("the manager receives a empty report")
     public void theManagerReceivesAEmptyReport() {
-        managerReportReceived = managerReport.join();
-        assertEquals(managerResponse.getStatus(), 404);
+        managerReportReceived = managerResponse.readEntity(ReportDTO.class);
+        //managerReportReceived = managerReport.join();
+        assertEquals(404, managerResponse.getStatus());
         assertEquals(managerReportReceived.getReportList().size(), 0);
         /*
         var managerReportDTO = managerReport.join();

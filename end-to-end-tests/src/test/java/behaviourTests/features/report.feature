@@ -14,10 +14,10 @@ Feature: Request report feature
     And the customer has requested tokens
     And one successful payment of 100 kr from customer to merchant has happened
     When the merchant request a report of the payments
-    Then the merchant receives a report with 1 payment
+    Then the merchant receives a report with at least 1 payments
 
   Scenario: Successful manager request of report
-    Given A merchant "Service" "Micro" with CPR "332211-2345" has a bank account with balance 400 and is registered to DTU pay
+    Given A merchant "Service" "Micro" with CPR "125497-2345" has a bank account with balance 400 and is registered to DTU pay
     And a customer "Yoss" "Mellin" with CPR "150291-1234" has a bank account with balance 500 and is registered to DTU pay
     And the customer has requested tokens
     And one successful payment of 100 kr from customer to merchant has happened
@@ -25,10 +25,12 @@ Feature: Request report feature
     Then the manager receives a report with payments
 
   Scenario: A customer requests a report and receives an empty one
+    Given a customer "Yoss" "Mellin" with CPR "141491-1234" has a bank account with balance 500 and is registered to DTU pay
     When the customer request a report of the payments
     Then the customer receives a empty report
 
   Scenario: A merchant requests a report and receives an empty one
+    Given A merchant "Service" "Micro" with CPR "421567-2345" has a bank account with balance 400 and is registered to DTU pay
     When the merchant request a report of the payments
     Then the merchant receives a empty report
 

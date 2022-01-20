@@ -55,6 +55,6 @@ public class CustomerResource {
     public Response requestCustomerReport(@PathParam("customerId") String customerId) throws URISyntaxException {
         var reportDTO = reportService.requestCustomerReport(customerId);
         return reportDTO.getReportList().size() == 0 ? Response.status(Response.Status.NOT_FOUND).entity(reportDTO).build()
-        : Response.created(new URI("customer/reports/" + customerId)).entity(reportDTO).build();
+                : Response.created(new URI("customer/reports/" + customerId)).entity(reportDTO).build();
     }
 }

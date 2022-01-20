@@ -51,17 +51,17 @@ public class DtuApiService {
         return response;
     }
 
-    public MerchantReportDTO requestMerchantReport(String customerId) {
+    public Response requestMerchantReport(String merchantId) {
 //        Client client = ClientBuilder.newClient();
 //        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
-        var response = baseUrl.path("/merchant/reports/" + customerId).request(MediaType.APPLICATION_JSON_TYPE).get(MerchantReportDTO.class);
+        var response = baseUrl.path("/merchant/reports/" + merchantId).request(MediaType.APPLICATION_JSON_TYPE).get();
         return response;
     }
 
-    public ReportDTO requestManagerReport() {
+    public Response requestManagerReport() {
 //        Client client = ClientBuilder.newClient();
 //        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
-        var response = baseUrl.path("/manager/reports/").request(MediaType.APPLICATION_JSON_TYPE).get(ReportDTO.class);
+        var response = baseUrl.path("/manager/reports/").request(MediaType.APPLICATION_JSON_TYPE).get();
         return response;
     }
 
