@@ -1,4 +1,4 @@
-package behaviourTests.steps;
+package behaviourTests.steps.paymentSteps;
 
 import behaviourTests.DtuApiService;
 import behaviourTests.dtos.AccountDTO;
@@ -115,7 +115,7 @@ public class PaymentSteps {
         merchantAccountDTO.setAccountId("01424");
     }
 
-    @Given("merchant with name {string} {string} with CPR {string} has is not registered with DTUPay")
+    @Given("merchant with name {string} {string} with CPR {string} is not registered with DTUPay")
     public void merchantWithNameWithCPRHasIsNotRegisteredWithDTUPay(String firstName, String lastName, String cpr) {
         merchantAccountDTO = new AccountDTO();
         merchantAccountDTO.setFirstname(firstName);
@@ -188,22 +188,22 @@ public class PaymentSteps {
         assertNotEquals(receivedCustomerAccountDTO.getAccountId(), receivedMerchantAccountDTO.getAccountId());
     }
 
-    @When("the customer {string} {string} has no tokens")
-    public void theCustomerHasNoToken(String firstName, String lastName) {
+    @When("the customer has no tokens")
+    public void theCustomerHasNoToken() {
         tokens = new ArrayList<>();
         assertEquals(0, tokens.size());
     }
 
-    @When("the customer {string} {string} asks for a token")
-    public void theCustomerAsksForAToken(String firstName, String lastName) {
+    @When("the customer asks for a token")
+    public void theCustomerAsksForAToken() {
         var thread1 = new Thread(() -> {
             customerToken.complete(dtuPayService.requestToken(receivedCustomerAccountDTO.getAccountId(), 6));
         });
         thread1.start();
     }
 
-    @Then("the customer {string} {string} receives {int} tokens")
-    public void theCustomerReceives6Tokens(String firstName, String lastName, Integer numberOfTokens) {
+    @Then("the customer receives {int} tokens")
+    public void theCustomerReceives6Tokens(Integer numberOfTokens) {
         var tokenIdDTOReceived = customerToken.join();
         tokens = tokenIdDTOReceived.getTokenIdList();
         assertEquals(numberOfTokens, tokens.size());
@@ -235,29 +235,12 @@ public class PaymentSteps {
         paymentResponse = dtuPayService.requestPayment(paymentDTO);
     }
 
-    @When("the invalid merchant {string} {string} with CPR {string} initializes a payment with the customer {string} {string} of {int} kr to the DTUPay")
-    public void invalidMerchant(String merchantFirstName, String merchantLastName, String merchantCpr, String customerFirstName, String customerLastName, Integer amount) {
-        PaymentDTO paymentDTO = new PaymentDTO();
-        if (tokens.size() > 0){
-            paymentDTO.setCustomerToken(tokens.get(0));
-            tokens.remove(0);
-        }
-        else paymentDTO.setCustomerToken("No tokens");
-        AccountDTO invalidMerchantAccount = new AccountDTO();
-        invalidMerchantAccount.setFirstname(merchantFirstName);
-        invalidMerchantAccount.setLastname(merchantLastName);
-        invalidMerchantAccount.setAccountId("4u289u49238u");
-        paymentDTO.setMerchantId(invalidMerchantAccount.getAccountId());
-        paymentDTO.setAmount(BigDecimal.valueOf(amount));
-        paymentResponse = dtuPayService.requestPayment(paymentDTO);
-    }
-
     @Then("the customer has {int} kr in the bank")
     public void theCustomerHasKrInTheBank(Integer amount) throws BankServiceException_Exception {
         var balance = bankService.getAccount(customerAccountDTO.getBankAccount()).getBalance().intValue();
         assertEquals(amount, balance);
     }
-    @Then("the merchant {int} bank")
+    @Then("the merchant has {int} in bank")
     public void theMerchantBank(Integer amount) throws BankServiceException_Exception {
         var balance = bankService.getAccount(merchantAccountDTO.getBankAccount()).getBalance().intValue();
         assertEquals(amount, balance);
