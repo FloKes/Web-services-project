@@ -112,7 +112,6 @@ public class ReportSteps {
             if (response.getStatus()==201){
                 var accountDTO = response.readEntity(AccountDTO.class);
                 customerAccountId.complete(accountDTO);
-
             }
             else {
                 response.close();
@@ -182,6 +181,7 @@ public class ReportSteps {
         });
         thread1.start();
     }
+    
     @Then("the manager receives a report with payments")
     public void theManagerReceivesAReportWithPayments() {
         var managerReportDTUReceived = managerReport.join();

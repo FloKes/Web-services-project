@@ -18,7 +18,9 @@ public class ReportService {
     public static final String MERCHANT_REPORT_PROVIDED = "MerchantReportProvided";
     public static final String MANAGER_REPORT_REQUESTED = "ManagerReportRequested";
     public static final String MANAGER_REPORT_PROVIDED = "ManagerReportProvided";
-    public static final String REQUEST_REPORT_ERROR = "RequestReportErrorProvided";
+    public static final String REQUEST_CUSTOMER_REPORT_ERROR = "RequestCustomerReportErrorProvided";
+    public static final String REQUEST_MERCHANT_REPORT_ERROR = "RequestMerchantReportErrorProvided";
+    public static final String REQUEST_MANAGER_REPORT_ERROR = "RequestManagerReportErrorProvided";
 
 
     private MessageQueue queue;
@@ -32,7 +34,9 @@ public class ReportService {
         queue.addHandler(CUSTOMER_REPORT_PROVIDED, this::handleCustomerReportProvided);
         queue.addHandler(MERCHANT_REPORT_PROVIDED, this::handleMerchantReportProvided);
         queue.addHandler(MANAGER_REPORT_PROVIDED, this::handleManagerReportProvided);
-        queue.addHandler(REQUEST_REPORT_ERROR, this::handleErrorReportProvided);
+        queue.addHandler(REQUEST_CUSTOMER_REPORT_ERROR, this::handleCustomerErrorReportProvided);
+        queue.addHandler(REQUEST_MERCHANT_REPORT_ERROR, this::handleMerchantErrorReportProvided);
+        queue.addHandler(REQUEST_MANAGER_REPORT_ERROR, this::handleManagerErrorReportProvided);
     }
 
     public ReportDTO requestCustomerReport(String customerAccountId) {
@@ -77,9 +81,21 @@ public class ReportService {
         pendingManagerReportRequest.get(correlationId).complete(receivedReports);
     }
 
-    public void handleErrorReportProvided(Event e) {
-        var receivedError = e.getArgument(0, String.class);
+    public void handleCustomerErrorReportProvided(Event e) {
+        var receivedError = e.getArgument(0, ReportDTO.class);
         var correlationId = e.getArgument(1, CorrelationId.class);
-        //pendingManagerReportRequest.get(correlationId).complete(receivedError);
+        pendingCustomerReportRequest.get(correlationId).complete(receivedError);
+    }
+
+    public void handleMerchantErrorReportProvided(Event e) {
+        var receivedError = e.getArgument(0, MerchantReportDTO.class);
+        var correlationId = e.getArgument(1, CorrelationId.class);
+        pendingMerchantReportRequest.get(correlationId).complete(receivedError);
+    }
+
+    public void handleManagerErrorReportProvided(Event e) {
+        var receivedError = e.getArgument(0, ReportDTO.class);
+        var correlationId = e.getArgument(1, CorrelationId.class);
+        pendingManagerReportRequest.get(correlationId).complete(receivedError);
     }
 }
