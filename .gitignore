@@ -8,5 +8,6 @@
 .idea/
 
 .DT_Store
+.gitlab-ci.yml
 
 *.bak
