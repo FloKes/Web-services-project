@@ -58,7 +58,7 @@ public class ReportSteps {
     }
 
     @Then("the payment is added to the customer report")
-    public void thePaymentIsAddedToTheCustomerReport() {
+    public void thePaymentIsAddedToTheCustomerReport() throws Exception {
         List<Payment> customerPayments = repository.getCustomerReportById(payment.getCustomerId());
         Payment payment = customerPayments.get(customerPayments.size()-1);
         Payment expectedPayment = new Payment();
@@ -83,7 +83,7 @@ public class ReportSteps {
     }
 
     @Then("the {string} event is sent to customer")
-    public void theEventIsSentToCustomer(String eventName) {
+    public void theEventIsSentToCustomer(String eventName) throws Exception {
         List<Payment> customerPayments = repository.getCustomerReportById(payment.getCustomerId());
         ReportDTO reportDTO = new ReportDTO();
         reportDTO.setReportList(customerPayments);
@@ -120,6 +120,19 @@ public class ReportSteps {
         ReportDTO reportDTO = new ReportDTO();
         reportDTO.setReportList(managerPayments);
         Event event = new Event(eventName, new Object[] { reportDTO });
+        verify(queue).publish(event);
+    }
+
+
+    @When("a {string} event is received for a customer with no payments")
+    public void anEventReceivedForCustomerWithNoPayments(String eventName) {
+        service.handleCustomerReportRequested(new Event(eventName, new Object[] {"testCustomer"}));
+    }
+
+
+    @Then("the {string} event is sent to customer with no payments")
+    public void anEventProvidedForCustomerWithNoPayments(String eventName) {
+        Event event = (new Event(eventName, new Object[] {"testCustomer"}));
         verify(queue).publish(event);
     }
 }

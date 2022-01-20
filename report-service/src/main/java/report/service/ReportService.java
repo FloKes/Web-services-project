@@ -3,6 +3,7 @@ package report.service;
 import DTOs.MerchantReportDTO;
 import DTOs.PaymentReportDTO;
 import DTOs.ReportDTO;
+import domain.CorrelationId;
 import domain.MerchantPayment;
 import domain.Payment;
 import mappers.Mapper;
@@ -25,6 +26,10 @@ public class ReportService {
     public static final String CUSTOMER_REPORT_PROVIDED = "CustomerReportProvided";
     public static final String MERCHANT_REPORT_PROVIDED = "MerchantReportProvided";
     public static final String MANAGER_REPORT_PROVIDED = "ManagerReportProvided";
+
+    // Event error
+    public static final String REQUEST_REPORT_ERROR = "RequestReportErrorProvided";
+
 
     public ReportService(MessageQueue q, ReportRepository repository) {
         this.queue = q;
@@ -49,11 +54,18 @@ public class ReportService {
 
     public void handleCustomerReportRequested(Event ev) {
         var customerId = ev.getArgument(0, String.class);
-        List<Payment> customerReports = repository.getCustomerReportById(customerId);
-        ReportDTO reportDTO = new ReportDTO();
-        reportDTO.setReportList(customerReports);
-        Event event = new Event(CUSTOMER_REPORT_PROVIDED, new Object[] { reportDTO });
-        queue.publish(event);
+        List<Payment> customerReports = null;
+        try {
+            customerReports = repository.getCustomerReportById(customerId);
+            ReportDTO reportDTO = new ReportDTO();
+            reportDTO.setReportList(customerReports);
+            Event event = new Event(CUSTOMER_REPORT_PROVIDED, new Object[] { reportDTO });
+            queue.publish(event);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Event event = new Event(REQUEST_REPORT_ERROR, new Object[] {customerId});
+            queue.publish(event);
+        }
     }
 
     public void handleMerchantReportRequested(Event ev) {
@@ -74,4 +86,7 @@ public class ReportService {
         Event event = new Event(MANAGER_REPORT_PROVIDED, new Object[] { reportDTO });
         queue.publish(event);
     }
+
+
+
 }

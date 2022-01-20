@@ -46,8 +46,11 @@ public class ReportRepository {
         managerReport.add(payment);
     }
 
-    public List<Payment> getCustomerReportById(String id) {
-        return customerReport.get(id);
+    public List<Payment> getCustomerReportById(String id) throws Exception {
+        if(customerReport.containsKey(id)){
+            return customerReport.get(id);
+        }
+        else throw new Exception();
     }
 
     public List<MerchantPayment> getMerchantReportById(String id) {

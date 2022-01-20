@@ -8,7 +8,7 @@ Feature: Report
     And the payment is added to the manager report
 
 
-  Scenario: Add payment to report request handling
+  Scenario: Report requested for customer, merchant and manager
     Given a payment with paymentId "0", customerId "1", merchantId "2", amount 100, and description "test"
     When a "PaymentCompletedForReport" event is received for the payment
     Then the payment is added to the merchant report
@@ -20,6 +20,12 @@ Feature: Report
     Then the "MerchantReportProvided" event is sent to merchant
     When a "ManagerReportRequested" event is received for the manager report
     Then the "ManagerReportProvided" event is sent to manager
+
+
+  Scenario: Report requested for customer with no payment
+    When a "CustomerReportRequested" event is received for a customer with no payments
+    Then the "RequestReportErrorProvided" event is sent to customer with no payments
+
 
 
 
