@@ -22,4 +22,8 @@ services:
     image: token-service
     container_name: token-service
 
+  report-service:
+    image: report-service
+    container_name: report-service
+
  
