@@ -98,6 +98,15 @@ public class PaymentService {
         BankAccountRequestDTO bankAccountRequestDTO = e.getArgument(0, BankAccountRequestDTO.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
         Payment payment = pendingPayments.get(correlationId);
+        if (bankAccountRequestDTO.getErrorMessage() != null) {
+            pendingPayments.remove(correlationId);
+            PaymentDTO paymentDTO = new PaymentDTO();
+            Mapper.mapPaymentToDTO(payment, paymentDTO);
+            // Add new error field to payment dto
+            paymentDTO.setErrorDescription(bankAccountRequestDTO.getErrorMessage());
+            Event event = new Event(PAYMENT_ERROR, new Object[] {paymentDTO, correlationId});
+            queue.publish(event);
+        }
         try { // conduct the bank transaction
             bankTransactionService.transferMoney(
                     bankAccountRequestDTO.getCustomerBankAccount(), bankAccountRequestDTO.getMerchantBankAccount(), payment.getAmount());

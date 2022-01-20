@@ -60,8 +60,18 @@ public class AccountService {
         CorrelationId correlationId = ev.getArgument(1, CorrelationId.class);
         Account customerAccount = accountRepository.getAccount(bankAccountRequestDTO.getCustomerId());
         Account merchantAccount = accountRepository.getAccount(bankAccountRequestDTO.getMerchantId());
-        bankAccountRequestDTO.setCustomerBankAccount(customerAccount.getBankAccount());
-        bankAccountRequestDTO.setMerchantBankAccount(merchantAccount.getBankAccount());
+        if (customerAccount != null) {
+            bankAccountRequestDTO.setCustomerBankAccount(customerAccount.getBankAccount());
+        }
+        else {
+            bankAccountRequestDTO.setErrorMessage("Customer not found");
+        }
+        if (merchantAccount != null) {
+            bankAccountRequestDTO.setMerchantBankAccount(merchantAccount.getBankAccount());
+        }
+        else {
+            bankAccountRequestDTO.setErrorMessage("Merchant not found");
+        }
         Event event = new Event(BANK_ACCOUNT_PROVIDED, new Object[] {bankAccountRequestDTO, correlationId});
         queue.publish(event);
     }

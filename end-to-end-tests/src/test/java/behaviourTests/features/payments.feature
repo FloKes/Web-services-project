@@ -88,5 +88,6 @@ Feature: Payment Processing
     When the customer "Florian" "Kesten" has no tokens
     And the customer "Florian" "Kesten" asks for a token
     Then the customer "Florian" "Kesten" receives 6 tokens
-    When the merchant initializes a payment with the customer of 10 kr to DTUPay
+#    When the merchant initializes a payment with the customer of 10 kr to DTUPay
+    When the invalid merchant "Donald" "Trump" with CPR "423424-4324" initializes a payment with the customer "Florian" "Kesten" of 10 kr to the DTUPay
     Then the payment is unsuccessful with error "Merchant not found"

@@ -6,9 +6,11 @@ import behaviourTests.dtos.PaymentDTO;
 import behaviourTests.dtos.TokenIdDTO;
 import dtu.ws.fastmoney.*;
 import io.cucumber.java.After;
+import io.cucumber.java.bs.A;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.jupiter.api.AfterEach;
 
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
@@ -233,6 +235,23 @@ public class PaymentSteps {
         paymentResponse = dtuPayService.requestPayment(paymentDTO);
     }
 
+    @When("the invalid merchant {string} {string} with CPR {string} initializes a payment with the customer {string} {string} of {int} kr to the DTUPay")
+    public void invalidMerchant(String merchantFirstName, String merchantLastName, String merchantCpr, String customerFirstName, String customerLastName, Integer amount) {
+        PaymentDTO paymentDTO = new PaymentDTO();
+        if (tokens.size() > 0){
+            paymentDTO.setCustomerToken(tokens.get(0));
+            tokens.remove(0);
+        }
+        else paymentDTO.setCustomerToken("No tokens");
+        AccountDTO invalidMerchantAccount = new AccountDTO();
+        invalidMerchantAccount.setFirstname(merchantFirstName);
+        invalidMerchantAccount.setLastname(merchantLastName);
+        invalidMerchantAccount.setAccountId("4u289u49238u");
+        paymentDTO.setMerchantId(invalidMerchantAccount.getAccountId());
+        paymentDTO.setAmount(BigDecimal.valueOf(amount));
+        paymentResponse = dtuPayService.requestPayment(paymentDTO);
+    }
+
     @Then("the customer has {int} kr in the bank")
     public void theCustomerHasKrInTheBank(Integer amount) throws BankServiceException_Exception {
         var balance = bankService.getAccount(customerAccountDTO.getBankAccount()).getBalance().intValue();
@@ -270,8 +289,6 @@ public class PaymentSteps {
         paymentResponse.close();
     }
 
-
-
     @After
     public void removeAccounts() {
         for (String bankAccountId : bankAccountIds) {
@@ -286,8 +303,8 @@ public class PaymentSteps {
         }
     }
 
-    @After
-    public void closeClient() {
-        dtuPayService.closeClient();
-    }
+//    @After
+//    public void closeClient() {
+//        dtuPayService.closeClient();
+//    }
 }
