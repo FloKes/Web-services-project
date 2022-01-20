@@ -48,8 +48,10 @@ Feature: Token
     Then the token is deleted
 
   Scenario: Token request handling
-    When a "TokenCreationRequested" event for a "Joe" is received
-    Then the token is created and its id is not null
+    Given there is a user "Joe"
+    When a "TokenCreationRequested" event is received
+    Then a AccountCheckRequested event is published
+    When a AccountCheckResultProvided event is received with true result
     And the "TokenProvided" event is sent
 
 
