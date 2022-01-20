@@ -44,10 +44,10 @@ public class DtuApiService {
         return response;
     }
 
-    public ReportDTO requestCustomerReport(String customerId) {
+    public Response requestCustomerReport(String customerId) {
 //        Client client = ClientBuilder.newClient();
 //        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
-        var response = baseUrl.path("/customer/reports/" + customerId).request(MediaType.APPLICATION_JSON_TYPE).get(ReportDTO.class);
+        var response = baseUrl.path("/customer/reports/" + customerId).request(MediaType.APPLICATION_JSON_TYPE).get();
         return response;
     }
 

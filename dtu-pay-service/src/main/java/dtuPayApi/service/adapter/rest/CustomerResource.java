@@ -1,8 +1,6 @@
 package dtuPayApi.service.adapter.rest;
 
 import dtuPayApi.service.dtos.AccountDTO;
-import dtuPayApi.service.dtos.PaymentDTO;
-import dtuPayApi.service.dtos.ReportDTO;
 import dtuPayApi.service.dtos.TokenIdDTO;
 import dtuPayApi.service.factories.AccountFactory;
 import dtuPayApi.service.factories.ReportFactory;
@@ -54,8 +52,9 @@ public class CustomerResource {
     @Path("/reports/{customerId}")
     @GET
     @Produces("application/json")
-    public ReportDTO requestCustomerReport(@PathParam("customerId") String customerId) {
+    public Response requestCustomerReport(@PathParam("customerId") String customerId) throws URISyntaxException {
         var reportDTO = reportService.requestCustomerReport(customerId);
-        return reportDTO;
+        return reportDTO.getReportList().size() == 0 ? Response.status(Response.Status.NOT_FOUND).entity(reportDTO).build()
+        : Response.created(new URI("customer/reports/" + customerId)).entity(reportDTO).build();
     }
 }

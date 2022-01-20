@@ -16,6 +16,7 @@ import report.service.ReportRepository;
 import report.service.ReportService;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -137,7 +138,41 @@ public class ReportSteps {
 
     @Then("the {string} event is sent to customer with no payments")
     public void anEventProvidedForCustomerWithNoPayments(String eventName) {
-        Event event = (new Event(eventName, new Object[] {"testCustomer", customerCorrelationId}));
+        ReportDTO reportDTO = new ReportDTO();
+        reportDTO.setReportList(new ArrayList<>());
+        Event event = (new Event(eventName, new Object[] {reportDTO, customerCorrelationId}));
+        verify(queue).publish(event);
+    }
+
+
+    @When("a {string} event is received for a merchant with no payments")
+    public void anEventReceivedForMerchantWithNoPayments(String eventName) {
+        merchantCorrelationId = CorrelationId.randomId();
+        service.handleMerchantReportRequested(new Event(eventName, new Object[] {"test merchant", merchantCorrelationId}));
+    }
+
+
+    @Then("the {string} event is sent to merchant with no payments")
+    public void anEventProvidedForMerchantWithNoPayments(String eventName) {
+        MerchantReportDTO reportDTO = new MerchantReportDTO();
+        reportDTO.setMerchantReportList(new ArrayList<>());
+        Event event = (new Event(eventName, new Object[] {reportDTO, merchantCorrelationId}));
+        verify(queue).publish(event);
+    }
+
+
+    @When("a {string} event is received for a manager with no payments")
+    public void anEventReceivedForManagerWithNoPayments(String eventName) {
+        managerCorrelationId = CorrelationId.randomId();
+        service.handleManagerReportRequested(new Event(eventName, new Object[] {managerCorrelationId}));
+    }
+
+
+    @Then("the {string} event is sent to manager with no payments")
+    public void anEventProvidedForManagerWithNoPayments(String eventName) {
+        ReportDTO reportDTO = new ReportDTO();
+        reportDTO.setReportList(new ArrayList<>());
+        Event event = (new Event(eventName, new Object[] {reportDTO, managerCorrelationId}));
         verify(queue).publish(event);
     }
 }
