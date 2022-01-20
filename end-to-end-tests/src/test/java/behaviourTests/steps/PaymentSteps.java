@@ -116,7 +116,7 @@ public class PaymentSteps {
     @When("the two accounts are registering at the same time")
     public void theTwoAccountsAreRegisteringAtTheSameTime() {
         var thread1 = new Thread(() -> {
-            var response = dtuPayService.requestAccount(merchantAccountDTO);
+            var response = dtuPayService.registerMerchantAccount(merchantAccountDTO);
             if (response.getStatus()==201){
                 var accountDTO = response.readEntity(AccountDTO.class);
                 merchantAccountWithId.complete(accountDTO);
@@ -128,7 +128,7 @@ public class PaymentSteps {
             }
         });
         var thread2 = new Thread(() -> {
-            var response = dtuPayService.requestAccount(customerAccountDTO);
+            var response = dtuPayService.registerCustomerAccount(customerAccountDTO);
             if (response.getStatus()==201){
                 var accountDTO = response.readEntity(AccountDTO.class);
                 customerAccountId.complete(accountDTO);
@@ -169,7 +169,7 @@ public class PaymentSteps {
     @When("the customer {string} {string} asks for a token")
     public void theCustomerAsksForAToken(String firstName, String lastName) {
         var thread1 = new Thread(() -> {
-            customerToken.complete(dtuPayService.requestToken(customerAccount.getAccountId()));
+            customerToken.complete(dtuPayService.requestToken(customerAccount.getAccountId(), 6));
         });
         thread1.start();
     }

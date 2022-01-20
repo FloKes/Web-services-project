@@ -1,4 +1,4 @@
-package behaviourTests.steps;
+package behaviourTests.steps.accountSteps;
 
 import behaviourTests.DtuApiService;
 import behaviourTests.dtos.AccountDTO;
@@ -6,13 +6,10 @@ import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.junit.jupiter.api.AfterEach;
-import org.picocontainer.lifecycle.LifecycleState;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -51,7 +48,7 @@ public class AccountSteps {
 
     @When("the user is being registered")
     public void theUserIsBeingRegistered() {
-        response1 = service.requestAccount(account1);
+        response1 = service.registerCustomerAccount(account1);
     }
 
     @Then("the user is registered")
@@ -93,7 +90,7 @@ public class AccountSteps {
     @When("the two accounts are registered at the same time")
     public void theTwoAccountsAreRegisteredAtTheSameTime() {
         var thread1 = new Thread(() -> {
-            response1 = service.requestAccount(account1);
+            response1 = service.registerCustomerAccount(account1);
             if (response1.getStatus()==201){
                 var accountDTO = response1.readEntity(AccountDTO.class);
                 result1.complete(accountDTO);
@@ -106,7 +103,7 @@ public class AccountSteps {
             }
         });
         var thread2 = new Thread(() -> {
-            response2 = service.requestAccount(account2);
+            response2 = service.registerCustomerAccount(account2);
             if (response2.getStatus()==201){
                 var accountDTO = response2.readEntity(AccountDTO.class);
                 result2.complete(accountDTO);
@@ -161,6 +158,12 @@ public class AccountSteps {
     public void theAccountIsDeleted() {
         assertEquals(response1.getStatus(), 204);
         accountIds.remove(accountId);
+    }
+
+    @Then("the account is not found")
+    public void theAccountIsNotFound() {
+        assertEquals(response1.getStatus(), 409);
+
     }
 
     @After
