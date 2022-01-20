@@ -48,19 +48,42 @@ public class AccountSteps {
 
     @When("the user is being registered")
     public void theUserIsBeingRegistered() {
-        response1 = service.registerCustomerAccount(account1);
+        var thread = new Thread(() -> {
+            response1 = service.registerCustomerAccount(account1);
+            if (response1.getStatus()==201){
+                var accountDTO = response1.readEntity(AccountDTO.class);
+                result1.complete(accountDTO);
+            }
+            else {
+                response1.close();
+                // Try catch doesnt seem to work for Cancellation Exception
+                result1.cancel(true);
+                fail("Response code for account 1: " + response1.getStatus());
+            }
+        });
+        thread.start();
+    }
+
+    @When("the second user is being registered")
+    public void theSecondUserIsBeingRegistered() {
+        var thread = new Thread(() -> {
+            response2 = service.registerCustomerAccount(account1);
+            if (response1.getStatus()==201){
+                var accountDTO = response1.readEntity(AccountDTO.class);
+                result1.complete(accountDTO);
+            }
+            else {
+                response2.close();
+                // Try catch doesnt seem to work for Cancellation Exception
+                result1.cancel(true);
+                fail("Response code for account 1: " + response1.getStatus());
+            }
+        });
+        thread.start();
     }
 
     @Then("the user is registered")
     public void theUserIsRegistered() {
-        if (response1.getStatus()==201){
-            var accountDTO = response1.readEntity(AccountDTO.class);
-            result1.complete(accountDTO);
-        }
-        else {
-            response1.close();
-            fail("Response code: " + response1.getStatus());
-        }
         accountReceived1 = result1.join();
     }
 

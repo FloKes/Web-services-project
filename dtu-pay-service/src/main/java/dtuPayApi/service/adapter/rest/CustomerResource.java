@@ -32,7 +32,9 @@ public class CustomerResource {
     @Path("/accounts/{accountId}")
     @DELETE
     public Response deleteAccount(@PathParam("accountId") String accountId) throws URISyntaxException {
+        System.out.println("DTUpay api requested account for deletion: " + accountId);
         var accountIdProvided = accountService.deleteAccount(accountId);
+        System.out.println("DTUpay api: " + accountIdProvided);
         return accountIdProvided.equals(accountId) ? Response.noContent().build()
                 : Response.status(Response.Status.CONFLICT).entity(accountId).build();
     }
