@@ -54,16 +54,16 @@ public class DtuApiService {
     }
 
     public Response deleteCustomerAccount(String accountId) {
-        Client client = ClientBuilder.newClient();
-        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
-        var response = r.path("/customer/accounts/" + accountId ).request().delete();
+//        Client client = ClientBuilder.newClient();
+//        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
+        var response = baseUrl.path("/customer/accounts/" + accountId ).request().delete();
         return response;
     }
 
     public Response deleteMerchantAccount(String accountId) {
-        Client client = ClientBuilder.newClient();
-        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
-        var response = r.path("/merchant/accounts/" + accountId ).request().delete();
+//        Client client = ClientBuilder.newClient();
+//        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
+        var response = baseUrl.path("/merchant/accounts/" + accountId ).request().delete();
         return response;
     }
 
