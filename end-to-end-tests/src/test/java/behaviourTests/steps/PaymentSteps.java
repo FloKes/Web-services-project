@@ -224,4 +224,9 @@ public class PaymentSteps {
             dtuPayService.deleteCustomerAccount(accountId);
         }
     }
+
+    @After
+    public void closeClient() {
+        dtuPayService.closeClient();
+    }
 }

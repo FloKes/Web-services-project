@@ -111,4 +111,9 @@ public class TokenSteps {
             service.deleteCustomerAccount(accountId);
         }
     }
+
+    @After
+    public void closeClient() {
+        service.closeClient();
+    }
 }

@@ -170,4 +170,8 @@ public class AccountSteps {
             service.deleteCustomerAccount(id);
         }
     }
+    @After
+    public void closeClient() {
+        service.closeClient();
+    }
 }
