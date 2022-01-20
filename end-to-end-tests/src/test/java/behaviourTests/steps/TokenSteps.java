@@ -43,24 +43,24 @@ public class TokenSteps {
         assertEquals(tokenCount, tokens.size());
     }
 
-    @When("the customer asks for a token")
-    public void theCustomerAsksForAToken() {
-        result1.complete(service.requestToken(accountId, 6));
+    @When("the customer asks for {int} tokens")
+    public void theCustomerAsksForAToken(int amount) {
+        result1.complete(service.requestToken(accountId, amount));
     }
 
-    @When("the customer asks again for a token")
-    public void theCustomerAsksAgainForAToken() {
-        result2.complete(service.requestToken(accountId, 6));
+    @When("the customer asks again for {int} tokens")
+    public void theCustomerAsksAgainForAToken(int amount) {
+        result2.complete(service.requestToken(accountId, amount));
     }
 
-    @Then("the customer receives {int} tokens")
+    @Then("the customer receives {int} tokenss")
     public void theCustomerReceivesTokens(Integer numberOfTokens) {
         var tokenIdDTOReceived = result1.join();
         tokens = tokenIdDTOReceived.getTokenIdList();
         assertEquals(numberOfTokens, tokenIdDTOReceived.getTokenIdList().size());
     }
 
-    
+
     @Then("the customer receives {int} tokens response")
     public void theCustomerReceivesTokensResponse(Integer numberOfTokens) {
         var tokenIdDTOReceived = result2.join();

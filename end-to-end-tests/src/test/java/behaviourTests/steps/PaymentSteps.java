@@ -6,9 +6,11 @@ import behaviourTests.dtos.PaymentDTO;
 import behaviourTests.dtos.TokenIdDTO;
 import dtu.ws.fastmoney.*;
 import io.cucumber.java.After;
+import io.cucumber.java.bs.A;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.jupiter.api.AfterEach;
 
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
@@ -24,11 +26,11 @@ public class PaymentSteps {
     List<String> bankAccountIds = new ArrayList<>();
     AccountDTO merchantAccountDTO; // AccountDTO received for registration
     AccountDTO customerAccountDTO; // AccountDTO received for registration
-    private CompletableFuture<AccountDTO> merchantAccountWithId = new CompletableFuture<>();
-    private CompletableFuture<AccountDTO> customerAccountId = new CompletableFuture<>();
+    private CompletableFuture<AccountDTO> merchantAccountCompletableFuture = new CompletableFuture<>();
+    private CompletableFuture<AccountDTO> customerAccountCompletableFuture = new CompletableFuture<>();
     private CompletableFuture<TokenIdDTO> customerToken = new CompletableFuture<>();
-    AccountDTO merchantAccount;
-    AccountDTO customerAccount;
+    AccountDTO receivedMerchantAccountDTO;
+    AccountDTO receivedCustomerAccountDTO;
     private List<String> tokens;
     private Response paymentResponse;
     private String accountId;
@@ -113,17 +115,45 @@ public class PaymentSteps {
         merchantAccountDTO.setAccountId("01424");
     }
 
+    @Given("merchant with name {string} {string} with CPR {string} is not registered with DTUPay")
+    public void merchantWithNameWithCPRHasIsNotRegisteredWithDTUPay(String firstName, String lastName, String cpr) {
+        merchantAccountDTO = new AccountDTO();
+        merchantAccountDTO.setFirstname(firstName);
+        merchantAccountDTO.setLastname(lastName);
+        merchantAccountDTO.setCpr(cpr);
+        merchantAccountDTO.setAccountId("01424");
+        receivedMerchantAccountDTO = merchantAccountDTO;
+    }
+    @When("the customer registers")
+    public void theCustomerRegisters() {
+        var thread = new Thread(() -> {
+            var response = dtuPayService.registerCustomerAccount(customerAccountDTO);
+            if (response.getStatus()==201){
+                var accountDTO = response.readEntity(AccountDTO.class);
+                customerAccountCompletableFuture.complete(accountDTO);
+            }
+            else {
+                response.close();
+                customerAccountCompletableFuture.cancel(true);
+                fail("Response code: " + response.getStatus());
+            }
+        });
+        thread.start();
+        receivedCustomerAccountDTO = customerAccountCompletableFuture.join();
+        accountIds.add(receivedCustomerAccountDTO.getAccountId());
+    }
+
     @When("the two accounts are registering at the same time")
     public void theTwoAccountsAreRegisteringAtTheSameTime() {
         var thread1 = new Thread(() -> {
             var response = dtuPayService.registerMerchantAccount(merchantAccountDTO);
             if (response.getStatus()==201){
                 var accountDTO = response.readEntity(AccountDTO.class);
-                merchantAccountWithId.complete(accountDTO);
+                merchantAccountCompletableFuture.complete(accountDTO);
             }
             else {
                 response.close();
-                merchantAccountWithId.cancel(true);
+                merchantAccountCompletableFuture.cancel(true);
                 fail("Response code: " + response.getStatus());
             }
         });
@@ -131,11 +161,11 @@ public class PaymentSteps {
             var response = dtuPayService.registerCustomerAccount(customerAccountDTO);
             if (response.getStatus()==201){
                 var accountDTO = response.readEntity(AccountDTO.class);
-                customerAccountId.complete(accountDTO);
+                customerAccountCompletableFuture.complete(accountDTO);
             }
             else {
                 response.close();
-                customerAccountId.cancel(true);
+                customerAccountCompletableFuture.cancel(true);
                 fail("Response code: " + response.getStatus());
             }
         });
@@ -143,42 +173,40 @@ public class PaymentSteps {
         thread2.start();
     }
 
-
-
     @Then("the customer and merchant has different id")
     public void theMerchantHasANonEmptyId() {
-        merchantAccount = merchantAccountWithId.join();
-        customerAccount = customerAccountId.join();
-        assertEquals(customerAccountDTO.getFirstname(), customerAccount.getFirstname());
-        assertEquals(merchantAccountDTO.getFirstname(), merchantAccount.getFirstname());
-        assertNotNull(customerAccount.getAccountId());
-        assertNotNull(merchantAccount.getAccountId());
-        accountIds.add(customerAccount.getAccountId());
-        accountIds.add(merchantAccount.getAccountId());
-        System.out.println("customer id: " + customerAccount.getAccountId());
-        System.out.println("merchant id: " + merchantAccount.getAccountId());
-        assertNotEquals(customerAccount.getAccountId(), merchantAccount.getAccountId());
+        receivedMerchantAccountDTO = merchantAccountCompletableFuture.join();
+        receivedCustomerAccountDTO = customerAccountCompletableFuture.join();
+        assertEquals(customerAccountDTO.getFirstname(), receivedCustomerAccountDTO.getFirstname());
+        assertEquals(merchantAccountDTO.getFirstname(), receivedMerchantAccountDTO.getFirstname());
+        assertNotNull(receivedCustomerAccountDTO.getAccountId());
+        assertNotNull(receivedMerchantAccountDTO.getAccountId());
+        accountIds.add(receivedCustomerAccountDTO.getAccountId());
+        accountIds.add(receivedMerchantAccountDTO.getAccountId());
+        System.out.println("customer id: " + receivedCustomerAccountDTO.getAccountId());
+        System.out.println("merchant id: " + receivedMerchantAccountDTO.getAccountId());
+        assertNotEquals(receivedCustomerAccountDTO.getAccountId(), receivedMerchantAccountDTO.getAccountId());
     }
 
-    @When("the customer {string} {string} has no tokens")
-    public void theCustomerHasNoToken(String firstName, String lastName) {
+    @When("the customer has no tokens")
+    public void theCustomerHasNoToken() {
         tokens = new ArrayList<>();
         assertEquals(0, tokens.size());
     }
 
-    @When("the customer {string} {string} asks for a token")
-    public void theCustomerAsksForAToken(String firstName, String lastName) {
+    @When("the customer asks for a token")
+    public void theCustomerAsksForAToken() {
         var thread1 = new Thread(() -> {
-            customerToken.complete(dtuPayService.requestToken(customerAccount.getAccountId(), 6));
+            customerToken.complete(dtuPayService.requestToken(receivedCustomerAccountDTO.getAccountId(), 6));
         });
         thread1.start();
     }
 
-    @Then("the customer {string} {string} receives {int} tokens")
-    public void theCustomerReceives6Tokens(String firstName, String lastName, Integer numberOfTokens) {
+    @Then("the customer receives {int} tokens")
+    public void theCustomerReceives6Tokens(Integer numberOfTokens) {
         var tokenIdDTOReceived = customerToken.join();
         tokens = tokenIdDTOReceived.getTokenIdList();
-        assertEquals(numberOfTokens, tokenIdDTOReceived.getTokenIdList().size());
+        assertEquals(numberOfTokens, tokens.size());
     }
 
     @When("the merchant {string} {string} initializes a payment with the customer {string} {string} of {int} kr to the DTUPay")
@@ -189,7 +217,20 @@ public class PaymentSteps {
             tokens.remove(0);
         }
         else paymentDTO.setCustomerToken("No tokens");
-        paymentDTO.setMerchantId(merchantAccount.getAccountId());
+        paymentDTO.setMerchantId(receivedMerchantAccountDTO.getAccountId());
+        paymentDTO.setAmount(BigDecimal.valueOf(amount));
+        paymentResponse = dtuPayService.requestPayment(paymentDTO);
+    }
+
+    @When("the merchant initializes a payment with the customer of {int} kr to DTUPay")
+    public void theMerchantInitializesAPaymentWithTheCustomerOfKrToDTUPay(Integer amount) {
+        PaymentDTO paymentDTO = new PaymentDTO();
+        if (tokens.size() > 0){
+            paymentDTO.setCustomerToken(tokens.get(0));
+            tokens.remove(0);
+        }
+        else paymentDTO.setCustomerToken("No tokens");
+        paymentDTO.setMerchantId(receivedMerchantAccountDTO.getAccountId());
         paymentDTO.setAmount(BigDecimal.valueOf(amount));
         paymentResponse = dtuPayService.requestPayment(paymentDTO);
     }
@@ -199,7 +240,7 @@ public class PaymentSteps {
         var balance = bankService.getAccount(customerAccountDTO.getBankAccount()).getBalance().intValue();
         assertEquals(amount, balance);
     }
-    @Then("the merchant {int} bank")
+    @Then("the merchant has {int} in bank")
     public void theMerchantBank(Integer amount) throws BankServiceException_Exception {
         var balance = bankService.getAccount(merchantAccountDTO.getBankAccount()).getBalance().intValue();
         assertEquals(amount, balance);
@@ -231,8 +272,6 @@ public class PaymentSteps {
         paymentResponse.close();
     }
 
-
-
     @After
     public void removeAccounts() {
         for (String bankAccountId : bankAccountIds) {
@@ -247,8 +286,8 @@ public class PaymentSteps {
         }
     }
 
-    @After
-    public void closeClient() {
-        dtuPayService.closeClient();
-    }
+//    @After
+//    public void closeClient() {
+//        dtuPayService.closeClient();
+//    }
 }
