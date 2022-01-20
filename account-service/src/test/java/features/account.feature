@@ -15,6 +15,16 @@ Feature: Registration
     When the AccountDeletionRequested event with accountId "0" is received
     Then the AccountDeleted event is sent
 
+  Scenario: Account check on non existent account
+    When a AccountCheckRequested event with accountId "0" is received
+    Then the AccountCheckResultProvided event is sent with 0 as value
+
+  Scenario: Account check on existent account
+    When a "AccountRequested" event for a customer with name "Florian", surname "Keste", cpr "000000-5321", bank account "1111" is received
+    Then the account gets an account with id "0"
+    When a AccountCheckRequested event with accountId "0" is received
+    Then the AccountCheckResultProvided event is sent with 1 as value
+
   # TODO Add scenario to delete non existent account
 #  Scenario: Successful Registration to DTUPay
 #    When a "AccountRequested" event for an account is received

@@ -52,3 +52,10 @@ Feature: Token
     Then the token is created and its id is not null
     And the "TokenProvided" event is sent
 
+
+  Scenario: Account deletion request handling
+    When a TokenCreationRequested event for userId "Florian" is received
+    Then the user has 6 tokens
+    When a AccountDeleted event for userId "Florian" is received
+    Then the all tokens for that user are deleted
+

@@ -19,7 +19,6 @@ import java.util.concurrent.CompletionException;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-
 /* Hint:
  * The step classes do not do the HTTP requests themselves.
  * Instead, the tests use the class HelloService, which encapsulates the

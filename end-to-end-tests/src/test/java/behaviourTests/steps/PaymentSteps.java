@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PaymentSteps {
     BankService bankService;
     DtuApiService dtuPayService;
-    List<String> accountIds = new ArrayList<>();
+    List<String> bankAccountIds = new ArrayList<>();
     AccountDTO merchantAccountDTO; // AccountDTO received for registration
     AccountDTO customerAccountDTO; // AccountDTO received for registration
     private CompletableFuture<AccountDTO> merchantAccountWithId = new CompletableFuture<>();
@@ -31,6 +31,8 @@ public class PaymentSteps {
     AccountDTO customerAccount;
     private List<String> tokens;
     private Response paymentResponse;
+    private String accountId;
+    List<String> accountIds = new ArrayList<>();
 
     public PaymentSteps() {
         bankService = new BankServiceService().getBankServicePort();
@@ -58,7 +60,7 @@ public class PaymentSteps {
             }
 
             String bankAccountId = bankService.createAccountWithBalance(user, BigDecimal.valueOf(amount));
-            accountIds.add(bankAccountId);
+            bankAccountIds.add(bankAccountId);
             merchantAccountDTO.setBankAccount(bankAccountId);
         } catch (BankServiceException_Exception e) {
             System.out.println(e.getMessage());
@@ -86,7 +88,7 @@ public class PaymentSteps {
             }
 
             String bankAccountId = bankService.createAccountWithBalance(user, BigDecimal.valueOf(amount));
-            accountIds.add(bankAccountId);
+            bankAccountIds.add(bankAccountId);
             customerAccountDTO.setBankAccount(bankAccountId);
         } catch (BankServiceException_Exception e) {
             System.out.println(e.getMessage());
@@ -131,6 +133,8 @@ public class PaymentSteps {
         assertEquals(merchantAccountDTO.getFirstname(), merchantAccount.getFirstname());
         assertNotNull(customerAccount.getAccountId());
         assertNotNull(merchantAccount.getAccountId());
+        accountIds.add(customerAccount.getAccountId());
+        accountIds.add(merchantAccount.getAccountId());
         System.out.println("customer id: " + customerAccount.getAccountId());
         System.out.println("merchant id: " + merchantAccount.getAccountId());
         assertNotEquals(customerAccount.getAccountId(), merchantAccount.getAccountId());
@@ -209,12 +213,15 @@ public class PaymentSteps {
 
     @After
     public void removeAccounts() {
-        for (String accountId : accountIds) {
+        for (String bankAccountId : bankAccountIds) {
             try {
-                bankService.retireAccount(accountId);
+                bankService.retireAccount(bankAccountId);
             } catch (BankServiceException_Exception e) {
                 //TODO: handle exception
             }
+        }
+        for (var accountId : accountIds) {
+            dtuPayService.deleteCustomerAccount(accountId);
         }
     }
 }

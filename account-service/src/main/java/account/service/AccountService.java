@@ -11,8 +11,10 @@ public class AccountService {
     public static final String ACCOUNT_REQUESTED = "AccountRequested";
     public static final String ACCOUNT_PROVIDED = "AccountProvided";
     public static final String ACCOUNT_DELETION_REQUESTED = "AccountDeletionRequested";
+    public static final String ACCOUNT_CHECK_REQUESTED = "AccountCheckRequested";
     //TODO maybe change to AccountNotProvided
     public static final String ACCOUNT_EXISTS = "AccountExists";
+    public static final String ACCOUNT_CHECK_RESULT_PROVIDED = "AccountCheckResultProvided";
     public static final String ACCOUNT_NON_EXISTENT = "AccountNonExistent";
 
     public static final String BANK_ACCOUNT_REQUESTED = "BankAccountRequested";
@@ -27,6 +29,7 @@ public class AccountService {
         this.queue.addHandler(ACCOUNT_REQUESTED, this::handleAccountRequested);
         this.queue.addHandler(BANK_ACCOUNT_REQUESTED, this::handleGetBankAccountRequested);
         this.queue.addHandler(ACCOUNT_DELETION_REQUESTED, this::handleAccountDeletionRequested);
+        this.queue.addHandler(ACCOUNT_CHECK_REQUESTED, this::handleAccountCheckRequested);
     }
 
     public void handleAccountRequested(Event ev){
@@ -63,6 +66,10 @@ public class AccountService {
         queue.publish(event);
     }
 
+    /**
+     * @author Florian
+     */
+    //TODO add case where user id is empty
     public void handleAccountDeletionRequested(Event ev) {
         var accountId = ev.getArgument(0, String.class);
         CorrelationId correlationId = ev.getArgument(1, CorrelationId.class);
@@ -74,6 +81,17 @@ public class AccountService {
             queue.publish(new Event(ACCOUNT_NON_EXISTENT, new Object[]{accountId, correlationId}));
         }
     }
+
+    /**
+     * @author Florian
+     */
+    public void handleAccountCheckRequested(Event ev) {
+        var accountId = ev.getArgument(0, String.class);
+        CorrelationId correlationId = ev.getArgument(1, CorrelationId.class);
+        var truth = accountRepository.checkAccountExists(accountId);
+        queue.publish(new Event(ACCOUNT_CHECK_RESULT_PROVIDED, new Object[]{truth, correlationId}));
+    }
+
 
     public void deleteAccount(String id){
         accountRepository.deleteAccount(id);

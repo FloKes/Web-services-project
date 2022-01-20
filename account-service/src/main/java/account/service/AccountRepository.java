@@ -33,4 +33,8 @@ public class AccountRepository {
     public Account deleteAccount(String id){
         return accounts.remove(id);
     }
+    public boolean checkAccountExists(String id){
+        return accounts.containsKey(id);
+    }
+
 }

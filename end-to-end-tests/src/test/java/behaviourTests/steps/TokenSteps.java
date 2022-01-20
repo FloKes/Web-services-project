@@ -3,6 +3,7 @@ package behaviourTests.steps;
 import behaviourTests.DtuApiService;
 import behaviourTests.dtos.AccountDTO;
 import behaviourTests.dtos.TokenIdDTO;
+import io.cucumber.java.After;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Given;
@@ -27,17 +28,21 @@ public class TokenSteps {
     TokenIdDTO tokenIdDTO;
     private CompletableFuture<TokenIdDTO> result1 = new CompletableFuture<>();
     private CompletableFuture<TokenIdDTO> result2 = new CompletableFuture<>();
-   // private TokenIdDTO tokenIdDTOReceived;
+    private CompletableFuture<AccountDTO> resultAccountDto = new CompletableFuture<>();
+
+    // private TokenIdDTO tokenIdDTOReceived;
     private String customerId;
     private List<String> tokens;
+    private List<String> accountIds = new ArrayList<>();
+    private String accountId;
 
 
-    @Given("the customer with id {string} has no tokens")
-    public void theCustomerWithIdHasNoToken(String customerId) {
-        this.customerId = customerId;
-        tokens = new ArrayList<>();
-        assertEquals(0,tokens.size());
-    }
+//    @Given("the customer with id {string} has no tokens")
+//    public void theCustomerWithIdHasNoToken(String customerId) {
+//        this.customerId = customerId;
+//        tokens = new ArrayList<>();
+//        assertEquals(0,tokens.size());
+//    }
 
     @Given("the customer with id {string} has {int} tokens")
     public void theCustomerWithIdHasTokens(String customerId, Integer tokenCount) {
@@ -45,14 +50,11 @@ public class TokenSteps {
         assertEquals(tokenCount, tokens.size());
     }
 
-    @When("the customer asks for a token")
-    public void theCustomerAsksForAToken() {
-        result1.complete(service.requestToken(customerId));
-    }
+
 
     @When("the customer asks again for a token")
     public void theCustomerAsksAgainForAToken() {
-        result2.complete(service.requestToken(customerId));
+        result2.complete(service.requestToken(accountId));
     }
 
     @Then("the customer receives {int} tokens")
@@ -66,5 +68,47 @@ public class TokenSteps {
     public void theCustomerReceivesTokensResponse(Integer numberOfTokens) {
         var tokenIdDTOReceived = result2.join();
         assertEquals(numberOfTokens, tokenIdDTOReceived.getTokenIdList().size());
+    }
+
+    @Given("person with name {string} {string} with cpr {string}, bank accountId {string} is registered")
+    public void personWithNameWithCprBankAccountIdIsRegistered(String firstName, String lastName, String cpr, String bankAccountId) {
+        var account1 = new AccountDTO();
+        account1.setFirstname(firstName);
+        account1.setLastname(lastName);
+        account1.setCpr(cpr);
+        account1.setBankAccount(bankAccountId);
+        assertNull(account1.getAccountId());
+        var response = service.requestAccount(account1);
+        var accountDTO = response.readEntity(AccountDTO.class);
+        assertNotNull(accountDTO.getAccountId());
+        accountId = accountDTO.getAccountId();
+        accountIds.add(accountId);
+    }
+
+    @When("the customer asks for a token")
+    public void theCustomerAsksForAToken() {
+        result1.complete(service.requestToken(accountId));
+    }
+
+    @When("account is deleted")
+    public void accountIsDeleted() {
+        var response = service.deleteCustomerAccount(accountId);
+        assertEquals(204, response.getStatus());
+        accountIds.remove(accountId);
+    }
+    @Then("a no account response is received")
+    public void theThereAreNoTokensForTheAccount() {
+    }
+
+    @Given("person with id {string} is not registered")
+    public void personWithIdIsNotRegistered(String customerId) {
+        this.customerId = customerId;
+    }
+
+    @After
+    public void deleteAccounts() {
+        for (var accountId : accountIds) {
+            service.deleteCustomerAccount(accountId);
+        }
     }
 }

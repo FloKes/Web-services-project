@@ -1,6 +1,7 @@
 package token.service;
 
 import domain.Token;
+import io.cucumber.java.an.E;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 
 public class TokenRepository {
@@ -47,6 +49,33 @@ public class TokenRepository {
         }else {
             throw new Exception ("Token not found");
         }
+    }
+
+    /**
+     * @author Florian
+     */
+    public void deleteUserTokens(String userId){
+        if (userId.length() == 0){
+            System.out.println("userId is empty");
+            return;
+        }
+        var tokens = tokenList.values().stream().filter(tk -> tk.getUserID().equals(userId)).collect(Collectors.toList());
+        List<String> tokenIdKeys = new ArrayList<>();
+        for (var token: tokens){
+            tokenIdKeys.add(token.getTokenID());
+        }
+        if (tokens.isEmpty()){
+            System.out.println("User: " + userId + " has no tokens");
+        }
+        else {
+            for (var tokenId : tokenIdKeys) {
+                tokenList.remove(tokenId);
+            }
+        }
+    }
+
+    public int getNumberOfTokensForUser(String userId){
+        return tokenList.values().stream().filter(tk -> tk.getUserID().equals(userId)).collect(Collectors.toList()).size();
     }
 
     public boolean checkToken(String providedTokenID) {

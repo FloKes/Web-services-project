@@ -6,6 +6,7 @@ import account.service.AccountService;
 import account.service.dtos.AccountDTO;
 import account.service.CorrelationId;
 import account.service.dtos.Mapper;
+import io.cucumber.java.an.E;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
@@ -95,6 +96,28 @@ public class AccountSteps {
     public void the_account_deleted_event_is_sent() {
         Event event = new Event("AccountDeleted", new Object[]{accountId, correlationId});
         accountIds.remove(accountId);
+        verify(queue).publish(event);
+    }
+
+    /**
+     *
+     * @author Florian
+     */
+    @When("a AccountCheckRequested event with accountId {string} is received")
+    public void a_account_check_requested_event_with_account_id_is_received(String accountId) {
+        correlationId = CorrelationId.randomId();
+        this.accountId = accountId;
+        Event event = new Event("AccountCheckRequested",new Object[] {accountId, correlationId});
+        accountService.handleAccountCheckRequested(event);
+    }
+
+    @Then("the AccountCheckResultProvided event is sent with {int} as value")
+    public void the_account_check_result_provided_event_is_sent_with_bool_as_value(int intBool) {
+        boolean b = false;
+        if(intBool == 1){
+            b = true;
+        }
+        Event event = new Event("AccountCheckResultProvided",new Object[] {b, correlationId});
         verify(queue).publish(event);
     }
 

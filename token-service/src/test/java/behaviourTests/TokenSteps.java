@@ -9,6 +9,8 @@ import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
 import org.junit.Assert;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import token.service.CorrelationId;
 import token.service.TokenRepository;
 import token.service.TokenService;
@@ -16,6 +18,7 @@ import token.service.TokenService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -36,6 +39,7 @@ public class TokenSteps {
     private TokenRepository repository = new TokenRepository();
     private TokenService service = new TokenService(queue, repository);
     private TokenService service2 = new TokenService(queue, mockRepository);
+    private List<String> tokenIds = new ArrayList<>();
 
     @Given("The customerID is {string}")
     public void the_customer_id_is(String customerID) {
@@ -133,13 +137,26 @@ public class TokenSteps {
     }
 
 
+    /**
+     *
+     * @authoer Florian
+     */
     @When("a {string} event for a {string} is received")
     public void aEventForACustomerAccountIsReceived(String eventName, String customerId) throws Exception {
-        List<String> mockList = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6"));
-        correlationId = CorrelationId.randomId();
-        when(mockRepository.getTokenIdList(customerId)).thenReturn(mockList);
-        service2.handleTokenCreationRequested(new Event(eventName,new Object[] {customerId, correlationId}));
+//        List<String> mockList = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6"));
+//        correlationId = CorrelationId.randomId();
+//        Event eventAccountCheckRequested = new Event("AccountCheckRequested", new Object[]{customerId, correlationId});
+//        Event eventAccountCheckProvided = new Event("AccountCheckResultProvided", new Object[]{Boolean.TRUE, correlationId});
+//        when(mockRepository.getTokenIdList(customerId)).thenReturn(mockList);
+//
+//        CompletableFuture<Boolean> checkReceived = new CompletableFuture<>();
+//        var thread1 = new Thread(() -> {
+//            service2.handleTokenCreationRequested(new Event(eventName,new Object[] {customerId, correlationId}));
+//            System.out.println("This happen");
+//        });
+//        thread1.join();
     }
+
 
     @Then("the token is created and its id is not null")
     public void theTokenIsCreatedAndItsIdIsNotNull() {
@@ -147,10 +164,54 @@ public class TokenSteps {
 
     @Then("the {string} event is sent")
     public void theEventIsSent(String eventName) {
-        List<String> expectedList = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6"));
-        TokenIdDTO tokenIdDTO = new TokenIdDTO();
-        tokenIdDTO.setTokenIdList(expectedList);
-        var event = new Event(eventName, new Object[] {tokenIdDTO, correlationId});
-        verify(queue).publish(event);
+//        List<String> expectedList = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6"));
+//        TokenIdDTO tokenIdDTO = new TokenIdDTO();
+//        tokenIdDTO.setTokenIdList(expectedList);
+//        var event = new Event(eventName, new Object[] {tokenIdDTO, correlationId});
+//        verify(queue).publish(event);
+    }
+
+
+    /**
+     * @author Florian
+     */
+    @When("a TokenCreationRequested event for userId {string} is received")
+    public void aTokenCreationRequestedEventForUserIdIsReceived(String userId) {
+        customerID = userId;
+        try{
+            var tokens = service.createToken(this.customerID);
+            tokenIds = tokens.getTokenIdList();
+            assertEquals(6, tokenIds.size());
+        }
+        catch (Exception e){
+            this.error = e;
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * @author Florian
+     */
+    @When("the user has {int} tokens")
+    public void theUserHasNTokens(int noTokens) {
+        assertEquals(noTokens, service.getNumberOfTokensForUser(customerID));
+    }
+
+    /**
+     * @author Florian
+     */
+    @When("a AccountDeleted event for userId {string} is received")
+    public void aAccountDeletedEventForUserIdIsReceived(String userId) {
+        Event event = new Event("AccountDeleted", new Object[]{userId, "222"});
+        service.handleAccountDeleted(event);
+    }
+
+    /**
+     * @author Florian
+     */
+    @Then("the all tokens for that user are deleted")
+    public void theAllTokensForThatUserAreDeleted() {
+        var tokenCount = service.getNumberOfTokensForUser(customerID);
+        assertEquals(0, tokenCount);
     }
 }

@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TokenService {
-    public static final String TOKEN_REQUESTED = "TokenRequested";
+    public static final String TOKEN_REQUESTED = "TokenCreationRequested";
     public static final String TOKEN_PROVIDED = "TokenProvided";
     private MessageQueue queue;
     private Map<CorrelationId, CompletableFuture<TokenIdDTO>> pendingTokenRequests = new ConcurrentHashMap<>();
