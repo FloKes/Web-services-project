@@ -9,9 +9,9 @@ pushd end-to-end-tests
 ./deploy.sh 
 sleep 5
 ./test.sh
-sleep 5
+#sleep 5
 #./stop_service.sh
-#popd
+popd
 
 
 # Cleanup the build images
