@@ -31,7 +31,6 @@ public class CustomerResource {
 
     @Path("/accounts/{accountId}")
     @DELETE
-    @Produces(MediaType.APPLICATION_JSON)
     public Response deleteAccount(@PathParam("accountId") String accountId) throws URISyntaxException {
         var accountIdProvided = accountService.deleteAccount(accountId);
         return accountIdProvided.equals(accountId) ? Response.noContent().build()
@@ -41,9 +40,14 @@ public class CustomerResource {
     @Path("/tokens/{customerId}/tokens")
     @GET
     @Produces("application/json")
-    public TokenIdDTO requestTokens(@PathParam("customerId") String customerId) throws URISyntaxException {
+//    public TokenIdDTO requestTokens(@PathParam("customerId") String customerId, @QueryParam("amount") int amount) throws URISyntaxException {
+//        System.out.println("Facade customer id: " + customerId + ", requested amount: " + amount);
+    public Response requestTokens(@PathParam("customerId") String customerId) throws URISyntaxException {
         System.out.println("Facade customer id: " + customerId);
         var tokenIdDTO = tokenService.requestTokenId(customerId);
-        return tokenIdDTO;
+        return Response.status(Response.Status.OK)
+                .entity(tokenIdDTO)
+                .build();
+//        return tokenIdDTO;
     }
 }
