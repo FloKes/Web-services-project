@@ -13,6 +13,10 @@ pushd dtu-pay-service
 ./build.sh
 popd
 
+pushd report-service
+./build.sh
+popd
+
 pushd payment-service
 ./build.sh
 popd
@@ -25,6 +29,4 @@ pushd token-service
 ./build.sh
 popd
 
-pushd report-service
-./build.sh
-popd
+

@@ -47,6 +47,10 @@ public class ReportRepository {
     }
 
     public List<Payment> getCustomerReportById(String id) throws Exception {
+        System.out.println("report customer id: "+id);
+        System.out.println("report contains customer id: "+customerReport.containsKey(id));
+
+
         if(customerReport.containsKey(id)){
             return customerReport.get(id);
         }

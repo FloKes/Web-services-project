@@ -2,10 +2,13 @@ package dtuPayApi.service.adapter.rest;
 
 import dtuPayApi.service.dtos.AccountDTO;
 import dtuPayApi.service.dtos.PaymentDTO;
+import dtuPayApi.service.dtos.ReportDTO;
 import dtuPayApi.service.dtos.TokenIdDTO;
 import dtuPayApi.service.factories.AccountFactory;
+import dtuPayApi.service.factories.ReportFactory;
 import dtuPayApi.service.factories.TokenFactory;
 import dtuPayApi.service.services.AccountService;
+import dtuPayApi.service.services.ReportService;
 import dtuPayApi.service.services.TokenService;
 
 import javax.ws.rs.*;
@@ -18,6 +21,7 @@ import java.net.URISyntaxException;
 public class CustomerResource {
     AccountService accountService = new AccountFactory().getService();
     TokenService tokenService = new TokenFactory().getService();
+    ReportService reportService = new ReportFactory().getService();
 
     @Path("/accounts")
     @POST
@@ -45,5 +49,13 @@ public class CustomerResource {
         System.out.println("Facade customer id: " + customerId);
         var tokenIdDTO = tokenService.requestTokenId(customerId);
         return tokenIdDTO;
+    }
+
+    @Path("/reports/{customerId}")
+    @GET
+    @Produces("application/json")
+    public ReportDTO requestCustomerReport(@PathParam("customerId") String customerId) {
+        var reportDTO = reportService.requestCustomerReport(customerId);
+        return reportDTO;
     }
 }

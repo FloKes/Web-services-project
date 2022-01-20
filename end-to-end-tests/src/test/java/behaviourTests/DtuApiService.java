@@ -1,6 +1,7 @@
 package behaviourTests;
 
 import behaviourTests.dtos.AccountDTO;
+import behaviourTests.dtos.ReportDTO;
 import behaviourTests.dtos.TokenIdDTO;
 import behaviourTests.dtos.PaymentDTO;
 
@@ -22,6 +23,7 @@ public class DtuApiService {
     }
 
     public String getToken(String customerId) {
+        //TODO: maybe delete?
         Response response = baseUrl.path("dtuPayApi/tokenManager/" + customerId + "/token")
                 .request(MediaType.APPLICATION_JSON)
                 .get();
@@ -45,6 +47,13 @@ public class DtuApiService {
         return response;
     }
 
+    public ReportDTO requestCustomerReport(String customerId) {
+//        Client client = ClientBuilder.newClient();
+//        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
+        var response = baseUrl.path("/customer/reports/" + customerId).request(MediaType.APPLICATION_JSON_TYPE).get(ReportDTO.class);
+        return response;
+    }
+
     public Response requestPayment(PaymentDTO paymentDTO) {
 //        Client client = ClientBuilder.newClient();
 //        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
@@ -59,6 +68,8 @@ public class DtuApiService {
         var response = r.path("/customer/accounts/" + accountId ).request().delete();
         return response;
     }
+
+
 
     public Response deleteMerchantAccount(String accountId) {
         Client client = ClientBuilder.newClient();

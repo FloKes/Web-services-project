@@ -27,7 +27,9 @@ public class ReportSteps {
     private ReportRepository repository = new ReportRepository();
     private ReportService service = new ReportService(queue, repository);
     PaymentReportDTO payment;
-    CorrelationId correlationId;
+    CorrelationId customerCorrelationId;
+    CorrelationId merchantCorrelationId;
+    CorrelationId managerCorrelationId;
 
     @Given("a payment with paymentId {string}, customerId {string}, merchantId {string}, amount {int}, and description {string}")
     public void aPaymentWithPaymentIdCustomerIdMerchantIdAmountAndDescription(String paymentId, String customerId, String merchantId, int amount, String description) {
@@ -79,7 +81,8 @@ public class ReportSteps {
 
     @When("a {string} event is received for the customer report")
     public void anEventIsReceivedForTheCustomerReport(String eventName) {
-        service.handleCustomerReportRequested(new Event(eventName, new Object[]{ payment.getCustomerId()}));
+        customerCorrelationId = CorrelationId.randomId();
+        service.handleCustomerReportRequested(new Event(eventName, new Object[]{ payment.getCustomerId(), customerCorrelationId}));
     }
 
     @Then("the {string} event is sent to customer")
@@ -87,14 +90,15 @@ public class ReportSteps {
         List<Payment> customerPayments = repository.getCustomerReportById(payment.getCustomerId());
         ReportDTO reportDTO = new ReportDTO();
         reportDTO.setReportList(customerPayments);
-        Event event = new Event(eventName, new Object[] { reportDTO });
+        Event event = new Event(eventName, new Object[] { reportDTO, customerCorrelationId });
         verify(queue).publish(event);
     }
 
 
     @When("a {string} event is received for the merchant report")
     public void anEventIsReceivedForTheMerchantReport(String eventName) {
-        service.handleMerchantReportRequested(new Event(eventName, new Object[]{ payment.getMerchantId()}));
+        merchantCorrelationId = CorrelationId.randomId();
+        service.handleMerchantReportRequested(new Event(eventName, new Object[]{ payment.getMerchantId(), merchantCorrelationId}));
 
     }
 
@@ -103,15 +107,15 @@ public class ReportSteps {
         List<MerchantPayment> merchantPayments = repository.getMerchantReportById(payment.getMerchantId());
         MerchantReportDTO reportDTO = new MerchantReportDTO();
         reportDTO.setMerchantReportList(merchantPayments);
-        Event event = new Event(eventName, new Object[] { reportDTO });
+        Event event = new Event(eventName, new Object[] { reportDTO, merchantCorrelationId });
         verify(queue).publish(event);
 
     }
 
     @When("a {string} event is received for the manager report")
     public void anEventIsReceivedForTheManagerReport(String eventName) {
-        correlationId = CorrelationId.randomId();
-        service.handleManagerReportRequested(new Event(eventName, new Object[]{ correlationId}));
+        managerCorrelationId = CorrelationId.randomId();
+        service.handleManagerReportRequested(new Event(eventName, new Object[]{ managerCorrelationId}));
     }
 
     @Then("the {string} event is sent to manager")
@@ -119,20 +123,21 @@ public class ReportSteps {
         List<Payment> managerPayments = repository.getManagerReport();
         ReportDTO reportDTO = new ReportDTO();
         reportDTO.setReportList(managerPayments);
-        Event event = new Event(eventName, new Object[] { reportDTO });
+        Event event = new Event(eventName, new Object[] { reportDTO, managerCorrelationId });
         verify(queue).publish(event);
     }
 
 
     @When("a {string} event is received for a customer with no payments")
     public void anEventReceivedForCustomerWithNoPayments(String eventName) {
-        service.handleCustomerReportRequested(new Event(eventName, new Object[] {"testCustomer"}));
+        customerCorrelationId = CorrelationId.randomId();
+        service.handleCustomerReportRequested(new Event(eventName, new Object[] {"testCustomer", customerCorrelationId}));
     }
 
 
     @Then("the {string} event is sent to customer with no payments")
     public void anEventProvidedForCustomerWithNoPayments(String eventName) {
-        Event event = (new Event(eventName, new Object[] {"testCustomer"}));
+        Event event = (new Event(eventName, new Object[] {"testCustomer", customerCorrelationId}));
         verify(queue).publish(event);
     }
 }
