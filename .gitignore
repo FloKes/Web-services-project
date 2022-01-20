@@ -10,6 +10,6 @@
 
 .DT_Store
 .DS_Store
-
+.gitlab-ci.yml
 
 *.bak
