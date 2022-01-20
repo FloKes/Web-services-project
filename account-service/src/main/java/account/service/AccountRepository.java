@@ -8,8 +8,10 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.groupingBy;
 
 public class AccountRepository {
-    HashMap<String, Account> accounts;
-    static int id = 0;
+    private HashMap<String, Account> accounts;
+
+    //Should be static but for the sake of service testing it isn't
+    private int id = 0;
 
     public AccountRepository() {
         accounts = new HashMap<String,Account>();
@@ -39,7 +41,7 @@ public class AccountRepository {
     public Account deleteAccount(String id){
         return accounts.remove(id);
     }
-    public boolean checkAccountExists(String id){
+    public Boolean checkAccountExists(String id){
         return accounts.containsKey(id);
     }
 

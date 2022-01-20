@@ -113,10 +113,8 @@ public class AccountSteps {
 
     @Then("the AccountCheckResultProvided event is sent with {int} as value")
     public void the_account_check_result_provided_event_is_sent_with_bool_as_value(int intBool) {
-        boolean b = false;
-        if(intBool == 1){
-            b = true;
-        }
+        Boolean b;
+        b = intBool == 0 ? false : true;
         Event event = new Event("AccountCheckResultProvided",new Object[] {b, correlationId});
         verify(queue).publish(event);
     }
