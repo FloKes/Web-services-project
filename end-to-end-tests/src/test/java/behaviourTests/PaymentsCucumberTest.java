@@ -17,5 +17,5 @@ For example, the class name CucumberTests (Test with an s) will be ignored by Ma
          features = "src/test/java/behaviourTests/features/payments.feature",  // directory of the feature files
          glue = {"behaviourTests.steps.paymentSteps"}
 )
-public class PaymentCucumberTest {
+public class PaymentsCucumberTest {
 }

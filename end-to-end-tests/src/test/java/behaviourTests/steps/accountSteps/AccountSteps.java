@@ -1,4 +1,4 @@
-package behaviourTests.steps;
+package behaviourTests.steps.accountSteps;
 
 import behaviourTests.DtuApiService;
 import behaviourTests.dtos.AccountDTO;
