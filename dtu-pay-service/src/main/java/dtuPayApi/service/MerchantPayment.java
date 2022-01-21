@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
+/**
+ * @author Bingkun
+ */
 @Data
 public class MerchantPayment {
     private String paymentId;

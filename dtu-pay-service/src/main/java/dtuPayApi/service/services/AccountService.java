@@ -31,6 +31,9 @@ public class AccountService {
 
     }
 
+    /**
+     * @author Bingkun
+     */
     public AccountDTO requestAccount(AccountDTO accountDTO) {
         var correlationId = CorrelationId.randomId();
         pendingAccountRequests.put(correlationId,new CompletableFuture<>());
@@ -39,6 +42,9 @@ public class AccountService {
         return pendingAccountRequests.get(correlationId).join();
     }
 
+    /**
+     * @author Florian
+     */
     public String deleteAccount(String accountId) {
         var correlationId = CorrelationId.randomId();
         pendingAccountDeletionRequests.put(correlationId,new CompletableFuture<>());
@@ -47,6 +53,9 @@ public class AccountService {
         return pendingAccountDeletionRequests.get(correlationId).join();
     }
 
+    /**
+     * @author Josephine
+     */
     public void handleAccountProvided(Event e) {
         var accountDTO = e.getArgument(0, AccountDTO.class);
         var correlationId = e.getArgument(1, CorrelationId.class);
@@ -54,6 +63,9 @@ public class AccountService {
         pendingAccountRequests.get(correlationId).complete(accountDTO);
     }
 
+    /**
+     * @author Gunn
+     */
     public void handleAccountExists(Event e) {
         var accountDTO = e.getArgument(0, AccountDTO.class);
         var correlationId = e.getArgument(1, CorrelationId.class);
@@ -61,14 +73,19 @@ public class AccountService {
         pendingAccountRequests.get(correlationId).complete(accountDTO);
     }
 
+    /**
+     * @author Florian
+     */
     public void handleAccountDeleted(Event e) {
         var accountId = e.getArgument(0, String.class);
         var correlationId = e.getArgument(1, CorrelationId.class);
         pendingAccountDeletionRequests.get(correlationId).complete(accountId);
     }
 
+    /**
+     * @author Tamas
+     */
     public void handleAccountNonExistent(Event e) {
-        var accountId = e.getArgument(0, String.class);
         var correlationId = e.getArgument(1, CorrelationId.class);
         pendingAccountDeletionRequests.get(correlationId).complete("Non Existing Account");
     }

@@ -5,6 +5,9 @@ import lombok.ToString;
 
 import java.io.Serializable;
 
+/**
+ * @author Josephine
+ */
 @Data
 @ToString
 public class AccountDTO implements Serializable{

@@ -43,16 +43,26 @@ public class TokenSteps {
         assertEquals(tokenCount, tokens.size());
     }
 
+    /**
+     * @author Tamas
+     */
     @When("the customer asks for a token")
     public void theCustomerAsksForAToken() {
         result1.complete(service.requestToken(accountId, 6));
     }
 
+    /**
+     * @author Tamas
+     */
     @When("the customer asks again for a token")
     public void theCustomerAsksAgainForAToken() {
         result2.complete(service.requestToken(accountId, 6));
     }
 
+
+    /**
+     * @author Tamas
+     */
     @Then("the customer receives {int} tokens")
     public void theCustomerReceivesTokens(Integer numberOfTokens) {
         var tokenIdDTOReceived = result1.join();
@@ -60,13 +70,19 @@ public class TokenSteps {
         assertEquals(numberOfTokens, tokenIdDTOReceived.getTokenIdList().size());
     }
 
-    
+
+    /**
+     * @author Bence
+     */
     @Then("the customer receives {int} tokens response")
     public void theCustomerReceivesTokensResponse(Integer numberOfTokens) {
         var tokenIdDTOReceived = result2.join();
         assertEquals(numberOfTokens, tokenIdDTOReceived.getTokenIdList().size());
     }
 
+    /**
+     * @author Bence
+     */
     @Given("person with name {string} {string} with cpr {string}, bank accountId {string} is registered")
     public void personWithNameWithCprBankAccountIdIsRegistered(String firstName, String lastName, String cpr, String bankAccountId) {
         var account1 = new AccountDTO();
@@ -82,38 +98,43 @@ public class TokenSteps {
         accountIds.add(accountId);
     }
 
-
+    /**
+     * @author Tamas
+     */
     @When("the customer asks for {int} tokens")
     public void theCustomerAsksForTokens(Integer arbitraryTokenAmount) {
         result1.complete(service.requestToken(accountId, arbitraryTokenAmount));
     }
 
-
-
+    /**
+     * @author Florian
+     */
     @When("account is deleted")
     public void accountIsDeleted() {
         var response = service.deleteCustomerAccount(accountId);
         assertEquals(204, response.getStatus());
         accountIds.remove(accountId);
     }
+
     @Then("a no account response is received")
     public void theThereAreNoTokensForTheAccount() {
     }
 
+    /**
+     * @author Florian
+     */
     @Given("person with id {string} is not registered")
     public void personWithIdIsNotRegistered(String customerId) {
         this.customerId = customerId;
     }
 
+    /**
+     * @author Florian
+     */
     @After
     public void deleteAccounts() {
         for (var accountId : accountIds) {
             service.deleteCustomerAccount(accountId);
         }
     }
-
-//    @After
-//    public void closeClient() {
-//        service.closeClient();
-//    }
 }

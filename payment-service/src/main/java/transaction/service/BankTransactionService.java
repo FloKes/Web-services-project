@@ -7,9 +7,7 @@ import dtu.ws.fastmoney.BankServiceService;
 
 import java.math.BigDecimal;
 
-/**
- * @author Florian
- */
+
 public class BankTransactionService {
     private BankService bank;
     public BankTransactionService() {
@@ -23,6 +21,9 @@ public class BankTransactionService {
         return account.getId();
     }
 
+    /**
+     * @author Florian
+     */
     public String transferMoney( String clientID, String merchantID, BigDecimal amount) throws BankServiceException_Exception {
         try {
             bank.transferMoneyFromTo( clientID, merchantID, amount, "transfer" + amount.toString() + "from" + clientID + "to" + merchantID);
@@ -33,15 +34,11 @@ public class BankTransactionService {
 
     }
 
-    public void setBalance(String accountId, Integer amount) throws BankServiceException_Exception {
-        Account account = bank.getAccount(accountId);
-        account.setBalance(BigDecimal.valueOf(amount));
-    }
-
+    /**
+     * @author Bingkun
+     */
     public String getBalance(String accountId) throws BankServiceException_Exception {
-
         Account account = bank.getAccount(accountId);
-
         return account.getBalance().toString();
     }
 }

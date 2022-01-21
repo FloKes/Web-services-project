@@ -5,6 +5,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+/**
+ * @author Bingkun
+ */
 @Data // Automatic getter and setters and equals etc
 public class Payment implements Serializable {
     private static final long serialVersionUID = 821858579108456995L;

@@ -23,6 +23,9 @@ public class MerchantResource {
     PaymentService paymentService = new PaymentFactory().getService();
     ReportService reportService = new ReportFactory().getService();
 
+    /**
+     * @author Bence
+     */
     @Path("/accounts")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -33,6 +36,9 @@ public class MerchantResource {
                 : Response.status(Response.Status.CONFLICT).entity(accountDTOProvided.getErrorMessage()).build();
     }
 
+    /**
+     * @author Florian
+     */
     @Path("/accounts/{accountId}")
     @DELETE
     public Response deleteAccount(@PathParam("accountId") String accountId) throws URISyntaxException {
@@ -41,6 +47,9 @@ public class MerchantResource {
                 : Response.status(Response.Status.CONFLICT).entity(accountId).build();
     }
 
+    /**
+     * @author Bingkun
+     */
     @Path("/payments/{merchantId}/payments")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -51,6 +60,9 @@ public class MerchantResource {
                 : Response.status(Response.Status.BAD_REQUEST).entity(returnedPaymentDTO.getErrorDescription()).build();
     }
 
+    /**
+     * @author Tamas
+     */
     @Path("/reports/{merchantId}")
     @GET
     @Produces("application/json")

@@ -20,6 +20,9 @@ public class CustomerResource {
     TokenService tokenService = new TokenFactory().getService();
     ReportService reportService = new ReportFactory().getService();
 
+    /**
+     * @author Josephine
+     */
     @Path("/accounts")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -30,6 +33,9 @@ public class CustomerResource {
                 : Response.status(Response.Status.CONFLICT).entity(accountDTOProvided.getErrorMessage()).build();
     }
 
+    /**
+     * @author Bingkun
+     */
     @Path("/accounts/{accountId}")
     @DELETE
     public Response deleteAccount(@PathParam("accountId") String accountId){
@@ -39,6 +45,9 @@ public class CustomerResource {
     }
 
 
+    /**
+     * @author Tamas
+     */
     @Path("/tokens/{customerId}/tokens/{tokenAmount}")
     @GET
     @Produces("application/json")
@@ -51,6 +60,10 @@ public class CustomerResource {
                 .build();
     }
 
+
+    /**
+     * @author Gunn
+     */
     @Path("/reports/{customerId}")
     @GET
     @Produces("application/json")

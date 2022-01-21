@@ -45,6 +45,9 @@ public class ReportSteps {
         dtuPayService = new DtuApiService();
     }
 
+    /**
+     * @author Josephine
+     */
     @Given("A merchant {string} {string} with CPR {string} has a bank account with balance {int} and is registered to DTU pay")
     public void aMerchantWithCPRHasABankAccountWithBalanceAndIsRegisteredToDTUPay(String firstName, String lastName, String cpr, Integer balance) {
         merchantAccountDTO = new AccountDTO();
@@ -86,6 +89,10 @@ public class ReportSteps {
         merchantAccount = merchantAccountWithId.join();
         accountIds.add(merchantAccount.getAccountId());
     }
+
+    /**
+     * @author Gunn
+     */
     @Given("a customer {string} {string} with CPR {string} has a bank account with balance {int} and is registered to DTU pay")
     public void aCustomerWithCPRHasABankAccountWithBalanceAndIsRegisteredToDTUPay(String firstName, String lastName, String cpr, Integer balance) {
         customerAccountDTO = new AccountDTO();
@@ -125,6 +132,10 @@ public class ReportSteps {
             System.out.println(e.getMessage());
         }
     }
+
+    /**
+     * @author Josephine
+     */
     @Given("the customer has requested tokens")
     public void theCustomerHasRequestedTokens() {
         customerToken.complete(dtuPayService.requestToken(customerAccount.getAccountId(), 6));
@@ -132,6 +143,10 @@ public class ReportSteps {
         tokens = tokenIdDTOReceived.getTokenIdList();
 
     }
+
+    /**
+     * @author Gunn
+     */
     @Given("one successful payment of {int} kr from customer to merchant has happened")
     public void oneSuccessfulPaymentFromCustomerToMerchantHasHappened(Integer amount) {
         PaymentDTO paymentDTO = new PaymentDTO();
@@ -147,11 +162,18 @@ public class ReportSteps {
         paymentResponse.close();
     }
 
+
+    /**
+     * @author Josephine
+     */
     @When("the customer request a report of the payments")
     public void theCustomerRequestAReportOfThePayments() {
         customerResponse = dtuPayService.requestCustomerReport(customerAccount.getAccountId());
     }
 
+    /**
+     * @author Josephine
+     */
     @Then("the customer receives a report with at least {int} payments")
     public void theCustomerReceivesAReportWithPayment(Integer numberOfPayments) {
         if(customerResponse.getStatus() == 201){
@@ -167,12 +189,19 @@ public class ReportSteps {
         assertTrue(customerReportReceived.getReportList().size() >= numberOfPayments);
     }
 
+    /**
+     * @author Gunn
+     */
     @When("the merchant request a report of the payments")
     public void theMerchantRequestAReportOfThePayments() {
         System.out.println("merchant request payments");
         merchantResponse = dtuPayService.requestMerchantReport(merchantAccount.getAccountId());
     }
 
+
+    /**
+     * @author Gunn
+     */
     @Then("the merchant receives a report with at least {int} payments")
     public void theMerchantReceivesAReportWithPayment(Integer numberOfPayments) {
         System.out.println("merchant receives payments");
@@ -191,12 +220,19 @@ public class ReportSteps {
         assertTrue(merchantReportReceived.getMerchantReportList().size() >= numberOfPayments);
     }
 
+
+    /**
+     * @author Gunn
+     */
     @When("the manager request a report of the payments")
     public void theManagerRequestAReportOfThePayments() {
         managerResponse = dtuPayService.requestManagerReport();
     }
 
 
+    /**
+     * @author Gunn
+     */
     @Then("the manager receives a report with payments")
     public void theManagerReceivesAReportWithPayments() {
             if (managerResponse.getStatus() == 201) {
@@ -212,50 +248,37 @@ public class ReportSteps {
     }
 
 
+    /**
+     * @author Gunn
+     */
     @Then("the customer receives a empty report")
     public void theCustomerReceivesAEmptyReport() {
-        /*if(customerResponse.getStatus() == 201){
-            var reportDTO = customerResponse.readEntity(ReportDTO.class);
-            customerReport.complete(reportDTO);
-        } else if (customerResponse.getStatus() == 404) {
-            var reportDTO = customerResponse.readEntity(ReportDTO.class);
-            customerReport.complete(null);
-            fail("ResponseCode: " + customerResponse.getStatus());
-        }*/
-        //customerReport.complete(customerResponse.readEntity(ReportDTO.class));
-        //customerReportReceived = customerReport.join(); //TODO: use this or the one below?
         customerReportReceived = customerResponse.readEntity(ReportDTO.class);
-
         assertEquals(customerResponse.getStatus(), 404);
         assertEquals(customerReportReceived.getReportList().size(), 0);
     }
 
 
-
+    /**
+     * @author Josephine
+     */
     @Then("the merchant receives a empty report")
     public void theMerchantReceivesAEmptyReport() {
         merchantReportReceived = merchantResponse.readEntity(MerchantReportDTO.class);
-        //merchantReportReceived = merchantReport.join();
         assertEquals(merchantResponse.getStatus(), 404);
         assertEquals(merchantReportReceived.getMerchantReportList().size(), 0);
-        /*
-        var merchantReportDTO = merchantReport.join();
-        List<MerchantPayment> report = merchantReportDTO.getMerchantReportList();
-        assertEquals(0,merchantReportDTO.getMerchantReportList().size());
-        assertEquals("No report for merchant", merchantReportDTO.getErrorMessage());*/
     }
 
 
+    /**
+     * @author Gunn
+     */
     @Then("the manager receives a empty report")
     public void theManagerReceivesAEmptyReport() {
         managerReportReceived = managerResponse.readEntity(ReportDTO.class);
         //managerReportReceived = managerReport.join();
         assertEquals(404, managerResponse.getStatus());
         assertEquals(managerReportReceived.getReportList().size(), 0);
-        /*
-        var managerReportDTO = managerReport.join();
-        List<Payment> report = managerReportDTO.getReportList();
-        assertEquals(0,managerReportDTO.getReportList().size());*/
     }
 
 

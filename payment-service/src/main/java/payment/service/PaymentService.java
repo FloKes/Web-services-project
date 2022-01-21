@@ -15,9 +15,6 @@ import transaction.service.BankTransactionService;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author Bingkun
- */
 public class PaymentService {
     // Events received
     public static final String PAYMENT_INITIATED = "PaymentInitiated";
@@ -57,13 +54,11 @@ public class PaymentService {
         return Integer.toString(id);
     }
 
-    private Boolean checkCustomerBalance() { // check id the customer has enough money to pay
-        return true; //todo
-    }
-
-
     // handlers
 
+    /**
+     * @author Bingkun
+     */
     public void handlePaymentInitiated(Event e) { // publish a "TokenValidationRequested" event
         // We have a PaymentDTO so we don't create dependencies between our Domain and communication
         PaymentDTO paymentDTO = e.getArgument(0, PaymentDTO.class);
@@ -78,6 +73,9 @@ public class PaymentService {
         queue.publish(event);
     }
 
+    /**
+     * @author Florian
+     */
     public void handleTokenValidated(Event e) {
         TokenValidationDTO tokenValidationDTO = e.getArgument(0, TokenValidationDTO.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
@@ -88,6 +86,9 @@ public class PaymentService {
         queue.publish(event);
     }
 
+    /**
+     * @author Bingkun
+     */
     public void handleTokenInvalid(Event e) {
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
         Payment payment = pendingPayments.get(correlationId);
@@ -99,6 +100,9 @@ public class PaymentService {
         queue.publish(event);
     }
 
+    /**
+     * @author Bingkun
+     */
     public void handleBankAccountProvided(Event e) {
         BankAccountRequestDTO bankAccountRequestDTO = e.getArgument(0, BankAccountRequestDTO.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);

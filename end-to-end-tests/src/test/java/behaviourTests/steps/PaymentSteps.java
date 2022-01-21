@@ -45,6 +45,9 @@ public class PaymentSteps {
         dtuPayService = new DtuApiService();
     }
 
+    /**
+     * @author Bingkun
+     */
     @Given("merchant with name {string} {string} with CPR {string} has a bank account with {int} kr")
     public void merchantHasBankAccount(String firstName, String lastName, String cpr, Integer amount) {
         merchantAccountDTO = new AccountDTO();
@@ -73,6 +76,9 @@ public class PaymentSteps {
         }
     }
 
+    /**
+     * @author Florian
+     */
     @Given("customer with name {string} {string} with CPR {string} has a bank account with {int} kr")
     public void customerHasBankAccount(String firstName, String lastName, String cpr, Integer amount) {
         customerAccountDTO = new AccountDTO();
@@ -101,6 +107,9 @@ public class PaymentSteps {
         }
     }
 
+    /**
+     * @author Florian
+     */
     @Given("customer with name {string} {string} with CPR {string} has registered with wrong bank account")
     public void customerWithNameWithCPRHasRegisteredWithWrongBankAccount(String firstName, String lastName, String cpr) {
         customerAccountDTO = new AccountDTO();
@@ -110,6 +119,9 @@ public class PaymentSteps {
         customerAccountDTO.setAccountId("0142");
     }
 
+    /**
+     * @author Bingkun
+     */
     @Given("merchant with name {string} {string} with CPR {string} has registered with wrong bank account")
     public void merchantWithNameWithCPRHasRegisteredWithWrongBankAccount(String firstName, String lastName, String cpr) {
         merchantAccountDTO = new AccountDTO();
@@ -119,6 +131,9 @@ public class PaymentSteps {
         merchantAccountDTO.setAccountId("01424");
     }
 
+    /**
+     * @author Bingkun
+     */
     @When("the two accounts are registering at the same time")
     public void theTwoAccountsAreRegisteringAtTheSameTime() {
         var thread1 = new Thread(() -> {
@@ -149,6 +164,9 @@ public class PaymentSteps {
         thread2.start();
     }
 
+    /**
+     * @author Bingkun
+     */
     @Then("the customer and merchant has different id")
     public void theMerchantHasANonEmptyId() {
         receivedMerchantAccountDTO = merchantAccountCompletableFuture.join();
@@ -164,12 +182,18 @@ public class PaymentSteps {
         assertNotEquals(receivedCustomerAccountDTO.getAccountId(), receivedMerchantAccountDTO.getAccountId());
     }
 
+    /**
+     * @author Florian
+     */
     @When("the customer {string} {string} has no tokens")
     public void theCustomerHasNoToken(String firstName, String lastName) {
         tokens = new ArrayList<>();
         assertEquals(0, tokens.size());
     }
 
+    /**
+     * @author Florian
+     */
     @When("the customer {string} {string} asks for a token")
     public void theCustomerAsksForAToken(String firstName, String lastName) {
         var thread1 = new Thread(() -> {
@@ -178,6 +202,9 @@ public class PaymentSteps {
         thread1.start();
     }
 
+    /**
+     * @author Florian
+     */
     @Then("the customer {string} {string} receives {int} tokens")
     public void theCustomerReceives6Tokens(String firstName, String lastName, Integer numberOfTokens) {
         var tokenIdDTOReceived = customerToken.join();
@@ -185,6 +212,9 @@ public class PaymentSteps {
         assertEquals(numberOfTokens, tokenIdDTOReceived.getTokenIdList().size());
     }
 
+    /**
+     * @author Florian
+     */
     @When("the merchant {string} {string} initializes a payment with the customer {string} {string} of {int} kr to the DTUPay")
     public void paymentInitialization(String merchantFirstName, String merchantLastName, String customerFirstName, String customerLastName, Integer amount) {
         PaymentDTO paymentDTO = new PaymentDTO();
@@ -198,6 +228,9 @@ public class PaymentSteps {
         paymentResponse = dtuPayService.requestPayment(paymentDTO);
     }
 
+    /**
+     * @author Bingkun
+     */
     @When("the invalid merchant {string} {string} with CPR {string} initializes a payment with the customer {string} {string} of {int} kr to the DTUPay")
     public void invalidMerchant(String merchantFirstName, String merchantLastName, String merchantCpr, String customerFirstName, String customerLastName, Integer amount) {
         PaymentDTO paymentDTO = new PaymentDTO();
@@ -215,29 +248,46 @@ public class PaymentSteps {
         paymentResponse = dtuPayService.requestPayment(paymentDTO);
     }
 
+    /**
+     * @author Florian
+     */
     @Then("the customer has {int} kr in the bank")
     public void theCustomerHasKrInTheBank(Integer amount) throws BankServiceException_Exception {
         var balance = bankService.getAccount(customerAccountDTO.getBankAccount()).getBalance().intValue();
         assertEquals(amount, balance);
     }
+
+    /**
+     * @author Bingkun
+     */
     @Then("the merchant {int} bank")
     public void theMerchantBank(Integer amount) throws BankServiceException_Exception {
         var balance = bankService.getAccount(merchantAccountDTO.getBankAccount()).getBalance().intValue();
         assertEquals(amount, balance);
     }
 
+
+    /**
+     * @author Florian
+     */
     @When("the customer {string} {string} has invalid tokens")
     public void theCustomerHasInvalidTokens(String string, String string2) {
         tokens = new ArrayList<String>();
         tokens.add("This is invalid");
     }
 
+    /**
+     * @author Bingkun
+     */
     @Then("the payment is unsuccessful")
     public void thePaymentIsUnsuccessful() {
         assertEquals(400, paymentResponse.getStatus());
         paymentResponse.close();
     }
 
+    /**
+     * @author Florian
+     */
     @Then("the payment is unsuccessful with error {string}")
     public void thePaymentIsUnsuccessfulWithError(String errorDescription) {
         assertEquals(400, paymentResponse.getStatus());
@@ -246,12 +296,18 @@ public class PaymentSteps {
         paymentResponse.close();
     }
 
+    /**
+     * @author Bingkun
+     */
     @Then("the payment is successful")
     public void paymentSuccess() {
         assertEquals(201, paymentResponse.getStatus());
         paymentResponse.close();
     }
 
+    /**
+     * @author Florian
+     */
     @After
     public void removeAccounts() {
         for (String bankAccountId : bankAccountIds) {

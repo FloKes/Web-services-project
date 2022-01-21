@@ -6,6 +6,9 @@ import lombok.ToString;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+/**
+ * @author Florian
+ */
 @Data // Automatic getter and setters and equals etc
 @ToString
 public class PaymentDTO implements Serializable {

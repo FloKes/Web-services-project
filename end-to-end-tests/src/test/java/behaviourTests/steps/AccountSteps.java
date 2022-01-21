@@ -37,6 +37,9 @@ public class AccountSteps {
     private String accountId;
     private List<String> accountIds = new ArrayList<>();
 
+    /**
+     * @author Josephine
+     */
     @Given("person with name {string} {string} with cpr {string}, bank accountId {string}")
     public void personWithNameWithCprBankAccountId(String firstName, String lastName, String cpr, String bankAccountId) {
         account1 = new AccountDTO();
@@ -47,11 +50,17 @@ public class AccountSteps {
         assertNull(account1.getAccountId());
     }
 
+    /**
+     * @author Josephine
+     */
     @When("the user is being registered")
     public void theUserIsBeingRegistered() {
         response1 = service.registerCustomerAccount(account1);
     }
 
+    /**
+     * @author Josephine
+     */
     @Then("the user is registered")
     public void theUserIsRegistered() {
         if (response1.getStatus()==201){
@@ -65,12 +74,18 @@ public class AccountSteps {
         accountReceived1 = result1.join();
     }
 
+    /**
+     * @author Gunn
+     */
     @Then("an {string} error message is returned")
     public void anErrorMessageIsReturned(String errorMsg) {
         var receivedError = response1.readEntity(String.class);
         assertEquals(errorMsg, receivedError);
     }
 
+    /**
+     * @author Gunn
+     */
     @Then("has a non empty id")
     public void hasANonEmptyId() {
         accountId = accountReceived1.getAccountId();
@@ -78,6 +93,9 @@ public class AccountSteps {
         assertNotNull(accountId);
     }
 
+    /**
+     * @author Gunn
+     */
     @Given("second person with name {string} {string} with cpr {string}, bank accountId {string}")
     public void secondPersonWithNameWithCprBankAccountId(String firstName, String lastName, String cpr, String bankAccountId) {
         account2 = new AccountDTO();
@@ -88,6 +106,9 @@ public class AccountSteps {
         assertNull(account2.getAccountId());
     }
 
+    /**
+     * @author Florian
+     */
     @When("the two accounts are registered at the same time")
     public void theTwoAccountsAreRegisteredAtTheSameTime() {
         var thread1 = new Thread(() -> {
@@ -119,6 +140,9 @@ public class AccountSteps {
         thread2.start();
     }
 
+    /**
+     * @author Gunn
+     */
     @Then("the first account has a non empty id")
     public void theFirstAccountHasANonEmptyId() {
         var accountDTO = result1.join();
@@ -128,6 +152,9 @@ public class AccountSteps {
         System.out.println("Accountids when the first account:" + accountIds);
     }
 
+    /**
+     * @author Josephine
+     */
     @Then("the second account has a non empty id different from the first student")
     public void theSecondAccountHasANonEmptyIdDifferentFromTheFirstStudent() {
         var accountDTO1 = new AccountDTO();
@@ -151,6 +178,9 @@ public class AccountSteps {
         assertNotEquals(accountDTO1.getAccountId(), accountDTO2.getAccountId());
     }
 
+    /**
+     * @author Florian
+     */
     @When("user deletion is requested")
     public void userDeletionIsRequested() {
         response1 = service.deleteCustomerAccount(accountId);
@@ -161,12 +191,17 @@ public class AccountSteps {
         accountIds.remove(accountId);
     }
 
+    /**
+     * @author Florian
+     */
     @Then("the account is not found")
     public void theAccountIsNotFound() {
         assertEquals(response1.getStatus(), 409);
-
     }
 
+    /**
+     * @author Florian
+     */
     @After
     public void deleteAccounts(){
         for (String id : accountIds) {
@@ -180,9 +215,4 @@ public class AccountSteps {
             response2.close();
         }
     }
-
-//    @After
-//    public void closeClient() {
-//        service.closeClient();
-//    }
 }

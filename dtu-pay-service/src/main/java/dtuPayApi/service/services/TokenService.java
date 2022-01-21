@@ -20,14 +20,9 @@ public class TokenService {
         queue.addHandler(TOKEN_PROVIDED, this::handleTokenProvided);
     }
 
-//    public TokenIdDTO requestTokenId(String customerAccountId) {
-//        var correlationId = CorrelationId.randomId();
-//        pendingTokenRequests.put(correlationId,new CompletableFuture<>());
-//        Event event = new Event(TOKEN_REQUESTED, new Object[] { customerAccountId, correlationId });
-//        queue.publish(event);
-//        return pendingTokenRequests.get(correlationId).join();
-//    }
-
+    /**
+     * @author Tamas
+     */
     public TokenIdDTO requestArbitraryAmountTokenId(String customerAccountId, int tokenAmount) {
         var correlationId = CorrelationId.randomId();
         pendingTokenRequests.put(correlationId,new CompletableFuture<>());
@@ -36,6 +31,9 @@ public class TokenService {
         return pendingTokenRequests.get(correlationId).join();
     }
 
+    /**
+     * @author Bence
+     */
     public void handleTokenProvided(Event e) {
         var receivedTokens = e.getArgument(0, TokenIdDTO.class);
         var correlationId = e.getArgument(1, CorrelationId.class);

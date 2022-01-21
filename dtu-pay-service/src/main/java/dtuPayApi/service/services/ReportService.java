@@ -39,6 +39,9 @@ public class ReportService {
         queue.addHandler(REQUEST_MANAGER_REPORT_ERROR, this::handleManagerErrorReportProvided);
     }
 
+    /**
+     * @author Josephine
+     */
     public ReportDTO requestCustomerReport(String customerAccountId) {
         var correlationId = CorrelationId.randomId();
         pendingCustomerReportRequest.put(correlationId,new CompletableFuture<>());
@@ -47,6 +50,9 @@ public class ReportService {
         return pendingCustomerReportRequest.get(correlationId).join();
     }
 
+    /**
+     * @author Gunn
+     */
     public ReportDTO requestManagerReport() {
         var correlationId = CorrelationId.randomId();
         pendingManagerReportRequest.put(correlationId,new CompletableFuture<>());
@@ -55,6 +61,9 @@ public class ReportService {
         return pendingManagerReportRequest.get(correlationId).join();
     }
 
+    /**
+     * @author Josephine
+     */
     public MerchantReportDTO requestMerchantReport(String merchantAccountId) {
         var correlationId = CorrelationId.randomId();
         pendingMerchantReportRequest.put(correlationId,new CompletableFuture<>());
@@ -63,36 +72,54 @@ public class ReportService {
         return pendingMerchantReportRequest.get(correlationId).join();
     }
 
+    /**
+     * @author Josephine
+     */
     public void handleCustomerReportProvided(Event e) {
         var receivedReports = e.getArgument(0, ReportDTO.class);
         var correlationId = e.getArgument(1, CorrelationId.class);
         pendingCustomerReportRequest.get(correlationId).complete(receivedReports);
     }
 
+    /**
+     * @author Josephine
+     */
     public void handleMerchantReportProvided(Event e) {
         var receivedReports = e.getArgument(0, MerchantReportDTO.class);
         var correlationId = e.getArgument(1, CorrelationId.class);
         pendingMerchantReportRequest.get(correlationId).complete(receivedReports);
     }
 
+    /**
+     * @author Gunn
+     */
     public void handleManagerReportProvided(Event e) {
         var receivedReports = e.getArgument(0, ReportDTO.class);
         var correlationId = e.getArgument(1, CorrelationId.class);
         pendingManagerReportRequest.get(correlationId).complete(receivedReports);
     }
 
+    /**
+     * @author Gunn
+     */
     public void handleCustomerErrorReportProvided(Event e) {
         var receivedError = e.getArgument(0, ReportDTO.class);
         var correlationId = e.getArgument(1, CorrelationId.class);
         pendingCustomerReportRequest.get(correlationId).complete(receivedError);
     }
 
+    /**
+     * @author Josephine
+     */
     public void handleMerchantErrorReportProvided(Event e) {
         var receivedError = e.getArgument(0, MerchantReportDTO.class);
         var correlationId = e.getArgument(1, CorrelationId.class);
         pendingMerchantReportRequest.get(correlationId).complete(receivedError);
     }
 
+    /**
+     * @author Gunn
+     */
     public void handleManagerErrorReportProvided(Event e) {
         var receivedError = e.getArgument(0, ReportDTO.class);
         var correlationId = e.getArgument(1, CorrelationId.class);

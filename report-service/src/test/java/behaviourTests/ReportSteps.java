@@ -32,6 +32,10 @@ public class ReportSteps {
     CorrelationId merchantCorrelationId;
     CorrelationId managerCorrelationId;
 
+    /**
+     *
+     * @author Josephine
+     */
     @Given("a payment with paymentId {string}, customerId {string}, merchantId {string}, amount {int}, and description {string}")
     public void aPaymentWithPaymentIdCustomerIdMerchantIdAmountAndDescription(String paymentId, String customerId, String merchantId, int amount, String description) {
         payment = new PaymentReportDTO();
@@ -43,12 +47,20 @@ public class ReportSteps {
     }
 
 
+    /**
+     *
+     * @author Josephine
+     */
     @When("a {string} event is received for the payment")
     public void anEventIsReceivedForThePayment(String event) {
         service.handlePaymentSucceeded(new Event(event, new Object[]{ payment}));
     }
 
 
+    /**
+     *
+     * @author Gunn
+     */
     @Then("the payment is added to the merchant report")
     public void thePaymentIsAddedToTheMerchantReport() throws Exception {
         List<MerchantPayment> merchantPayments = repository.getMerchantReportById(payment.getMerchantId());
@@ -60,6 +72,10 @@ public class ReportSteps {
         assertEquals(expectedPayment, payment);
     }
 
+    /**
+     *
+     * @author Gunn
+     */
     @Then("the payment is added to the customer report")
     public void thePaymentIsAddedToTheCustomerReport() throws Exception {
         List<Payment> customerPayments = repository.getCustomerReportById(payment.getCustomerId());
@@ -70,6 +86,10 @@ public class ReportSteps {
     }
 
 
+    /**
+     *
+     * @author Josephine
+     */
     @Then("the payment is added to the manager report")
     public void thePaymentIsAddedToTheManagerReport() throws Exception {
         List<Payment> managerPayments = repository.getManagerReport();
@@ -80,12 +100,20 @@ public class ReportSteps {
     }
 
 
+    /**
+     *
+     * @author Gunn
+     */
     @When("a {string} event is received for the customer report")
     public void anEventIsReceivedForTheCustomerReport(String eventName) {
         customerCorrelationId = CorrelationId.randomId();
         service.handleCustomerReportRequested(new Event(eventName, new Object[]{ payment.getCustomerId(), customerCorrelationId}));
     }
 
+    /**
+     *
+     * @author Josephine
+     */
     @Then("the {string} event is sent to customer")
     public void theEventIsSentToCustomer(String eventName) throws Exception {
         List<Payment> customerPayments = repository.getCustomerReportById(payment.getCustomerId());
@@ -96,6 +124,10 @@ public class ReportSteps {
     }
 
 
+    /**
+     *
+     * @author Josephine
+     */
     @When("a {string} event is received for the merchant report")
     public void anEventIsReceivedForTheMerchantReport(String eventName) {
         merchantCorrelationId = CorrelationId.randomId();
@@ -103,6 +135,10 @@ public class ReportSteps {
 
     }
 
+    /**
+     *
+     * @author Josephine
+     */
     @Then("the {string} event is sent to merchant")
     public void theEventIsSentToMerchant(String eventName) throws Exception {
         List<MerchantPayment> merchantPayments = repository.getMerchantReportById(payment.getMerchantId());
@@ -113,12 +149,20 @@ public class ReportSteps {
 
     }
 
+    /**
+     *
+     * @author Gunn
+     */
     @When("a {string} event is received for the manager report")
     public void anEventIsReceivedForTheManagerReport(String eventName) {
         managerCorrelationId = CorrelationId.randomId();
         service.handleManagerReportRequested(new Event(eventName, new Object[]{ managerCorrelationId}));
     }
 
+    /**
+     *
+     * @author Gunn
+     */
     @Then("the {string} event is sent to manager")
     public void theEventIsSentToManager(String eventName) throws Exception {
         List<Payment> managerPayments = repository.getManagerReport();
@@ -129,6 +173,10 @@ public class ReportSteps {
     }
 
 
+    /**
+     *
+     * @author Josephine
+     */
     @When("a {string} event is received for a customer with no payments")
     public void anEventReceivedForCustomerWithNoPayments(String eventName) {
         customerCorrelationId = CorrelationId.randomId();
@@ -136,6 +184,10 @@ public class ReportSteps {
     }
 
 
+    /**
+     *
+     * @author Gunn
+     */
     @Then("the {string} event is sent to customer with no payments")
     public void anEventProvidedForCustomerWithNoPayments(String eventName) {
         ReportDTO reportDTO = new ReportDTO();
@@ -144,14 +196,20 @@ public class ReportSteps {
         verify(queue).publish(event);
     }
 
-
+    /**
+     *
+     * @author Gunn
+     */
     @When("a {string} event is received for a merchant with no payments")
     public void anEventReceivedForMerchantWithNoPayments(String eventName) {
         merchantCorrelationId = CorrelationId.randomId();
         service.handleMerchantReportRequested(new Event(eventName, new Object[] {"test merchant", merchantCorrelationId}));
     }
 
-
+    /**
+     *
+     * @author Gunn
+     */
     @Then("the {string} event is sent to merchant with no payments")
     public void anEventProvidedForMerchantWithNoPayments(String eventName) {
         MerchantReportDTO reportDTO = new MerchantReportDTO();
@@ -160,7 +218,10 @@ public class ReportSteps {
         verify(queue).publish(event);
     }
 
-
+    /**
+     *
+     * @author Gunn
+     */
     @When("a {string} event is received for a manager with no payments")
     public void anEventReceivedForManagerWithNoPayments(String eventName) {
         managerCorrelationId = CorrelationId.randomId();
@@ -168,6 +229,10 @@ public class ReportSteps {
     }
 
 
+    /**
+     *
+     * @author Josephine
+     */
     @Then("the {string} event is sent to manager with no payments")
     public void anEventProvidedForManagerWithNoPayments(String eventName) {
         ReportDTO reportDTO = new ReportDTO();

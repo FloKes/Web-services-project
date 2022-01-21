@@ -19,16 +19,9 @@ public class DtuApiService {
         baseUrl = client.target("http://localhost:8080/dtuPayApi");
     }
 
-    public String getToken(String customerId) {
-        //TODO: maybe delete?
-        Response response = baseUrl.path("dtuPayApi/tokenManager/" + customerId + "/token")
-                .request(MediaType.APPLICATION_JSON)
-                .get();
-        var token= response.readEntity(String.class);
-        System.out.println(token);
-        return token;
-    }
-
+    /**
+     * @author Gunn
+     */
     public Response registerCustomerAccount(AccountDTO accountDTO) {
         var response = baseUrl.path("/customer/accounts")
                 .request()
@@ -36,11 +29,17 @@ public class DtuApiService {
         return response;
     }
 
+    /**
+     * @author Florian
+     */
     public Response registerMerchantAccount(AccountDTO accountDTO) {
         var response = baseUrl.path("/merchant/accounts").request().post(Entity.json(accountDTO));
         return response;
     }
 
+    /**
+     * @author Bence
+     */
     public TokenIdDTO requestToken(String customerId, int amount) {
         var response = baseUrl.path("/customer/tokens/" + customerId + "/tokens/" +amount)
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -48,21 +47,33 @@ public class DtuApiService {
         return response;
     }
 
+    /**
+     * @author Tamas
+     */
     public Response requestCustomerReport(String customerId) {
         var response = baseUrl.path("/customer/reports/" + customerId).request(MediaType.APPLICATION_JSON_TYPE).get();
         return response;
     }
 
+    /**
+     * @author Josephine
+     */
     public Response requestMerchantReport(String merchantId) {
         var response = baseUrl.path("/merchant/reports/" + merchantId).request(MediaType.APPLICATION_JSON_TYPE).get();
         return response;
     }
 
+    /**
+     * @author Bingkun
+     */
     public Response requestManagerReport() {
         var response = baseUrl.path("/manager/reports/").request(MediaType.APPLICATION_JSON_TYPE).get();
         return response;
     }
 
+    /**
+     * @author Bingkun
+     */
     public Response requestPayment(PaymentDTO paymentDTO) {
         var merchantId = paymentDTO.getMerchantId();
         var response = baseUrl.path("/merchant/payments/" + merchantId + "/payments")
@@ -71,6 +82,9 @@ public class DtuApiService {
         return response;
     }
 
+    /**
+     * @author Florian
+     */
     public Response deleteCustomerAccount(String accountId) {
         var response = baseUrl.path("/customer/accounts/" + accountId )
                 .request()
@@ -78,23 +92,13 @@ public class DtuApiService {
         return response;
     }
 
-
-
+    /**
+     * @author Florian
+     */
     public Response deleteMerchantAccount(String accountId) {
         var response = baseUrl.path("/merchant/accounts/" + accountId )
                 .request()
                 .delete();
         return response;
     }
-
-    public String getStringFromResponse(Response response) {
-        String uri = response.getLocation().toString();
-        return uri.substring(uri.lastIndexOf('/') + 1).trim();
-    }
-
-    public void closeResponse(Response response) {
-        response.close();
-    }
-
-    public  void closeClient() {client.close();}
 }

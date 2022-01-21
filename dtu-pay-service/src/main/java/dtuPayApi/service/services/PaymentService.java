@@ -26,6 +26,9 @@ public class PaymentService {
         pendingPayments = new ConcurrentHashMap<>();
     }
 
+    /**
+     * @author Bingkun
+     */
     public PaymentDTO addPayment(PaymentDTO paymentDTO) {
         var correlationId = CorrelationId.randomId();
         pendingPayments.put(correlationId, new CompletableFuture<>());
@@ -34,12 +37,18 @@ public class PaymentService {
         return pendingPayments.get(correlationId).join();
     }
 
+    /**
+     * @author Bingkun
+     */
     public void handlePaymentCompleted(Event e) {
         PaymentDTO paymentDTO = e.getArgument(0, PaymentDTO.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
         pendingPayments.get(correlationId).complete(paymentDTO);
     }
 
+    /**
+     * @author Florian
+     */
     public void handlePaymentError(Event e) {
         PaymentDTO paymentDTO = e.getArgument(0, PaymentDTO.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);

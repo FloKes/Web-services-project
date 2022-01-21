@@ -15,6 +15,9 @@ public class ManagerResource {
     ReportService reportService = new ReportFactory().getService();
 
 
+    /**
+     * @author Gunn
+     */
     @Path("/reports")
     @GET
     @Produces("application/json")
