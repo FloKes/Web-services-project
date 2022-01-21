@@ -55,7 +55,7 @@ OS name: "mac os x", version: "10.15.7", arch: "x86_64", family: "mac"
 
 #### Installing Jenkins
 
-If you would like to work with Continuous Integration. A recommodation is (Jenkins)[https://www.jenkins.io/doc/book/installing/] (version 2.319.1).
+If you would like to work with Continuous Integration. A recommodation is [Jenkins](https://www.jenkins.io/doc/book/installing/) (version 2.319.1).
 Or you can start the Specific Runner (Not the Shared Runner) of gitlab pipeline and remove the `.gitlab-ci.yml` from `.gitignore` to use the Gitlab CI/CD. 
 
 ### Build And Run
