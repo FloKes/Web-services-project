@@ -7,6 +7,9 @@ import dtu.ws.fastmoney.BankServiceService;
 
 import java.math.BigDecimal;
 
+/**
+ * @author Florian
+ */
 public class BankTransactionService {
     private BankService bank;
     public BankTransactionService() {

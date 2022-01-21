@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @author Bingkun
+ */
 public class PaymentService {
 
     public static final String PAYMENT_COMPLETED = "PaymentCompleted";

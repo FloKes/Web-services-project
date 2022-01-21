@@ -20,6 +20,10 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
+/**
+ * @author Bingkun
+ */
 public class PaymentSteps {
     BankService bankService;
     DtuApiService dtuPayService;
@@ -144,8 +148,6 @@ public class PaymentSteps {
         thread1.start();
         thread2.start();
     }
-
-
 
     @Then("the customer and merchant has different id")
     public void theMerchantHasANonEmptyId() {

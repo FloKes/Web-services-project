@@ -15,7 +15,9 @@ import transaction.service.BankTransactionService;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
+/**
+ * @author Bingkun
+ */
 public class PaymentService {
     // Events received
     public static final String PAYMENT_INITIATED = "PaymentInitiated";
@@ -49,6 +51,7 @@ public class PaymentService {
     }
 
     // methods
+
     private String nextId() {
         id++;
         return Integer.toString(id);

@@ -6,6 +6,9 @@ import dtos.PaymentReportDTO;
 import dtos.TokenValidationDTO;
 import domain.Payment;
 
+/**
+ * @author Florian
+ */
 public class Mapper {
     public static void mapPaymentToDTO(Payment payment, PaymentDTO paymentDTO){
         paymentDTO.setAmount(payment.getAmount());
