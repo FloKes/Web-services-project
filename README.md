@@ -1,15 +1,20 @@
 ## Installtion Guide
 
 This is a repo containing 7 sub-projects for the DTUPay Web Service:
+
+REST application:
 [DTUPay REST Application](https://gitlab.gbar.dtu.dk/s202771/Exam-project/tree/main/dtu-pay-service)
 
+Microservices:
 [Account Service](https://gitlab.gbar.dtu.dk/s202771/Exam-project/tree/main/account-service)
 [Payment Service](https://gitlab.gbar.dtu.dk/s202771/Exam-project/tree/main/payment-service)
 [Token Service](https://gitlab.gbar.dtu.dk/s202771/Exam-project/tree/main/token-service)
 [Report Service](https://gitlab.gbar.dtu.dk/s202771/Exam-project/tree/main/report-service)
 
+Message Queue:
 [Message Utilities](https://gitlab.gbar.dtu.dk/s202771/Exam-project/tree/main/messaging-utilities-3.3)
 
+End-to-end Tests:
 [End-to-end Tests](https://gitlab.gbar.dtu.dk/s202771/Exam-project/tree/main/end-to-end-tests)
 
 ### Getting started
