@@ -1,4 +1,4 @@
-## Installtion Guide
+## Installation Guide
 
 This is a repo containing 7 sub-projects for the DTUPay Web Service:
 
