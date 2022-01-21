@@ -112,8 +112,8 @@ public class TokenSteps {
         }
     }
 
-    @After
-    public void closeClient() {
-        service.closeClient();
-    }
+//    @After
+//    public void closeClient() {
+//        service.closeClient();
+//    }
 }
