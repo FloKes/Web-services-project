@@ -20,10 +20,18 @@ public class TokenService {
         queue.addHandler(TOKEN_PROVIDED, this::handleTokenProvided);
     }
 
-    public TokenIdDTO requestTokenId(String customerAccountId) {
+//    public TokenIdDTO requestTokenId(String customerAccountId) {
+//        var correlationId = CorrelationId.randomId();
+//        pendingTokenRequests.put(correlationId,new CompletableFuture<>());
+//        Event event = new Event(TOKEN_REQUESTED, new Object[] { customerAccountId, correlationId });
+//        queue.publish(event);
+//        return pendingTokenRequests.get(correlationId).join();
+//    }
+
+    public TokenIdDTO requestArbitraryAmountTokenId(String customerAccountId, int tokenAmount) {
         var correlationId = CorrelationId.randomId();
         pendingTokenRequests.put(correlationId,new CompletableFuture<>());
-        Event event = new Event(TOKEN_REQUESTED, new Object[] { customerAccountId, correlationId });
+        Event event = new Event(TOKEN_REQUESTED, new Object[] { customerAccountId, correlationId, tokenAmount });
         queue.publish(event);
         return pendingTokenRequests.get(correlationId).join();
     }

@@ -42,6 +42,30 @@ public class TokenRepository {
         }
     }
 
+    public List<String> getArbitraryAmuntOfTokenIdList(String customerId, int amount) throws Exception {
+        if (customerId.length() == 0){
+            throw new Exception("Customer id is empty");
+        }
+        List<String> tokens = new ArrayList<>();
+        int requiredNumber = 0;
+        Long numberOfTokens = tokenList.values().stream()
+                .collect( groupingBy( Token::getUserID, Collectors.counting() ) ).get(customerId);
+        if  (numberOfTokens == null) requiredNumber = 6;
+        else requiredNumber = 6 - Math.toIntExact(numberOfTokens);
+        requiredNumber = amount;
+        if( numberOfTokens == null || numberOfTokens < 2) {
+            for (int i = 0; i < requiredNumber; i++){
+                Token token = new Token(customerId);
+                tokenList.put( token.getTokenID(), token );
+                tokens.add(token.getTokenID());
+            }
+            return tokens;
+        }
+        else {
+            throw new Exception("Too many tokens");
+        }
+    }
+
     public void deleteToken(String tokenID) throws Exception {
         if ( checkToken( tokenID ) ){
             tokenList.remove(tokenID);

@@ -31,4 +31,7 @@ Feature: TokenRequestFeature
     And the customer asks again for a token
     Then the customer receives 0 tokens response
 
-
+  Scenario: Arbitrary number of tokens requested
+    Given person with name "Flo" "Ki" with cpr "000000-5555", bank accountId "56741" is registered
+    When the customer asks for 3 tokens
+    Then the customer receives 3 tokens

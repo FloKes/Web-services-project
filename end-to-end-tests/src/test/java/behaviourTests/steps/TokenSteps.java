@@ -83,6 +83,12 @@ public class TokenSteps {
     }
 
 
+    @When("the customer asks for {int} tokens")
+    public void theCustomerAsksForTokens(Integer arbitraryTokenAmount) {
+        result1.complete(service.requestToken(accountId, arbitraryTokenAmount));
+    }
+
+
 
     @When("account is deleted")
     public void accountIsDeleted() {

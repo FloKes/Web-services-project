@@ -44,10 +44,19 @@ public class TokenService {
         this.pendingAccountChecks = new ConcurrentHashMap<>();
     }
 
-    //I think the client also has to do a digital signature on the token
+
     public TokenIdDTO createToken(String customerId) throws Exception {
         System.out.println("Token service customerId: " + customerId);
         var tokenIdList = repository.getTokenIdList(customerId);
+        TokenIdDTO tokenIdDTO = new TokenIdDTO();
+        tokenIdDTO.setTokenIdList(tokenIdList);
+        System.out.println("Service list size: " + tokenIdList.size());
+        return tokenIdDTO;
+    }
+
+    public TokenIdDTO createArbitraryToken(String customerId, int amountOfTokens) throws Exception {
+        System.out.println("Token service customerId: " + customerId);
+        var tokenIdList = repository.getArbitraryAmuntOfTokenIdList(customerId, amountOfTokens);
         TokenIdDTO tokenIdDTO = new TokenIdDTO();
         tokenIdDTO.setTokenIdList(tokenIdList);
         System.out.println("Service list size: " + tokenIdList.size());
@@ -75,10 +84,20 @@ public class TokenService {
     }
 
 
-    //TODO make it unable to create new tokens if no such user is registered
+//   //TODO make it unable to create new tokens if no such user is registered
     public void handleTokenCreationRequested(Event ev) {
         var customerId = ev.getArgument(0, String.class);
         var correlationId = ev.getArgument(1, CorrelationId.class);
+
+        var tokenAmount = 0;
+        try {
+            tokenAmount= ev.getArgument(2, int.class );
+        } catch (Exception e) {
+            System.out.println("no arbitrary token amount argument");
+        }
+
+
+
 
         CompletableFuture<Boolean> accountCheckResult = new CompletableFuture<>();
         var correlationIdCheckAccount = CorrelationId.randomId();
@@ -103,7 +122,11 @@ public class TokenService {
         }
 
         try {
-            tokenIdDTO = createToken(customerId);
+            if ( tokenAmount == 0 ) { // equivalent to default value 6
+                tokenIdDTO = createToken(customerId);
+            }else {
+                tokenIdDTO = createArbitraryToken(customerId, tokenAmount);
+            }
         }
         catch (Exception e){
             System.out.println(e);

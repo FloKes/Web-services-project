@@ -53,8 +53,17 @@ public class DtuApiService {
 //        Client client = ClientBuilder.newClient();
 //        WebTarget r = client.target("http://localhost:8080/dtuPayApi");
 //        var response = baseUrl.path("/customer/tokens/" + customerId + "/tokens").queryParam("amount", amount).request(MediaType.APPLICATION_JSON_TYPE).get(TokenIdDTO.class);
+//        if ( amount == 6 ) {
+//
+//            var response = baseUrl.path("/customer/tokens/" + customerId + "/tokens/")
+//                    .request(MediaType.APPLICATION_JSON_TYPE)
+//                    .get(TokenIdDTO.class);
+//            return response;
+//        }else {
+//
+//        }
 
-        var response = baseUrl.path("/customer/tokens/" + customerId + "/tokens")
+        var response = baseUrl.path("/customer/tokens/" + customerId + "/tokens/" +amount)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(TokenIdDTO.class);
         return response;

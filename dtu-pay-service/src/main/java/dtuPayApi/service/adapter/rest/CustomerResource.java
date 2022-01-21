@@ -1,8 +1,6 @@
 package dtuPayApi.service.adapter.rest;
 
 import dtuPayApi.service.dtos.AccountDTO;
-import dtuPayApi.service.dtos.PaymentDTO;
-import dtuPayApi.service.dtos.TokenIdDTO;
 import dtuPayApi.service.factories.AccountFactory;
 import dtuPayApi.service.factories.TokenFactory;
 import dtuPayApi.service.services.AccountService;
@@ -38,12 +36,25 @@ public class CustomerResource {
                 : Response.status(Response.Status.CONFLICT).entity(accountId).build();
     }
 
-    @Path("/tokens/{customerId}/tokens")
+//    @Path("/tokens/{customerId}/tokens")
+//    @GET
+//    @Produces("application/json")
+//    public Response requestTokens(@PathParam("customerId") String customerId) throws URISyntaxException {
+//        System.out.println("Facade customer id: " + customerId);
+//        var tokenIdDTO = tokenService.requestTokenId(customerId);
+//        return Response.status(Response.Status.OK)
+//                .entity(tokenIdDTO)
+//                .build();
+////        return tokenIdDTO;
+//    }
+
+    @Path("/tokens/{customerId}/tokens/{tokenAmount}")
     @GET
     @Produces("application/json")
-    public Response requestTokens(@PathParam("customerId") String customerId) throws URISyntaxException {
+    public Response requestArbitraryTokens(@PathParam("customerId") String customerId, @PathParam("tokenAmount") int tokenAmount) throws URISyntaxException {
+        System.out.println(tokenAmount+ ", arbitrary tokens received==================================");
         System.out.println("Facade customer id: " + customerId);
-        var tokenIdDTO = tokenService.requestTokenId(customerId);
+        var tokenIdDTO = tokenService.requestArbitraryAmountTokenId(customerId, tokenAmount);
         return Response.status(Response.Status.OK)
                 .entity(tokenIdDTO)
                 .build();
