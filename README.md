@@ -17,7 +17,6 @@ Message Queue:
 End-to-end Tests:
 [End-to-end Tests](https://gitlab.gbar.dtu.dk/s202771/Exam-project/tree/main/end-to-end-tests)
 
-README.md Author: Bingkun & Florian
 ### Getting started
 
 #### Installing Java
@@ -84,8 +83,8 @@ The ouput should be as follows with all the end-to-end tests passed:
 146 Steps (146 passed)
 0m9.261s
 ```
-
+The following warning may appear for the code does not close the client directly. 
 > Jan 21, 2022 2:02:11 PM org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine finalize
 > WARN: RESTEASY004687: Closing a class org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine instance for you. Please close clients yourself.
 
-The above warning may appear for the code does not close the client directly. 
+README Author @Bingkun
