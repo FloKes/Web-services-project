@@ -17,8 +17,6 @@ Message Queue:
 End-to-end Tests:
 [End-to-end Tests](https://gitlab.gbar.dtu.dk/s202771/Exam-project/tree/main/end-to-end-tests)
 
-### Getting started
-
 #### Installing Java
 
 You will need [Java](https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html) ( =version 11.0.13 ). To check
@@ -58,7 +56,7 @@ OS name: "mac os x", version: "10.15.7", arch: "x86_64", family: "mac"
 If you would like to work with Continuous Integration. A recommodation is [Jenkins](https://www.jenkins.io/doc/book/installing/) (version 2.319.1).
 Or you can start the Specific Runner (Not the Shared Runner) of gitlab pipeline and remove the `.gitlab-ci.yml` from `.gitignore` to use the Gitlab CI/CD. 
 
-### Build And Run
+#### Build And Run
 
 All the required dependencies are included in the pom.xml for each sub-project and will be pulled automatically. The `Message Utilities` is an abstraction of the RabbitMq and should be installed as a libarary for other sub-projects.
 
