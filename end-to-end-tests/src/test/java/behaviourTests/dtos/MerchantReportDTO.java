@@ -1,6 +1,8 @@
-package DTOs;
+package behaviourTests.dtos;
 
-import domain.MerchantPayment;
+
+
+import behaviourTests.domain.MerchantPayment;
 import lombok.Data;
 
 import java.io.Serializable;

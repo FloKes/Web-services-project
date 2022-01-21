@@ -3,6 +3,7 @@ package payment.service;
 import domain.CorrelationId;
 import dtos.BankAccountRequestDTO;
 import dtos.PaymentDTO;
+import dtos.PaymentReportDTO;
 import dtos.TokenValidationDTO;
 import domain.Payment;
 import dtu.ws.fastmoney.BankServiceException_Exception;
@@ -24,6 +25,7 @@ public class PaymentService {
 
     // Events sent
     public static final String PAYMENT_COMPLETED = "PaymentCompleted";
+    public static final String PAYMENT_COMPLETED_FOR_REPORT = "PaymentCompletedForReport";
     public static final String TOKEN_VALIDATION_REQUESTED = "TokenValidationRequested";
     public static final String BANK_ACCOUNT_REQUESTED = "BankAccountRequested";
     public static final String PAYMENT_ERROR = "PaymentError";
@@ -116,6 +118,12 @@ public class PaymentService {
             Mapper.mapPaymentToDTO(payment, paymentDTO);
             Event event = new Event(PAYMENT_COMPLETED, new Object[] {paymentDTO, correlationId});
             queue.publish(event);
+
+            PaymentReportDTO paymentReportDTO = new PaymentReportDTO();
+            Mapper.mapPaymentToPaymentForReportDTO(payment, paymentReportDTO);
+            paymentReportDTO.setCustomerId(bankAccountRequestDTO.getCustomerId());
+            Event eventForReport = new Event(PAYMENT_COMPLETED_FOR_REPORT, new Object[] {paymentReportDTO, correlationId});
+            queue.publish(eventForReport);
         } catch (BankServiceException_Exception err) {
             pendingPayments.remove(correlationId);
             PaymentDTO paymentDTO = new PaymentDTO();

@@ -17,7 +17,7 @@ public class ReportService {
     ReportRepository repository;
 
     // Event received
-    public static final String PAYMENT_COMPLETED = "PaymentCompletedForReport";
+    public static final String PAYMENT_COMPLETED_FOR_REPORT = "PaymentCompletedForReport";
     public static final String CUSTOMER_REPORT_REQUESTED = "CustomerReportRequested";
     public static final String MERCHANT_REPORT_REQUESTED = "MerchantReportRequested";
     public static final String MANAGER_REPORT_REQUESTED = "ManagerReportRequested";
@@ -28,13 +28,15 @@ public class ReportService {
     public static final String MANAGER_REPORT_PROVIDED = "ManagerReportProvided";
 
     // Event error
-    public static final String REQUEST_REPORT_ERROR = "RequestReportErrorProvided";
+    public static final String REQUEST_CUSTOMER_REPORT_ERROR = "RequestCustomerReportErrorProvided";
+    public static final String REQUEST_MERCHANT_REPORT_ERROR = "RequestMerchantReportErrorProvided";
+    public static final String REQUEST_MANAGER_REPORT_ERROR = "RequestManagerReportErrorProvided";
 
 
     public ReportService(MessageQueue q, ReportRepository repository) {
         this.queue = q;
         this.repository = repository;
-        this.queue.addHandler(PAYMENT_COMPLETED, this::handlePaymentSucceeded);
+        this.queue.addHandler(PAYMENT_COMPLETED_FOR_REPORT, this::handlePaymentSucceeded);
         this.queue.addHandler(CUSTOMER_REPORT_REQUESTED, this::handleCustomerReportRequested);
         this.queue.addHandler(MERCHANT_REPORT_REQUESTED, this::handleMerchantReportRequested);
         this.queue.addHandler(MANAGER_REPORT_REQUESTED, this::handleManagerReportRequested);
@@ -54,39 +56,33 @@ public class ReportService {
 
     public void handleCustomerReportRequested(Event ev) {
         var customerId = ev.getArgument(0, String.class);
-        List<Payment> customerReports = null;
-        try {
-            customerReports = repository.getCustomerReportById(customerId);
-            ReportDTO reportDTO = new ReportDTO();
-            reportDTO.setReportList(customerReports);
-            Event event = new Event(CUSTOMER_REPORT_PROVIDED, new Object[] { reportDTO });
-            queue.publish(event);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Event event = new Event(REQUEST_REPORT_ERROR, new Object[] {customerId});
-            queue.publish(event);
+        var correlationId = ev.getArgument(1, CorrelationId.class);
+        List<Payment> customerReports;
+        ReportDTO reportDTO = new ReportDTO();
+        customerReports = repository.getCustomerReportById(customerId);
+        reportDTO.setReportList(customerReports);
+        Event event = new Event(CUSTOMER_REPORT_PROVIDED, new Object[] { reportDTO, correlationId });
+        queue.publish(event);
         }
-    }
 
     public void handleMerchantReportRequested(Event ev) {
         var merchantId = ev.getArgument(0, String.class);
-        List<MerchantPayment> merchantReports = repository.getMerchantReportById(merchantId);
+        var correlationId = ev.getArgument(1, CorrelationId.class);
+        List<MerchantPayment> merchantReports = null;
         MerchantReportDTO reportDTO = new MerchantReportDTO();
+        merchantReports = repository.getMerchantReportById(merchantId);
         reportDTO.setMerchantReportList(merchantReports);
-        Event event = new Event(MERCHANT_REPORT_PROVIDED, new Object[] { reportDTO });
+        Event event = new Event(MERCHANT_REPORT_PROVIDED, new Object[] { reportDTO, correlationId });
         queue.publish(event);
-
     }
 
     public void handleManagerReportRequested(Event ev) {
         var correlationId = ev.getArgument(0, CorrelationId.class);
-        List<Payment> managerReports = repository.getManagerReport();
+        List<Payment> managerReports = null;
         ReportDTO reportDTO = new ReportDTO();
+        managerReports = repository.getManagerReport();
         reportDTO.setReportList(managerReports);
-        Event event = new Event(MANAGER_REPORT_PROVIDED, new Object[] { reportDTO });
+        Event event = new Event(MANAGER_REPORT_PROVIDED, new Object[] { reportDTO, correlationId });
         queue.publish(event);
     }
-
-
-
 }

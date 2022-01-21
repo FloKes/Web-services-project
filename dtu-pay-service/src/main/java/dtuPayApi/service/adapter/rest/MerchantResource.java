@@ -1,11 +1,15 @@
 package dtuPayApi.service.adapter.rest;
 
 import dtuPayApi.service.dtos.AccountDTO;
+import dtuPayApi.service.dtos.MerchantReportDTO;
 import dtuPayApi.service.dtos.PaymentDTO;
+import dtuPayApi.service.dtos.ReportDTO;
 import dtuPayApi.service.factories.AccountFactory;
 import dtuPayApi.service.factories.PaymentFactory;
+import dtuPayApi.service.factories.ReportFactory;
 import dtuPayApi.service.services.AccountService;
 import dtuPayApi.service.services.PaymentService;
+import dtuPayApi.service.services.ReportService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -17,6 +21,7 @@ import java.net.URISyntaxException;
 public class MerchantResource {
     AccountService accountService = new AccountFactory().getService();
     PaymentService paymentService = new PaymentFactory().getService();
+    ReportService reportService = new ReportFactory().getService();
 
     @Path("/accounts")
     @POST
@@ -45,5 +50,14 @@ public class MerchantResource {
 
         return returnedPaymentDTO.getErrorDescription() == null ? Response.created(new URI("/payments/" + returnedPaymentDTO.getPaymentId())).build()
                 : Response.status(Response.Status.BAD_REQUEST).entity(returnedPaymentDTO.getErrorDescription()).build();
+    }
+
+    @Path("/reports/{merchantId}")
+    @GET
+    @Produces("application/json")
+    public Response requestCustomerReport(@PathParam("merchantId") String merchantId) throws URISyntaxException {
+        var reportDTO = reportService.requestMerchantReport(merchantId);
+        return reportDTO.getMerchantReportList().size() == 0 ? Response.status(Response.Status.NOT_FOUND).entity(reportDTO).build()
+                : Response.created(new URI("merchant/reports/" + merchantId)).entity(reportDTO).build();
     }
 }

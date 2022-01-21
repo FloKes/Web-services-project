@@ -2,6 +2,7 @@ package mappers;
 
 import dtos.BankAccountRequestDTO;
 import dtos.PaymentDTO;
+import dtos.PaymentReportDTO;
 import dtos.TokenValidationDTO;
 import domain.Payment;
 
@@ -12,6 +13,14 @@ public class Mapper {
         paymentDTO.setCustomerToken(payment.getCustomerToken());
         paymentDTO.setMerchantId(payment.getMerchantId());
         paymentDTO.setErrorDescription(payment.getDescription());
+    }
+
+    public static void mapPaymentToPaymentForReportDTO(Payment payment, PaymentReportDTO paymentDTO){
+        paymentDTO.setAmount(payment.getAmount());
+        paymentDTO.setPaymentId(payment.getPaymentId());
+        paymentDTO.setTokenId(payment.getCustomerToken());
+        paymentDTO.setMerchantId(payment.getMerchantId());
+        paymentDTO.setDescription(payment.getDescription());
     }
 
     public static void mapPaymentDTOToPayment(PaymentDTO paymentDTO, Payment payment){

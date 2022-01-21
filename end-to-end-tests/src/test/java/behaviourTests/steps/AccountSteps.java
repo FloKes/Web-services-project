@@ -6,6 +6,7 @@ import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.jupiter.api.AfterEach;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -171,6 +172,12 @@ public class AccountSteps {
         for (String id : accountIds) {
             //TODO we should diferrentiate between customers and merchants in account-service
             service.deleteCustomerAccount(id);
+        }
+        if (response1 != null) {
+            response1.close();
+        }
+        if (response2 != null) {
+            response2.close();
         }
     }
     @After

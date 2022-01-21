@@ -19,46 +19,47 @@ public class ReportRepository {
         this.managerReport = new ArrayList<>();
     }
 
-    public void addPaymentToCustomerList(String id, Payment payment){
-        if(customerReport.containsKey(id)){
+    public void addPaymentToCustomerList(String id, Payment payment) {
+        if (customerReport.containsKey(id)) {
             customerReport.get(id).add(payment);
-        }
-        else {
+        } else {
             List<Payment> payments = new ArrayList<>();
             payments.add(payment);
             customerReport.put(id, payments);
         }
     }
 
-    public void addPaymentToMerchantList(String id, MerchantPayment payment){
+    public void addPaymentToMerchantList(String id, MerchantPayment payment) {
         System.out.println(id);
-        if(merchantReport.containsKey(id)){
+        if (merchantReport.containsKey(id)) {
             merchantReport.get(id).add(payment);
-        }
-        else {
+        } else {
             List<MerchantPayment> payments = new ArrayList<>();
             payments.add(payment);
             merchantReport.put(id, payments);
         }
     }
 
-    public void addPaymentToManagerList(Payment payment){
+    public void addPaymentToManagerList(Payment payment) {
         managerReport.add(payment);
     }
 
-    public List<Payment> getCustomerReportById(String id) throws Exception {
-        if(customerReport.containsKey(id)){
+    public List<Payment> getCustomerReportById(String id) {
+        if (customerReport.containsKey(id)) {
             return customerReport.get(id);
         }
-        else throw new Exception();
+        return new ArrayList<>();
     }
 
     public List<MerchantPayment> getMerchantReportById(String id) {
-        return merchantReport.get(id);
+        if (merchantReport.containsKey(id)) {
+            return merchantReport.get(id);
+        }
+        return new ArrayList<>();
     }
 
     public List<Payment> getManagerReport() {
         return managerReport;
     }
-
 }
+

@@ -2,8 +2,10 @@ package dtuPayApi.service.adapter.rest;
 
 import dtuPayApi.service.dtos.AccountDTO;
 import dtuPayApi.service.factories.AccountFactory;
+import dtuPayApi.service.factories.ReportFactory;
 import dtuPayApi.service.factories.TokenFactory;
 import dtuPayApi.service.services.AccountService;
+import dtuPayApi.service.services.ReportService;
 import dtuPayApi.service.services.TokenService;
 
 import javax.ws.rs.*;
@@ -16,6 +18,7 @@ import java.net.URISyntaxException;
 public class CustomerResource {
     AccountService accountService = new AccountFactory().getService();
     TokenService tokenService = new TokenFactory().getService();
+    ReportService reportService = new ReportFactory().getService();
 
     @Path("/accounts")
     @POST
@@ -59,5 +62,14 @@ public class CustomerResource {
                 .entity(tokenIdDTO)
                 .build();
 //        return tokenIdDTO;
+    }
+
+    @Path("/reports/{customerId}")
+    @GET
+    @Produces("application/json")
+    public Response requestCustomerReport(@PathParam("customerId") String customerId) throws URISyntaxException {
+        var reportDTO = reportService.requestCustomerReport(customerId);
+        return reportDTO.getReportList().size() == 0 ? Response.status(Response.Status.NOT_FOUND).entity(reportDTO).build()
+                : Response.created(new URI("customer/reports/" + customerId)).entity(reportDTO).build();
     }
 }

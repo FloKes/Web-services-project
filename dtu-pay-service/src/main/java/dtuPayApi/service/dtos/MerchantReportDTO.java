@@ -1,6 +1,7 @@
-package DTOs;
+package dtuPayApi.service.dtos;
 
-import domain.MerchantPayment;
+
+import dtuPayApi.service.MerchantPayment;
 import lombok.Data;
 
 import java.io.Serializable;
