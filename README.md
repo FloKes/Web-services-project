@@ -29,29 +29,29 @@ example, you should see something similar to the following:
 ```shell
 $ java --version
 java 11.0.13 2021-01-19
-Java(TM) SE Runtime Environment
-Java HotSpot(TM) 64-Bit Server VM
+Java(TM) SE Runtime Environment (build 11.0.13+8-Ubuntu-0ubuntu1.20.04)
+Java HotSpot(TM) 64-Bit Server VM (build 11.0.13+8-Ubuntu-0ubuntu1.20.04, mixed mode, sharing)
 ```
 
 #### Installing Maven
 
-You will need [Maven](https://maven.apache.org/download.cgi) ( >=version 3.9.4 ). To check
+You will need [Maven](https://maven.apache.org/download.cgi) ( >=version 3.6.3 ). To check
 whether it's already installed on a UNIX-like system, open up a terminal
 window (e.g. Terminal on OS X) and type `mvn --version` at the command prompt. For
 example, you should see something similar to the following:
 
 ```shell
 $ mvn --version
-Apache Maven 3.8.4 (9b656c72d54e5bacbed989b64718c159fe39b537)
-Maven home: /usr/local/Cellar/maven/3.8.4/libexec
-Java version: 15.0.2, vendor: Oracle Corporation, runtime: /Library/Java/JavaVirtualMachines/jdk-15.0.2.jdk/Contents/Home
+Apache Maven 3.6.3
+Maven home: /usr/local/Cellar/maven/3.6.3/libexec
+Java version: 11.0.13, vendor: Oracle Corporation, runtime: /Library/Java/JavaVirtualMachines/jdk-11.0.13.jdk/Contents/Home
 Default locale: en_CN, platform encoding: UTF-8
 OS name: "mac os x", version: "10.15.7", arch: "x86_64", family: "mac"
 ```
 
 #### Installing Docker
 
-[Get Docker](https://docs.docker.com/get-docker/)
+[Get Docker](https://docs.docker.com/get-docker/) (version 20.10.7, build 20.10.7-0ubuntu5~20.04.2)
 
 #### Installing Jenkins
 
