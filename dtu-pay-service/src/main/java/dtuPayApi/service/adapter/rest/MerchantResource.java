@@ -35,7 +35,6 @@ public class MerchantResource {
 
     @Path("/accounts/{accountId}")
     @DELETE
-//    @Produces(MediaType.APPLICATION_JSON) //TODO: This is not needed here
     public Response deleteAccount(@PathParam("accountId") String accountId) throws URISyntaxException {
         var accountIdProvided = accountService.deleteAccount(accountId);
         return accountIdProvided.equals(accountId) ? Response.noContent().build()

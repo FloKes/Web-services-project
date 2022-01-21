@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * @author Josephine
+ */
 @Data
 public class Account implements Serializable {
     private static final long serialVersionUID = 9024242488284806610L;
@@ -22,12 +25,10 @@ public class Account implements Serializable {
         return firstname != null && firstname.equals(c.getFirstname()) &&
                 lastname != null && lastname.equals(c.getLastname()) &&
                 cpr != null && cpr.equals(c.getCpr()) &&
-                //accountId != null && accountId.equals(c.getAccountId()) && //TODO: figure out if accountid should be here
                 bankAccount != null && bankAccount.equals(c.getBankAccount()) ||
                 firstname == null && c.getFirstname() == null &&
                         lastname == null && c.getLastname() == null &&
                         cpr == null && c.getCpr() == null &&
-                        //accountId == null && c.getAccountId() == null && //TODO: figure out if accountid should be here
                         bankAccount == null && c.getBankAccount() == null;
     }
 

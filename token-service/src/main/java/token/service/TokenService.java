@@ -10,7 +10,6 @@ import static java.util.stream.Collectors.groupingBy;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class TokenService {
     private MessageQueue queue;
@@ -29,9 +28,7 @@ public class TokenService {
     public static final String ACCOUNT_CHECK_RESULT_PROVIDED = "AccountCheckResultProvided";
 
     private Map<String, Token> tokenList;
-    private List<String> tempTokenIdList;
     private Map<CorrelationId, CompletableFuture<Boolean>> pendingAccountChecks; // payments waiting for token validation, <correlationId, payment>
-    private CompletableFuture<Boolean> accountCheckResult;
 
     public TokenService(MessageQueue q, TokenRepository repository) {
         this.queue = q;
@@ -45,75 +42,80 @@ public class TokenService {
     }
 
 
+    /**
+     *
+     * @author Tamas
+     */
     public TokenIdDTO createToken(String customerId) throws Exception {
-        System.out.println("Token service customerId: " + customerId);
         var tokenIdList = repository.getTokenIdList(customerId);
         TokenIdDTO tokenIdDTO = new TokenIdDTO();
         tokenIdDTO.setTokenIdList(tokenIdList);
-        System.out.println("Service list size: " + tokenIdList.size());
         return tokenIdDTO;
     }
 
-    public TokenIdDTO createArbitraryToken(String customerId, int amountOfTokens) throws Exception {
-        System.out.println("Token service customerId: " + customerId);
-        var tokenIdList = repository.getArbitraryAmuntOfTokenIdList(customerId, amountOfTokens);
+    /**
+     *
+     * @author Tamas
+     */
+    public TokenIdDTO createArbitraryNumberOfTokens(String customerId, int amountOfTokens) throws Exception {
+        var tokenIdList = repository.getArbitraryAmountOfTokenIdList(customerId, amountOfTokens);
         TokenIdDTO tokenIdDTO = new TokenIdDTO();
         tokenIdDTO.setTokenIdList(tokenIdList);
-        System.out.println("Service list size: " + tokenIdList.size());
         return tokenIdDTO;
     }
 
+    /**
+     *
+     * @author Tamas
+     */
     public boolean checkToken(String providedTokenID){
         return repository.checkToken(providedTokenID);
     }
 
+    /**
+     *
+     * @author Tamas
+     */
     public void deleteToken(String tokenID) throws Exception {
         repository.deleteToken(tokenID);
     }
 
+    /**
+     *
+     * @author Bingkun
+     */
     private String getCustomerIdByTokenId(String tokenId) throws Exception{
         return repository.getCustomerIdByTokenId(tokenId);
     }
 
-    public Map<String, Token> getTokenList() {
-        return tokenList;
-    }
 
-    public List<String> getTempTokenIdList(){
-        return tempTokenIdList;
-    }
-
-
-//   //TODO make it unable to create new tokens if no such user is registered
+    /**
+     *
+     * @author Tamas
+     */
     public void handleTokenCreationRequested(Event ev) {
         var customerId = ev.getArgument(0, String.class);
         var correlationId = ev.getArgument(1, CorrelationId.class);
 
-        var tokenAmount = 0;
+        var requestedTokenAmount = 0;
         try {
-            tokenAmount= ev.getArgument(2, int.class );
+            requestedTokenAmount= ev.getArgument(2, int.class );
         } catch (Exception e) {
-            System.out.println("no arbitrary token amount argument");
         }
-
-
-
 
         CompletableFuture<Boolean> accountCheckResult = new CompletableFuture<>();
         var correlationIdCheckAccount = CorrelationId.randomId();
-
         pendingAccountChecks.put(correlationIdCheckAccount, accountCheckResult);
-        Event eventAccountCheck = new Event(ACCOUNT_CHECK_REQUESTED, new Object[]{customerId, correlationIdCheckAccount});
 
+        Event eventAccountCheck = new Event(ACCOUNT_CHECK_REQUESTED, new Object[]{customerId, correlationIdCheckAccount});
         queue.publish(eventAccountCheck);
 
+        // We wait to receive a confirmation that the account is registered with DTU Pay
         var result = accountCheckResult.join();
-
 
         TokenIdDTO tokenIdDTO = new TokenIdDTO();
         tokenIdDTO.setTokenIdList(new ArrayList<>());
 
-        System.out.println("Customer id: " + customerId + ", exists: " + result);
         if (!result){
             tokenIdDTO.setTokenIdList(new ArrayList<>());
             Event eventTokenProvided = new Event(TOKEN_PROVIDED, new Object[] { tokenIdDTO, correlationId });
@@ -122,10 +124,10 @@ public class TokenService {
         }
 
         try {
-            if ( tokenAmount == 0 ) { // equivalent to default value 6
+            if ( requestedTokenAmount == 0 ) { // equivalent to default value 6
                 tokenIdDTO = createToken(customerId);
             }else {
-                tokenIdDTO = createArbitraryToken(customerId, tokenAmount);
+                tokenIdDTO = createArbitraryNumberOfTokens(customerId, requestedTokenAmount);
             }
         }
         catch (Exception e){
@@ -135,6 +137,10 @@ public class TokenService {
         queue.publish(eventTokenProvided);
     }
 
+    /**
+     *
+     * @author Bence
+     */
     public void handleTokenValidRequested(Event ev) {
         var tokenValidationDTO = ev.getArgument(0, TokenValidationDTO.class);
         var tokenID = tokenValidationDTO.getCustomerToken();

@@ -27,12 +27,6 @@ public class ReportService {
     public static final String MERCHANT_REPORT_PROVIDED = "MerchantReportProvided";
     public static final String MANAGER_REPORT_PROVIDED = "ManagerReportProvided";
 
-    // Event error
-    public static final String REQUEST_CUSTOMER_REPORT_ERROR = "RequestCustomerReportErrorProvided";
-    public static final String REQUEST_MERCHANT_REPORT_ERROR = "RequestMerchantReportErrorProvided";
-    public static final String REQUEST_MANAGER_REPORT_ERROR = "RequestManagerReportErrorProvided";
-
-
     public ReportService(MessageQueue q, ReportRepository repository) {
         this.queue = q;
         this.repository = repository;
@@ -43,6 +37,11 @@ public class ReportService {
 
     }
 
+
+    /**
+     *
+     * @author Josephine
+     */
     public void handlePaymentSucceeded(Event ev) {
         var paymentReportDTO = ev.getArgument(0, PaymentReportDTO.class);
         Payment payment = new Payment();
@@ -54,6 +53,10 @@ public class ReportService {
         repository.addPaymentToManagerList(payment);
     }
 
+    /**
+     *
+     * @author Gunn
+     */
     public void handleCustomerReportRequested(Event ev) {
         var customerId = ev.getArgument(0, String.class);
         var correlationId = ev.getArgument(1, CorrelationId.class);
@@ -65,6 +68,10 @@ public class ReportService {
         queue.publish(event);
         }
 
+    /**
+     *
+     * @author Josephine
+     */
     public void handleMerchantReportRequested(Event ev) {
         var merchantId = ev.getArgument(0, String.class);
         var correlationId = ev.getArgument(1, CorrelationId.class);
@@ -76,6 +83,10 @@ public class ReportService {
         queue.publish(event);
     }
 
+    /**
+     *
+     * @author Gunn
+     */
     public void handleManagerReportRequested(Event ev) {
         var correlationId = ev.getArgument(0, CorrelationId.class);
         List<Payment> managerReports = null;

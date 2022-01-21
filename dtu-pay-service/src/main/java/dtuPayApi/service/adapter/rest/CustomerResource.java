@@ -32,24 +32,12 @@ public class CustomerResource {
 
     @Path("/accounts/{accountId}")
     @DELETE
-    //TODO: stops if account doesn't exist
-    public Response deleteAccount(@PathParam("accountId") String accountId) throws URISyntaxException {
+    public Response deleteAccount(@PathParam("accountId") String accountId){
         var accountIdProvided = accountService.deleteAccount(accountId);
         return accountIdProvided.equals(accountId) ? Response.noContent().build()
                 : Response.status(Response.Status.CONFLICT).entity(accountId).build();
     }
 
-//    @Path("/tokens/{customerId}/tokens")
-//    @GET
-//    @Produces("application/json")
-//    public Response requestTokens(@PathParam("customerId") String customerId) throws URISyntaxException {
-//        System.out.println("Facade customer id: " + customerId);
-//        var tokenIdDTO = tokenService.requestTokenId(customerId);
-//        return Response.status(Response.Status.OK)
-//                .entity(tokenIdDTO)
-//                .build();
-////        return tokenIdDTO;
-//    }
 
     @Path("/tokens/{customerId}/tokens/{tokenAmount}")
     @GET
@@ -61,7 +49,6 @@ public class CustomerResource {
         return Response.status(Response.Status.OK)
                 .entity(tokenIdDTO)
                 .build();
-//        return tokenIdDTO;
     }
 
     @Path("/reports/{customerId}")

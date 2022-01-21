@@ -4,6 +4,10 @@ import DTOs.PaymentReportDTO;
 import domain.MerchantPayment;
 import domain.Payment;
 
+/**
+ *
+ * @author Gunn
+ */
 public class Mapper {
 
     public static void PaymentReportDTOtoPaymentMapper(PaymentReportDTO paymentReportDTO, Payment payment) {

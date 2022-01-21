@@ -9,6 +9,10 @@ import lombok.Data;
 
 
 
+/**
+ *
+ * @author Tamas
+ */
 //@XmlRootElement // Needed for XML serialization and deserialization
 @Data // Automatic getter and setters and equals etc
 @AllArgsConstructor

@@ -19,6 +19,11 @@ public class ReportRepository {
         this.managerReport = new ArrayList<>();
     }
 
+
+    /**
+     *
+     * @author Gunn
+     */
     public void addPaymentToCustomerList(String id, Payment payment) {
         if (customerReport.containsKey(id)) {
             customerReport.get(id).add(payment);
@@ -29,6 +34,10 @@ public class ReportRepository {
         }
     }
 
+    /**
+     *
+     * @author Josephine
+     */
     public void addPaymentToMerchantList(String id, MerchantPayment payment) {
         System.out.println(id);
         if (merchantReport.containsKey(id)) {
@@ -40,10 +49,18 @@ public class ReportRepository {
         }
     }
 
+    /**
+     *
+     * @author Josephine
+     */
     public void addPaymentToManagerList(Payment payment) {
         managerReport.add(payment);
     }
 
+    /**
+     *
+     * @author Gunn
+     */
     public List<Payment> getCustomerReportById(String id) {
         if (customerReport.containsKey(id)) {
             return customerReport.get(id);
@@ -51,6 +68,10 @@ public class ReportRepository {
         return new ArrayList<>();
     }
 
+    /**
+     *
+     * @author Josephine
+     */
     public List<MerchantPayment> getMerchantReportById(String id) {
         if (merchantReport.containsKey(id)) {
             return merchantReport.get(id);
@@ -58,6 +79,10 @@ public class ReportRepository {
         return new ArrayList<>();
     }
 
+    /**
+     *
+     * @author Gunn
+     */
     public List<Payment> getManagerReport() {
         return managerReport;
     }

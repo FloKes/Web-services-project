@@ -2,6 +2,9 @@ package account.service.dtos;
 
 import account.service.domain.Account;
 
+/**
+ * @author Gunn
+ */
 public class Mapper {
     public static void mapAccountToDTO(Account account, AccountDTO accountDTO) {
         accountDTO.setAccountId(account.getAccountId());

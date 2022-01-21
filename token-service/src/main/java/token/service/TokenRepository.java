@@ -19,6 +19,10 @@ public class TokenRepository {
         this.tokenList = new HashMap<>();
     }
 
+    /**
+     *
+     * @author Bence
+     */
     public List<String> getTokenIdList(String customerId) throws Exception {
         if (customerId.length() == 0){
             throw new Exception("Customer id is empty");
@@ -42,7 +46,11 @@ public class TokenRepository {
         }
     }
 
-    public List<String> getArbitraryAmuntOfTokenIdList(String customerId, int amount) throws Exception {
+    /**
+     *
+     * @author Tamas
+     */
+    public List<String> getArbitraryAmountOfTokenIdList(String customerId, int amount) throws Exception {
         if (customerId.length() == 0){
             throw new Exception("Customer id is empty");
         }
@@ -66,10 +74,13 @@ public class TokenRepository {
         }
     }
 
+    /**
+     *
+     * @author Tamas
+     */
     public void deleteToken(String tokenID) throws Exception {
         if ( checkToken( tokenID ) ){
             tokenList.remove(tokenID);
-            System.out.println("deleted: " + tokenID);
         }else {
             throw new Exception ("Token not found");
         }
@@ -98,15 +109,26 @@ public class TokenRepository {
         }
     }
 
+    /**
+     *
+     * @author Florian
+     */
     public int getNumberOfTokensForUser(String userId){
         return tokenList.values().stream().filter(tk -> tk.getUserID().equals(userId)).collect(Collectors.toList()).size();
     }
 
+    /**
+     *
+     * @author Tamas
+     */
     public boolean checkToken(String providedTokenID) {
-        //Check if digital signature is correct?
         return tokenList.containsKey(providedTokenID);
     }
 
+    /**
+     *
+     * @author Bingkun
+     */
     public String getCustomerIdByTokenId(String tokenId) throws Exception{
         if (tokenList.containsKey(tokenId)) {
             return tokenList.get(tokenId).getUserID();

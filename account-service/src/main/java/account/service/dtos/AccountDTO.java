@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * @author Gunn
+ */
 @Data
 public class AccountDTO implements Serializable{
     private static final long serialVersionUID = -1005048725971420371L;

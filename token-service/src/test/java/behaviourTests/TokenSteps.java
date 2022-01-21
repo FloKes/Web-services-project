@@ -22,11 +22,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 public class TokenSteps {
-    public static final String TOKEN_VALIDATION_REQUESTED = "TokenValidationRequested";
-    public static final String TOKEN_CREATION_REQUESTED = "TokenCreationRequested";
     private String customerID;
     private String tokenID;
-    private List<String> tokenIDList;
+    private List<String> tokenIDList = new ArrayList<>();;
     private boolean valid;
     private Exception error;
 
@@ -37,7 +35,6 @@ public class TokenSteps {
     private TokenService service2 = new TokenService(queue, mockRepository);
     private CorrelationId correlationId;
     private CorrelationId correlationAccountCheckId;
-    private Event eventPublishedByQueue;
 
     private List<String> tokenIds = new ArrayList<>();
     private Map<String, CompletableFuture<Event>> accountCheckEventsPublished = new HashMap<>();
@@ -65,18 +62,22 @@ public class TokenSteps {
         }
     };
 
-    @Before
-    public void initList(){
-        tokenIDList = new ArrayList<>();
-        System.out.println("Initial list size: " + tokenIDList.size());
-    }
-
     private TokenService service3 = new TokenService(customQueue, mockRepository);
 
+
+    /**
+     *
+     * @author Bence
+     */
     @Given("The customerID is {string}")
     public void the_customer_id_is(String customerID) {
         this.customerID = customerID;
     }
+
+    /**
+     *
+     * @author Bence
+     */
 
     @When("the token is created")
     public void the_token_is_created() {
@@ -93,6 +94,11 @@ public class TokenSteps {
         }
     }
 
+    /**
+     *
+     * @author Bence
+     */
+
     @Then("tokenID is valid")
     public void token_id_is() {
         System.out.println(this.tokenID);
@@ -100,11 +106,19 @@ public class TokenSteps {
         Assert.assertEquals("5e6050e9-319e-42ec-bc32-132f567452ba".length(), this.tokenID.length());
     }
 
+    /**
+     *
+     * @author Tamas
+     */
     @When("his token is being checked")
     public void his_token_is_being_checked() {
         this.valid = service.checkToken(this.tokenID);
     }
 
+    /**
+     *
+     * @author Tamas
+     */
     @Then("the validation is {string}")
     public void the_result_is_true(String success) {
         String result;
@@ -113,6 +127,10 @@ public class TokenSteps {
         Assert.assertEquals(success, result);
     }
 
+    /**
+     *
+     * @author Tamas
+     */
     @When("his token is being deleted")
     public void his_token_is_being_deleted() {
         try{
@@ -124,6 +142,10 @@ public class TokenSteps {
         }
     }
 
+    /**
+     *
+     * @author Tamas
+     */
     @Then("the token is deleted")
     public void the_token_is_deleted() {
         Assert.assertEquals(false, service.checkToken(this.tokenID));
@@ -132,6 +154,10 @@ public class TokenSteps {
         }
     }
 
+    /**
+     *
+     * @author Bence
+     */
     @Given("he has {int} tokens already")
     public void he_has_tokens(Integer numberOfTokens) {
         try{
@@ -145,6 +171,10 @@ public class TokenSteps {
         }
     }
 
+    /**
+     *
+     * @author Bence
+     */
     @Then("the error message is {string}")
     public void the_message_is(String message) {
         Assert.assertEquals(message, error.getMessage());

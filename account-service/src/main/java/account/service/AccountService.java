@@ -32,18 +32,19 @@ public class AccountService {
         this.queue.addHandler(ACCOUNT_CHECK_REQUESTED, this::handleAccountCheckRequested);
     }
 
+    /**
+     * @author Gunn
+     */
     public void handleAccountRequested(Event ev){
         var account = new Account();
         var accountDTOReceived = ev.getArgument(0, AccountDTO.class);
         var correlationId = ev.getArgument(1, CorrelationId.class);
         Mapper.mapAccountDTOToAccount(accountDTOReceived, account);
-//        System.out.println(account);
         AccountDTO accountDTO = new AccountDTO();
         Mapper.mapAccountToDTO(account, accountDTO);
         try {
             var accountId = accountRepository.createAccount(account);
             accountDTO.setAccountId(accountId);
-            System.out.println("Accoutnservice: " + accountDTO);
             Event event = new Event(ACCOUNT_PROVIDED, new Object[] { accountDTO, correlationId });
             queue.publish(event);
         }
@@ -55,6 +56,9 @@ public class AccountService {
         }
     }
 
+    /**
+     * @author Josephine
+     */
     public void handleGetBankAccountRequested(Event ev) {
         BankAccountRequestDTO bankAccountRequestDTO = ev.getArgument(0, BankAccountRequestDTO.class);
         CorrelationId correlationId = ev.getArgument(1, CorrelationId.class);
@@ -79,7 +83,6 @@ public class AccountService {
     /**
      * @author Florian
      */
-    //TODO add case where user id is empty
     public void handleAccountDeletionRequested(Event ev) {
         var accountId = ev.getArgument(0, String.class);
         CorrelationId correlationId = ev.getArgument(1, CorrelationId.class);
@@ -100,11 +103,6 @@ public class AccountService {
         CorrelationId correlationId = ev.getArgument(1, CorrelationId.class);
         var truth = accountRepository.checkAccountExists(accountId);
         queue.publish(new Event(ACCOUNT_CHECK_RESULT_PROVIDED, new Object[]{truth, correlationId}));
-    }
-
-
-    public void deleteAccount(String id){
-        accountRepository.deleteAccount(id);
     }
 }
 

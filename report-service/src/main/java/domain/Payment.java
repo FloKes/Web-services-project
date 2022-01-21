@@ -4,6 +4,10 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
+/**
+ *
+ * @author Gunn
+ */
 @Data // Automatic getter and setters and equals etc
 public class Payment {
 

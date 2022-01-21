@@ -16,10 +16,6 @@ Feature: Report
     And the payment is added to the manager report
     When a "CustomerReportRequested" event is received for the customer report
     Then the "CustomerReportProvided" event is sent to customer
-    #When a "MerchantReportRequested" event is received for the merchant report
-    #Then the "MerchantReportProvided" event is sent to merchant
-    #When a "ManagerReportRequested" event is received for the manager report
-    #Then the "ManagerReportProvided" event is sent to manager
 
 
   Scenario: Report requested for customer with no payment

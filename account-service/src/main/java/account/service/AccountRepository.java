@@ -17,14 +17,18 @@ public class AccountRepository {
         accounts = new HashMap<String,Account>();
     }
 
+    /**
+     * @author Bingkun
+     */
     private String nextId() {
         id++;
         return Integer.toString(id);
     }
 
+    /**
+     * @author Gunn
+     */
     public String createAccount(Account account) throws Exception {
-//        var existingAccount = accounts.values().stream()
-//                .collect( groupingBy( Token::getUserID, Collectors.counting() ) ).get(customerId);
         var existingAccount = accounts.values().stream().filter(acc -> acc.getCpr().equals(account.getCpr())).findAny();
         if (!existingAccount.isEmpty()) {
             throw new Exception("Account already exists");
@@ -34,15 +38,24 @@ public class AccountRepository {
         return account.getAccountId();
     }
 
+    /**
+     * @author Josephine
+     */
     public Account getAccount(String id) {
         return accounts.get(id);
     }
 
+    /**
+     * @author Josephine
+     */
     public Account deleteAccount(String id){
         return accounts.remove(id);
     }
+
+    /**
+     * @author Gunn
+     */
     public Boolean checkAccountExists(String id){
         return accounts.containsKey(id);
     }
-
 }
